@@ -296,7 +296,7 @@ class SupportTicketController(http.Controller):
         """Displays help page template"""
         return http.request.render("website_support.help_page", {'help_page':help_page})
 
-
+    #work
     @http.route('/support/ticket/process', type="http", auth="public", website=True, csrf=True)
     def support_process_ticket(self, **kwargs):
         """Adds the support ticket to the database and sends out emails to everyone following the support ticket category"""
@@ -318,7 +318,7 @@ class SupportTicketController(http.Controller):
         
         if http.request.env.user.name != "Public user":
             portal_access_key = randint(1000000000,2000000000)
-            new_ticket_id = request.env['website.support.ticket'].sudo().create({'person_name':values['person_name'],'category':values['category'], 'sub_category_id': sub_category, 'email':values['email'], 'description':values['description'], 'subject':values['subject'], 'partner_id':http.request.env.user.partner_id.id, 'attachment': my_attachment, 'attachment_filename': file_name, 'portal_access_key': portal_access_key})
+            new_ticket_id = request.env['website.support.ticket'].sudo().create({'person_name':values['person_name'],'category':values['category'],'tipo_mant_id':values['tipo_mantenimiento'], 'email':values['email'], 'description':values['description'], 'subject':values['subject'], 'partner_id':http.request.env.user.partner_id.id, 'attachment': my_attachment, 'attachment_filename': file_name, 'portal_access_key': portal_access_key})
             
             partner = http.request.env.user.partner_id
             
@@ -339,7 +339,7 @@ class SupportTicketController(http.Controller):
         for ticket_follower in request.env['mail.followers'].sudo().search([('res_model','=','website.support.ticket'), ('res_id','=',new_ticket_id.id)]):
             ticket_follower.unlink()
 
-        if "subcategory" in values:
+        """if "subcategory" in values:
             #Also get the data from the extra fields
             for extra_field in request.env['mantenimiento.tipo.etiquetas'].sudo().search([('wsts_id','=', int(sub_category) )]):
                 if "efield_" + str(extra_field.id) in values:
@@ -347,7 +347,7 @@ class SupportTicketController(http.Controller):
                 else:
                     #All extra fields are required
                     return "Extra field is missing"
-        
+        """
         if 'file' in values:
 
             for c_file in request.httprequest.files.getlist('file'):

@@ -688,7 +688,9 @@ $(document).ready(function() {
                 <div class="col-md-7 col-sm-8">
                     <select class="form-control" id="category" name="category">
                         <t t-foreach="categories" t-as="category">
-                            <option t-attf-value="#{category.id}"><t t-esc="category.name"/></option>
+                            <option t-attf-value="#{category.id}">
+                                <t t-esc="category.name"/>
+                            </option>
                         </t>
                     </select>
                 </div>
@@ -697,9 +699,11 @@ $(document).ready(function() {
             <div name="subcategoy_container" t-attf-class="form-group #{error and 'tipo_mant_id' in error and 'has-error' or ''}">
                 <label class="col-md-3 col-sm-4 control-label" for="tipo_mant_id">TIPO DE MANTENIMIENTO</label>
                 <div class="col-md-7 col-sm-8">
-                    <select class="form-control" name="tipo_mant_id">
+                    <select class="form-control" name="tipo_mantenimiento">
                         <t t-foreach="sub_category" t-as="tipo_mant_id">
-                            <option t-attf-value="#{tipo_mant_id.name}"><t t-esc="tipo_mant_id.name"/></option>
+                            <option t-attf-value="#{tipo_mant_id.id}">
+                                <t t-esc="tipo_mant_id.name"/>
+                            </option>
                         </t>
                     </select>
                 </div>

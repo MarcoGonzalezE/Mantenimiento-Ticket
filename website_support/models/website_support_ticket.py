@@ -21,7 +21,7 @@ class MLStripper(HTMLParser):
 class WebsiteSupportTicket(models.Model):
 
     _name = "website.support.ticket"
-    _description = "Website Support Ticket"
+    _description = "Mantenimiento Ticket"
     _rec_name = "subject"
     _inherit = ['mail.thread','ir.needaction_mixin']
 
@@ -46,6 +46,9 @@ class WebsiteSupportTicket(models.Model):
     def _default_state(self):
         return self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_open')
 
+    def _default_gerencia(self):
+        return self.env['res.users'].search([('name','=','Luz Alvarez')])
+
     
     def _default_priority_id(self):
         default_priority = self.env['website.support.ticket.priority'].search([('sequence','=','1')])
@@ -61,10 +64,10 @@ class WebsiteSupportTicket(models.Model):
     create_user_id = fields.Many2one('res.users', "Creado por")
     priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad")
     partner_id = fields.Many2one('res.partner', string="Supervisor")
-    user_id = fields.Many2one('res.users', string="Gerencia")
+    user_id = fields.Many2one('res.users', default=_default_gerencia, string="Gerencia")
+    email_ger = fields.Char(string="Correo de Gerencia")
     person_name = fields.Char(string="Creado por")
     email = fields.Char(string="Correo")
-    # warehouse = fields.Many2one('website.support.warehouse', string = "Granja")
     support_email = fields.Char(string="Support Email")
     category = fields.Many2one('website.support.ticket.categories', string="Granja", track_visibility='onchange')
     sub_category_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
@@ -108,7 +111,11 @@ class WebsiteSupportTicket(models.Model):
     @api.one
     def _compute_disapprove_url(self):
         self.disapprove_url = "/support/disapprove/" + str(self.id)
-        
+    
+    @api.onchange('user_id')
+    def _email_ger(self):
+        self.email_ger = self.user_id.partner_id.email
+
     @api.onchange('partner_id')
     def _onchange_partner_id(self):      
         self.person_name = self.partner_id.name
@@ -191,20 +198,21 @@ class WebsiteSupportTicket(models.Model):
         if self.state != staff_replied and self.state != customer_closed and self.state != staff_closed:
             self.unattended = True
 
+    #working on it
     @api.multi
     def request_approval(self):
 
         request_message = "Approval is required before we can proceed with this support request, please click the link below to accept<br/>"
-        request_message += '<a href="' + self.approve_url + '">Approve</a><br/>'
-        request_message += '<a href="' + self.disapprove_url + '"' + ">Don't Approve</a><br/>"
+        request_message += '<a href="' + self.approve_url + '">APROBAR</a><br/>'
+        request_message += '<a href="' + self.disapprove_url + '"' + ">NO APROBR</a><br/>"
         
         return {
-            'name': "Request Approval",
+            'name': "Pedir Aprovacion",
             'type': 'ir.actions.act_window',
             'view_type': 'form',
             'view_mode': 'form',
             'res_model': 'website.support.ticket.compose',
-            'context': {'default_ticket_id': self.id, 'default_email': self.email, 'default_subject': self.subject, 'default_approval': True, 'default_body': request_message},
+            'context': {'default_ticket_id': self.id, 'default_email': self.email_ger, 'default_subject': self.subject, 'default_approval': True, 'default_body': request_message},
             'target': 'new'
         }
         
@@ -408,7 +416,7 @@ class WebsiteSupportTicketUsers(models.Model):
 
     _inherit = "res.users"
     
-    cat_user_ids = fields.Many2many('website.support.ticket.categories', string="Category Users")
+    cat_user_ids = fields.Many2many('website.support.ticket.categories', string="Supervisando")
 
 class WebsiteSupportTicketCompose(models.Model):
 
@@ -449,6 +457,7 @@ class WebsiteSupportTicketCompose(models.Model):
             closed_state_mail_template = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_closed')
             closed_state_mail_template.send_mail(self.ticket_id.id, True)
 
+#working on it
 class WebsiteSupportTicketCompose(models.Model):
 
     _name = "website.support.ticket.compose"
@@ -457,6 +466,7 @@ class WebsiteSupportTicketCompose(models.Model):
     approval = fields.Boolean(string="Approval")
     partner_id = fields.Many2one('res.partner', string="Partner", readonly="True")
     email = fields.Char(string="Email", readonly="True")
+    email_ger = fields.Char(string="Correo Gerencia")
     warehouse = fields.Many2one('website.support.warehouse', string="Granja")
     subject = fields.Char(string="Asunto", readonly="True")
     body = fields.Text(string="Message Body")
