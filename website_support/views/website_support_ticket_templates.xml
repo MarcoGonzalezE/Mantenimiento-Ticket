@@ -21,7 +21,7 @@
                     <p>Dear ${object.person_name},</p>
                 % endif
                 <p>We would like to get your feedback on the support</p>
-                <p><a href="_survey_url_">here</a></p>
+                <p><a href="_survey_url_">aqui</a></p>
                 <hr/>
                 <b>Numbero de Reporte:</b> ${object.ticket_number or object.id}<br/>
                 <b>Granja:</b> 
@@ -37,19 +37,19 @@
         </record>
         
         <record id="new_support_ticket_category" model="mail.template">
-            <field name="name">Support Ticket New Ticket (Category)</field>
+            <field name="name">Nueva solicitud de mantenimiento (Granja)</field>
             <field name="model_id" ref="model_website_support_ticket"></field>
             <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>
             <field name="subject">Nueva Solicitud de Mantenimiento para la granja</field>
             <field name="auto_delete" eval="False"/>
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
-                <p>Dear _user_name_,</p>
-                <p>Se ha creado una nueva solicitud de Mantenimiento para la granja: ${object.category.name}</p> 
-                <p>De: ${object.person_name}</p>
+                <p>_user_name_,</p>
+                <p>Se ha creado una nueva solicitud de Mantenimiento</p> 
+                <p>Por: ${object.person_name}</p>
                 <p>GRANJA: ${object.category.name}</p>
-                <p>Asunto: ${object.subject}</p>
-                <p>${object.description|safe}</p>
+                <p>ASUNTO: ${object.subject}</p>
+                <p>DESCRIPCION: ${object.description|safe}</p>
                 <p>Click <a href="_ticket_url_">aqui</a> para la ver la solicitud.</p>
             ]]>
             </field>
@@ -58,15 +58,15 @@
         <record id="support_ticket_user_change" model="mail.template">
             <field name="name">Support Ticket User Change</field>
             <field name="model_id" ref="model_website_support_ticket"></field>
-            <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>            
+            <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>  
             <field name="subject">A Support Ticket has been assigned to you</field>
             <field name="auto_delete" eval="False"/>
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
                 <p>Dear _user_name_,</p>
-                <p>A support ticket has been assigned to you here are the details</p>
+                <p>A support ticket has been assigned to you aqui are the details</p>
                 <hr/>
-                <b>Numero de Reporte:</b> ${object.ticket_number or object.id}<br/>
+                <b>Numero:</b> ${object.ticket_number or object.id}<br/>
                 <b>Granja:</b> 
                 % if object.category.name :
                     ${object.category.name}
@@ -83,7 +83,7 @@
         <record id="new_support_ticket_category_change" model="mail.template">
             <field name="name">Support Ticket Category Change</field>
             <field name="model_id" ref="model_website_support_ticket"></field>
-            <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>            
+            <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>   
             <field name="email_to">${object.email|safe}</field>
             <field name="subject">Your support ticket has been updated</field>
             <field name="auto_delete" eval="False"/>
@@ -105,7 +105,7 @@
             </field>
         </record>
 
-        <record id="support_ticket_closed" model="mail.template">
+        <!--<record id="support_ticket_closed" model="mail.template">
             <field name="name">Support Ticket Closed</field>
             <field name="model_id" ref="model_website_support_ticket"></field>
             <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>
@@ -115,7 +115,7 @@
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
                 <p>Dear ${object.person_name},</p>
-                <p>Your support ticket has been closed by our staff, here is the final comment</p>
+                <p>Your support ticket has been closed by our staff, aqui is the final comment</p>
                 <p>${object.close_comment or ''}</p>
                 <hr/>
                 <b>Ticket Number:</b> ${object.ticket_number or object.id}<br/>
@@ -129,31 +129,31 @@
                 
             ]]>
             </field>
-        </record>
+        </record>-->
 
         <record id="support_ticket_new" model="mail.template">
-            <field name="name">Support Ticket New</field>
+            <field name="name">Nueva Solicitud</field>
             <field name="model_id" ref="model_website_support_ticket"></field>
             <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>
             <field name="email_to">${object.email|safe}</field>
-            <field name="subject">We have received your support ticket '${object.subject}' and will get back to you shortly</field>
+            <field name="subject">Nueva solicitud de mantenimiento '${object.subject}'</field>
             <field name="auto_delete" eval="False"/>
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
                 % if object.person_name :
-                    <p>Dear ${object.person_name},</p>
+                    <p>${object.person_name},</p>
                 % endif
-                <p>Thank you for submitting a support ticket to us, we will get back to your shortly</p>
+                <p>Se ha creado una nueva solicitud de mantenimiento</p>
                 <hr/>
-                <b>View Ticket Online:</b> <a href="/support/portal/ticket/view/${object.portal_access_key}">here</a><br/>
-                <b>Ticket Number:</b> ${object.ticket_number or object.id}<br/>
-                <b>Ticket Category:</b> 
+                <b>Ver solicitud:</b> <a href="/support/portal/ticket/view/${object.portal_access_key}">aqui</a><br/>
+                <b>Numero:</b> ${object.ticket_number or object.id}<br/>
+                <b>Granja:</b> 
                 % if object.category.name :
                     ${object.category.name}
                 % endif
                 <br/>
-                <b>Ticket Description:</b><br/>
-                ${object.description|safe}
+                <b>Tipo de Mantenimiento:</b> ${object.tipo_mant_id.name}<br/>
+                <b>Descripcion:</b><br/> ${object.description|safe}
                 
             ]]>
             </field>
@@ -171,7 +171,7 @@
                 ${object.body|safe}
                 <hr/>
                 % if object.ticket_id.portal_access_key :
-                    <b>View Ticket Online:</b> <a href="/support/portal/ticket/view/${object.ticket_id.portal_access_key}">here</a><br/>
+                    <b>Ver Solicitud:</b> <a href="/support/portal/ticket/view/${object.ticket_id.portal_access_key}">aqui</a><br/>
                 % endif
                 <b>Ticket Number:</b> ${object.ticket_id.id}<br/>
                 <b>Ticket Category:</b> ${object.ticket_id.category.name or ''}
@@ -627,10 +627,11 @@ $(document).ready(function() {
                     <input type="text" class="form-control" name="person_name" required="True" t-attf-value="#{person_name or ''}"/>
                 </div>
             </div>
-            <div name="email_from_container" t-attf-class="form-group #{error and 'email' in error and 'has-error' or ''}">
+            <div name="email_from_container" t-attf-class="form-group #{error and 'email' in error and 'has-error' or ''}" style="visibility:collapse">
                 <label class="col-md-3 col-sm-4 control-label" for="email">CORREO</label>
                 <div class="col-md-7 col-sm-8">
-                    <input type="email" class="form-control" name="email" required="False" t-attf-value="#{email or ''}" t-att-readonly="'readonly' if email else None"/>
+                    <input type="email" class="form-control" name="email" required="False" readonly="True"/>
+                    <!--t-attf-value="#{email or ''}" t-att-readonly="'readonly' if email else None"/> -->
                 </div>
             </div>
 

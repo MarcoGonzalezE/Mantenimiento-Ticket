@@ -21,7 +21,7 @@ class MLStripper(HTMLParser):
 class WebsiteSupportTicket(models.Model):
 
     _name = "website.support.ticket"
-    _description = "Mantenimiento Ticket"
+    _description = "Solicitud de Mantenimiento"
     _rec_name = "subject"
     _inherit = ['mail.thread','ir.needaction_mixin']
 
@@ -64,6 +64,7 @@ class WebsiteSupportTicket(models.Model):
     create_user_id = fields.Many2one('res.users', "Creado por")
     priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad")
     partner_id = fields.Many2one('res.partner', string="Supervisor")
+    supervisor = fields.Many2one('res.partner', string="Supervisor")
     user_id = fields.Many2one('res.users', default=_default_gerencia, string="Gerencia")
     email_ger = fields.Char(string="Correo de Gerencia")
     person_name = fields.Char(string="Creado por")
@@ -76,9 +77,9 @@ class WebsiteSupportTicket(models.Model):
     description = fields.Text(string="Description")
     state = fields.Many2one('website.support.ticket.states', default=_default_state, group_expand='_read_group_state', string="Estado")
     conversation_history = fields.One2many('website.support.ticket.message', 'ticket_id', string="Conversation History")
-    attachment = fields.Binary(string="Attachments")
-    attachment_filename = fields.Char(string="Attachment Filename")
-    attachment_ids = fields.One2many('ir.attachment', 'res_id', domain=[('res_model', '=', 'website.support.ticket')], string="Media Attachments")
+    attachment = fields.Binary(string="Archivos")
+    attachment_filename = fields.Char(string="Archivos Adjuntos")
+    attachment_ids = fields.One2many('ir.attachment', 'res_id', domain=[('res_model', '=', 'website.support.ticket')], string="Adjuntos")
     unattended = fields.Boolean(string="Unattended", compute="_compute_unattend", store="True", help="In 'Open' state or 'Customer Replied' state taken into consideration name changes")
     portal_access_key = fields.Char(string="Portal Access Key")
     ticket_number = fields.Integer(string="Reporte #")
@@ -97,12 +98,18 @@ class WebsiteSupportTicket(models.Model):
     disapprove_url = fields.Char(compute="_compute_disapprove_url", string="Disapprove URL")
 
 
-    #@api.onchange('category')
-    #def _compute_partner(self):
-    #    categories = self.env['website.support.ticket.categories'].search('id','=',self.category.id)
-    #    cat_per_user = categories.cat_user_ids
-    #    for c in cat_per_user:
-    #        self.partner_id = c.id 
+    """ @api.onchange('category')
+    def _compute_partner(self):
+        categories = self.env['website.support.ticket.categories'].search('id','=',self.category.id)
+        cat_per_user = categories.cat_user_ids.partner_id
+        for c in cat_per_user:
+            self.partner_id = c.id """
+
+    @api.onchange('category')
+    def _onchange_supervisor(self):
+        categories = self.env['website.support.ticket.categories'].search('id','=',self.category.id)
+        for c in categories.cat_user_ids.partner_id:
+            self.supervisor = self.c.id
 
     @api.one
     def _compute_approve_url(self):
@@ -112,10 +119,6 @@ class WebsiteSupportTicket(models.Model):
     def _compute_disapprove_url(self):
         self.disapprove_url = "/support/disapprove/" + str(self.id)
     
-    @api.onchange('user_id')
-    def _email_ger(self):
-        self.email_ger = self.user_id.partner_id.email
-
     @api.onchange('partner_id')
     def _onchange_partner_id(self):      
         self.person_name = self.partner_id.name
@@ -184,7 +187,7 @@ class WebsiteSupportTicket(models.Model):
     @api.depends('ticket_number')
     def _compute_ticket_number_display(self):
         if self.ticket_number:
-            self.ticket_number_display = str(self.id) #+ " / " + "{:,}".format( self.ticket_number )
+            self.ticket_number_display = str(self.id) + " / " + "{:,}".format( self.ticket_number ) #Por Borrar
         else:
             self.ticket_number_display = self.id
             
@@ -202,17 +205,17 @@ class WebsiteSupportTicket(models.Model):
     @api.multi
     def request_approval(self):
 
-        request_message = "Approval is required before we can proceed with this support request, please click the link below to accept<br/>"
+        request_message = "Se requiere la aprobación antes de que podamos continuar con esta solicitud<br/>"
         request_message += '<a href="' + self.approve_url + '">APROBAR</a><br/>'
-        request_message += '<a href="' + self.disapprove_url + '"' + ">NO APROBR</a><br/>"
-        
+        request_message += '<a href="' + self.disapprove_url + '"' + ">NO APROBAR</a><br/>"
+        self.email = self.user_id.email
         return {
             'name': "Pedir Aprovacion",
             'type': 'ir.actions.act_window',
             'view_type': 'form',
             'view_mode': 'form',
             'res_model': 'website.support.ticket.compose',
-            'context': {'default_ticket_id': self.id, 'default_email': self.email_ger, 'default_subject': self.subject, 'default_approval': True, 'default_body': request_message},
+            'context': {'default_ticket_id': self.id, 'default_email': self.email, 'default_subject': self.subject, 'default_approval': True, 'default_body': request_message},
             'target': 'new'
         }
         
@@ -438,24 +441,24 @@ class WebsiteSupportTicketCompose(models.Model):
         closed_state = self.env['ir.model.data'].sudo().get_object('website_support', 'website_ticket_state_staff_closed')        
         
         #We record state change manually since it would spam the chatter if every 'Staff Replied' and 'Customer Replied' gets recorded
-        message = "<ul class=\"o_mail_thread_message_tracking\">\n<li>State:<span> " + self.ticket_id.state.name + " </span><b>-></b> " + closed_state.name + " </span></li></ul>"
-        self.ticket_id.message_post(body=message, subject="Ticket Closed by Staff")
+            #message = "<ul class=\"o_mail_thread_message_tracking\">\n<li>State:<span> " + self.ticket_id.state.name + " </span><b>-></b> " + closed_state.name + " </span></li></ul>"
+            #self.ticket_id.message_post(body=message, subject="Ticket Closed by Staff")
 
         self.ticket_id.close_comment = self.message
         self.ticket_id.closed_by_id = self.env.user.id
         self.ticket_id.state = closed_state.id
 
         #Auto send out survey
-        setting_auto_send_survey = self.env['ir.values'].get_default('website.support.settings', 'auto_send_survey')
-        if setting_auto_send_survey:
-            self.ticket_id.send_survey()
+            #setting_auto_send_survey = self.env['ir.values'].get_default('website.support.settings', 'auto_send_survey')
+            #if setting_auto_send_survey:
+            #    self.ticket_id.send_survey()
         
         #(BACK COMPATABILITY) Fail safe if no template is selected
-        closed_state_mail_template = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_staff_closed').mail_template_id
+            #closed_state_mail_template = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_staff_closed').mail_template_id
 
-        if closed_state_mail_template == False:
-            closed_state_mail_template = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_closed')
-            closed_state_mail_template.send_mail(self.ticket_id.id, True)
+            #if closed_state_mail_template == False:
+            #    closed_state_mail_template = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_closed')
+            #    closed_state_mail_template.send_mail(self.ticket_id.id, True)
 
 #working on it
 class WebsiteSupportTicketCompose(models.Model):
@@ -466,7 +469,6 @@ class WebsiteSupportTicketCompose(models.Model):
     approval = fields.Boolean(string="Approval")
     partner_id = fields.Many2one('res.partner', string="Partner", readonly="True")
     email = fields.Char(string="Email", readonly="True")
-    email_ger = fields.Char(string="Correo Gerencia")
     warehouse = fields.Many2one('website.support.warehouse', string="Granja")
     subject = fields.Char(string="Asunto", readonly="True")
     body = fields.Text(string="Message Body")

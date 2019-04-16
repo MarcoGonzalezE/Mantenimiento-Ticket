@@ -9,9 +9,10 @@
       	      <form>
                   <header>
                       <button type="action" name="%(website_support_ticket_compose_action)d" context="{'default_ticket_id': active_id, 'default_partner_id': partner_id, 'default_email':email, 'default_subject':subject}" string="Reply"/>
-                      <button type="object" name="open_close_ticket_wizard" string="Close Ticket"/>
-                      <button type="object" name="send_survey" string="Send Survey"/>
-                      <button type="object" name="request_approval" string="Request Approval"/>
+                      <button type="object" name="open_close_ticket_wizard" string="Cerrar Ticket"/>
+                      <!-- <button type="object" name="send_survey" string="Send Survey"/> -->
+                      <button type="object" name="request_approval" string="Pedir Aprobacion"/>
+                      <button type="object" name="aprovacion" string="Solicitar Aprobacion"/>
                   </header>
       	          <sheet>  
       	              <group>
@@ -20,9 +21,8 @@
       	                  <field name="ticket_number"/>
       	                  <field name="priority_id"/>
       	                  <field name="user_id" readonly="1"/>
-      	                  <field name="partner_id"/>
-                      <!-- <field name="warehouse"/> -->
-          	          <field name="email"/>
+      	                  <field name="supervisor" readonly="1"/>
+          	          <!-- <field name="email"/> -->
           	          <field name="category"/>
                       <field name="tipo_mant_id"/>
           	          <!-- <field name="sub_category_id" domain="[('parent_category_id','=',category)]"/> -->

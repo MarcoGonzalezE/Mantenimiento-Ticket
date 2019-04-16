@@ -330,10 +330,10 @@ class SupportTicketController(http.Controller):
 
             if len(search_partner) > 0:
                 portal_access_key = randint(1000000000,2000000000)
-                new_ticket_id = request.env['website.support.ticket'].sudo().create({'person_name':values['person_name'], 'category':values['category'], 'sub_category_id': sub_category, 'email':values['email'], 'description':values['description'], 'subject':values['subject'], 'attachment': my_attachment, 'attachment_filename': file_name, 'partner_id':search_partner[0].id, 'portal_access_key': portal_access_key})
+                new_ticket_id = request.env['website.support.ticket'].sudo().create({'person_name':values['person_name'], 'category':values['category'], 'tipo_mant_id':values['tipo_mantenimiento'], 'email':values['email'], 'description':values['description'], 'subject':values['subject'], 'attachment': my_attachment, 'attachment_filename': file_name, 'partner_id':search_partner[0].id, 'portal_access_key': portal_access_key})
             else:
                 portal_access_key = randint(1000000000,2000000000)
-                new_ticket_id = request.env['website.support.ticket'].sudo().create({'person_name':values['person_name'], 'category':values['category'], 'sub_category_id': sub_category, 'email':values['email'], 'description':values['description'], 'subject':values['subject'], 'attachment': my_attachment, 'attachment_filename': file_name, 'portal_access_key': portal_access_key})
+                new_ticket_id = request.env['website.support.ticket'].sudo().create({'person_name':values['person_name'], 'category':values['category'], 'tipo_mant_id':values['tipo_mantenimiento'], 'email':values['email'], 'description':values['description'], 'subject':values['subject'], 'attachment': my_attachment, 'attachment_filename': file_name, 'portal_access_key': portal_access_key})
 
         #Remove the Administrator follower
         for ticket_follower in request.env['mail.followers'].sudo().search([('res_model','=','website.support.ticket'), ('res_id','=',new_ticket_id.id)]):
