@@ -3,11 +3,11 @@
     <data noupdate="1">
 
         <record id="no_approval_required" model="website.support.ticket.approval">
-            <field name="name">No necesita aprovacion</field>
+            <field name="name">Sin solicitud de aprobación</field>
         </record>
 
         <record id="awaiting_approval" model="website.support.ticket.approval">
-            <field name="name">Esperando aprovacion</field>
+            <field name="name">Esperando aprobación</field>
         </record>
 
         <record id="approval_accepted" model="website.support.ticket.approval">

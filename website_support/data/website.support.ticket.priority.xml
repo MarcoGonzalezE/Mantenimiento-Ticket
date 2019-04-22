@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-
+        <record id="low" model="website.support.ticket.priority">
+            <field name="name">Sin definir</field>
+            <field name="color">#000000</field>
+        </record>
         <record id="low" model="website.support.ticket.priority">
             <field name="name">Baja</field>
             <field name="color">#000000</field>

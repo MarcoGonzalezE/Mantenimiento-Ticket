@@ -126,7 +126,7 @@ class SupportTicketController(http.Controller):
 
         if support_ticket.support_rating:
             #TODO some security incase they guess the portal key of an incomplete survey
-            return "Survey Already Complete"
+            return "Evaluacion Completada"
         else:
             return http.request.render('website_support.support_ticket_survey_page', {'support_ticket': support_ticket})
 
@@ -143,7 +143,7 @@ class SupportTicketController(http.Controller):
 
         if support_ticket.support_rating:
             #TODO some security incase they guess the portal key of an incomplete survey
-            return "Survey Already Complete"
+            return "Evaluacion Completada"
         else:
             support_ticket.support_rating = values['rating']
             support_ticket.support_comment = values['comment']

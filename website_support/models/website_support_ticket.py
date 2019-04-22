@@ -60,7 +60,7 @@ class WebsiteSupportTicket(models.Model):
         except ValueError:
             return False
 
-    approval_id = fields.Many2one('website.support.ticket.approval', default=_default_approval_id, string="Approval")
+    approval_id = fields.Many2one('website.support.ticket.approval', default=_default_approval_id, string="Estado de aprobación")
     create_user_id = fields.Many2one('res.users', "Creado por")
     priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad")
     partner_id = fields.Many2one('res.partner', string="Supervisor")
@@ -86,10 +86,10 @@ class WebsiteSupportTicket(models.Model):
     ticket_number_display = fields.Char(string="Reporte #", compute="_compute_ticket_number_display")
     ticket_color = fields.Char(related="priority_id.color", string="Ticket Color")
     company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env['res.company']._company_default_get('website.support.ticket') )
-    support_rating = fields.Integer(string="Support Rating")
-    support_comment = fields.Text(string="Support Comment")
-    close_comment = fields.Text(string="Close Comment")
-    close_time = fields.Datetime(string="Close Time")
+    support_rating = fields.Integer(string="Calificacion del Servicio")
+    support_comment = fields.Text(string="Comentarios")
+    close_comment = fields.Text(string="Nota:")
+    close_time = fields.Datetime(string="Fecha de Terminacion:")
     close_date = fields.Date(string="Close Date")
     closed_by_id = fields.Many2one('res.users', string="Closed By")
     time_to_close = fields.Integer(string="Time to close (seconds)")
@@ -205,12 +205,12 @@ class WebsiteSupportTicket(models.Model):
     @api.multi
     def request_approval(self):
 
-        request_message = "Se requiere la aprobación antes de que podamos continuar con esta solicitud<br/>"
+        request_message = "Se requiere la aprobacion antes de que podamos continuar con esta solicitud<br/>"
         request_message += '<a href="' + self.approve_url + '">APROBAR</a><br/>'
         request_message += '<a href="' + self.disapprove_url + '"' + ">NO APROBAR</a><br/>"
         self.email = self.user_id.email
         return {
-            'name': "Pedir Aprovacion",
+            'name': "Pedir aprobación",
             'type': 'ir.actions.act_window',
             'view_type': 'form',
             'view_mode': 'form',
@@ -426,7 +426,7 @@ class WebsiteSupportTicketCompose(models.Model):
     _name = "website.support.ticket.close"
 
     ticket_id = fields.Many2one('website.support.ticket', string="Ticket ID")
-    message = fields.Text(string="Close Message")
+    message = fields.Text(string="Notas:")
 
     def close_ticket(self):
 
@@ -451,7 +451,7 @@ class WebsiteSupportTicketCompose(models.Model):
         #Auto send out survey
             #setting_auto_send_survey = self.env['ir.values'].get_default('website.support.settings', 'auto_send_survey')
             #if setting_auto_send_survey:
-            #    self.ticket_id.send_survey()
+                #self.ticket_id.send_survey()
         
         #(BACK COMPATABILITY) Fail safe if no template is selected
             #closed_state_mail_template = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_staff_closed').mail_template_id
@@ -459,7 +459,7 @@ class WebsiteSupportTicketCompose(models.Model):
             #if closed_state_mail_template == False:
             #    closed_state_mail_template = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_closed')
             #    closed_state_mail_template.send_mail(self.ticket_id.id, True)
-
+            
 #working on it
 class WebsiteSupportTicketCompose(models.Model):
 

@@ -9,10 +9,9 @@
       	      <form>
                   <header>
                       <button type="action" name="%(website_support_ticket_compose_action)d" context="{'default_ticket_id': active_id, 'default_partner_id': partner_id, 'default_email':email, 'default_subject':subject}" string="Reply"/>
-                      <button type="object" name="open_close_ticket_wizard" string="Cerrar Ticket"/>
-                      <!-- <button type="object" name="send_survey" string="Send Survey"/> -->
-                      <button type="object" name="request_approval" string="Pedir Aprobacion"/>
-                      <button type="object" name="aprovacion" string="Solicitar Aprobacion"/>
+                      <button type="object" name="open_close_ticket_wizard" string="Terminar Solicitud" class="btn-primary" attrs="{'invisible' :[('state', '=', 'Terminado')]}"/>
+                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :[('support_rating', '!=', 0)]}" class="btn-primary"/>
+                      <button type="object" name="request_approval" string="Solicitar Aprobacion"/>
                   </header>
       	          <sheet>  
       	              <group>
@@ -27,7 +26,7 @@
                       <field name="tipo_mant_id"/>
           	          <!-- <field name="sub_category_id" domain="[('parent_category_id','=',category)]"/> -->
           	          <field name="state"/>
-          	          <field name="approval_id"/>
+          	          <field name="approval_id" readonly="1"/>
           	          <field name="subject"/>
           	          <field name="attachment" filename="attachment_filename" attrs="{'invisible' :[('attachment', '=', False)]}"/>
           	          <field name="attachment_filename" invisible="True"/>
@@ -44,10 +43,10 @@
                               </tree>
                           </field>
           	          <field name="description" widget="html"/>
-          	          <!-- <field name="support_rating" readonly="1"/> -->
-          	          <!-- <field name="support_comment" readonly="1"/> -->
-          	          <!-- <field name="close_comment"/> -->
-          	          <!-- <field name="close_time"/> -->
+          	          <field name="close_comment"/>
+          	          <field name="close_time" readonly="1"/>                      
+                      <field name="support_rating" readonly="1"/>
+                      <field name="support_comment" readonly="1"/>
           	      </group>
       	          </sheet>
                   <div class="oe_chatter">
@@ -76,6 +75,7 @@
       	          <field name="category"/>                  
                   <field name="priority_id"/>                 
                   <field name="state"/>
+                  <field name="support_rating"/>
       	      </tree>
       	  </field>
       </record>

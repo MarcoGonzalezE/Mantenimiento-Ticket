@@ -9,7 +9,7 @@
       	      <form>
       	          <group>
       	              <field name="ticket_id" invisible="True"/>
-          	      <field name="message"/>
+                      <field name="message"/>
           	  </group>
                   <footer>
                         <button string="Close Ticket" name="close_ticket" type="object" class="btn-primary"/>
