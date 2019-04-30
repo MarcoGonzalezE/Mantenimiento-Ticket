@@ -46,8 +46,8 @@ class WebsiteSupportTicket(models.Model):
     def _default_state(self):
         return self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_open')
 
-    def _default_gerencia(self):
-        return self.env['res.users'].search([('name','=','Luz Alvarez')])
+    """def _default_gerencia(self):
+        return self.env['res.users'].search([('name','=','Luz Alvarez')]) """
 
     
     def _default_priority_id(self):
@@ -63,10 +63,10 @@ class WebsiteSupportTicket(models.Model):
     approval_id = fields.Many2one('website.support.ticket.approval', default=_default_approval_id, string="Estado de aprobación")
     create_user_id = fields.Many2one('res.users', "Creado por")
     priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad")
-    partner_id = fields.Many2one('res.partner', string="Supervisor")
-    supervisor = fields.Many2one('res.partner', string="Supervisor")
-    user_id = fields.Many2one('res.users', default=_default_gerencia, string="Gerencia")
-    email_ger = fields.Char(string="Correo de Gerencia")
+    partner_id = fields.Many2one('res.partner', string="Jefe de Granja")
+    #supervisor = fields.Many2one('res.partner', string="Supervisor")
+    user_id = fields.Many2one('res.partner', string="Asignar")
+    #email_ger = fields.Char(string="Correo de Gerencia")
     person_name = fields.Char(string="Creado por")
     email = fields.Char(string="Correo")
     support_email = fields.Char(string="Support Email")
@@ -74,7 +74,7 @@ class WebsiteSupportTicket(models.Model):
     sub_category_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
     tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
     subject = fields.Char(string="Asunto")
-    description = fields.Text(string="Description")
+    description = fields.Text(string="Descripcion")
     state = fields.Many2one('website.support.ticket.states', default=_default_state, group_expand='_read_group_state', string="Estado")
     conversation_history = fields.One2many('website.support.ticket.message', 'ticket_id', string="Conversation History")
     attachment = fields.Binary(string="Archivos")
@@ -105,12 +105,12 @@ class WebsiteSupportTicket(models.Model):
         for c in cat_per_user:
             self.partner_id = c.id """
 
-    @api.onchange('category')
+    """@api.onchange('category')
     def _onchange_supervisor(self):
         categories = self.env['website.support.ticket.categories'].search('id','=',self.category.id)
         for c in categories.cat_user_ids.partner_id:
-            self.supervisor = self.c.id
-
+            self.supervisor = self.c.id """
+    
     @api.one
     def _compute_approve_url(self):
         self.approve_url = "/support/approve/" + str(self.id)
@@ -121,8 +121,13 @@ class WebsiteSupportTicket(models.Model):
     
     @api.onchange('partner_id')
     def _onchange_partner_id(self):      
-        self.person_name = self.partner_id.name
+        #self.person_name = self.partner_id.name
         self.email = self.partner_id.email
+
+    #Buscar usuario por tipo de mantenimiento
+    #@api.onchange('user_id')
+    #def _onchange_user_id(self):
+    #    self.user_id = self.env['mantenimiento.tipo.users'].search('id', '=', self.mantenimiento.tipo.id)
     
     def message_new(self, msg, custom_values=None):
         """ Create new support ticket upon receiving new email"""
@@ -187,7 +192,7 @@ class WebsiteSupportTicket(models.Model):
     @api.depends('ticket_number')
     def _compute_ticket_number_display(self):
         if self.ticket_number:
-            self.ticket_number_display = str(self.id) + " / " + "{:,}".format( self.ticket_number ) #Por Borrar
+            self.ticket_number_display = str(self.id)# + " / " + "{:,}".format( self.ticket_number ) #Por Borrar
         else:
             self.ticket_number_display = self.id
             
@@ -208,7 +213,7 @@ class WebsiteSupportTicket(models.Model):
         request_message = "Se requiere la aprobacion antes de que podamos continuar con esta solicitud<br/>"
         request_message += '<a href="' + self.approve_url + '">APROBAR</a><br/>'
         request_message += '<a href="' + self.disapprove_url + '"' + ">NO APROBAR</a><br/>"
-        self.email = self.user_id.email
+        self.email = self.partner_id.email
         return {
             'name': "Pedir aprobación",
             'type': 'ir.actions.act_window',
@@ -540,7 +545,8 @@ class MantenimientoTipo(models.Model):
     _order = "sequence asc"
 
     sequence = fields.Integer(string="Sequence")
-    name = fields.Char(required=True, translate=True, string='Tipo de Matenimiento')   
+    name = fields.Char(required=True, translate=True, string='Tipo de Matenimiento')
+    mant_user_ids = fields.Many2many('res.users', string="Personal")   
     #parent_category_id = fields.Many2one('mantenimiento.tipo', required=True, string="Parent Category")
     additional_field_ids = fields.One2many('mantenimiento.tipo.etiquetas', 'wsts_id', string="Adicional")
  
@@ -549,6 +555,14 @@ class MantenimientoTipo(models.Model):
         sequence=self.env['ir.sequence'].next_by_code('mantenimiento.tipo')
         values['sequence']=sequence
         return super(MantenimientoTipo, self).create(values)
+
+class MantenimientoTipoUsers(models.Model):
+
+    _name = "mantenimiento.tipo.users"
+
+    _inherit = "res.users"
+    
+    mant_user_ids = fields.Many2many('website.support.ticket.categories', string="Personal")
 
 
 class MantenimientoTipoEtiquetas(models.Model):

@@ -17,7 +17,7 @@
 
         <record id="moderately" model="website.support.ticket.priority">
             <field name="name">Moderada</field>
-            <field name="color">#FFFF00</field>
+            <field name="color">#FFE100</field>
         </record>
 
         <record id="high" model="website.support.ticket.priority">

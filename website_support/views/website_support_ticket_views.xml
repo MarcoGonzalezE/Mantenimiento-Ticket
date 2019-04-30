@@ -9,45 +9,82 @@
       	      <form>
                   <header>
                       <button type="action" name="%(website_support_ticket_compose_action)d" context="{'default_ticket_id': active_id, 'default_partner_id': partner_id, 'default_email':email, 'default_subject':subject}" string="Reply"/>
-                      <button type="object" name="open_close_ticket_wizard" string="Terminar Solicitud" class="btn-primary" attrs="{'invisible' :[('state', '=', 'Terminado')]}"/>
-                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :[('support_rating', '!=', 0)]}" class="btn-primary"/>
-                      <button type="object" name="request_approval" string="Solicitar Aprobacion"/>
+                      <button type="object" name="open_close_ticket_wizard" string="Terminar Solicitud" class="btn-primary" attrs="{'invisible' :[('close_time', '!=', False)]}"/>
+                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|', ('support_rating', '!=', 0),('close_time', '=', False)]}" class="btn-primary"/>
+<!-- #BOTON PARA LA SOLICITUD DE APROBACION
+                      <button type="object" name="request_approval" string="Solicitar Aprobacion"/> -->
                   </header>
-      	          <sheet>  
-      	              <group>
-      	                  <!-- <field name="create_user_id" invisble="True"/> -->
-                          <field name="person_name"/>
-      	                  <field name="ticket_number"/>
-      	                  <field name="priority_id"/>
-      	                  <field name="user_id" readonly="1"/>
-      	                  <field name="supervisor" readonly="1"/>
-          	          <!-- <field name="email"/> -->
-          	          <field name="category"/>
-                      <field name="tipo_mant_id"/>
-          	          <!-- <field name="sub_category_id" domain="[('parent_category_id','=',category)]"/> -->
-          	          <field name="state"/>
-          	          <field name="approval_id" readonly="1"/>
-          	          <field name="subject"/>
-          	          <field name="attachment" filename="attachment_filename" attrs="{'invisible' :[('attachment', '=', False)]}"/>
-          	          <field name="attachment_filename" invisible="True"/>
-                          <field name="attachment_ids" attrs="{'invisible' :[('attachment_ids', '=', [])]}">
-                              <tree>
-                                  <field name="datas_fname"/>
-                                  <field name="datas"/>
-                              </tree>
-                          </field>
-                          <field name="extra_field_ids" attrs="{'invisible' :[('extra_field_ids', '=', [])]}">
-                              <tree editable="bottom">
-                                  <field name="name"/>
-                                  <field name="value"/>
-                              </tree>
-                          </field>
-          	          <field name="description" widget="html"/>
-          	          <field name="close_comment"/>
-          	          <field name="close_time" readonly="1"/>                      
-                      <field name="support_rating" readonly="1"/>
-                      <field name="support_comment" readonly="1"/>
-          	      </group>
+      	          <sheet>
+                    <div class="oe_title">
+                      <table style="width:100%">
+                        <td><h1>Reporte #<field name="ticket_number_display" readonly="1"/></h1></td>
+                        <td align="right" attrs="{'invisible' :[('person_name', '=', False)]}">Creado por: <strong><field name="person_name" readonly="1"/></strong></td>
+                      </table>                          
+                    </div>
+                    <div class="oe_title">
+                      Asunto<h2><field name="subject"/></h2>
+                    </div>
+                    <group>
+                      <group>
+                        <field name="partner_id"/>                                    
+                        <field name="category"/>
+                        <field name="tipo_mant_id"/>
+                        <field name="description" widget="text"/>
+                        <field name="attachment" filename="attachment_filename" attrs="{'invisible' :[('attachment', '=', False)]}"/>
+                        <field name="attachment_filename" invisible="True"/>
+                        <field name="attachment_ids" attrs="{'invisible' :[('attachment_ids', '=', [])]}">
+                          <tree>
+                            <field name="datas_fname"/>
+                            <field name="datas"/>
+                          </tree>
+                        </field>
+                        <field name="extra_field_ids" attrs="{'invisible' :[('extra_field_ids', '=', [])]}">
+                          <tree editable="bottom">
+                            <field name="name"/>
+                            <field name="value"/>
+                          </tree>
+                        </field>                        
+                      </group>
+                      <group>
+                        <field name="user_id"/>
+                        <!-- <field name="create_user_id" invisble="True"/> -->
+                        <!-- <field name="ticket_number"/> -->
+                        <field name="priority_id"/>
+                        <!--  <field name="user_id" readonly="1"/> -->
+                        <!--  <field name="supervisor" readonly="1"/> -->
+                        <!-- <field name="email"/> -->
+                        <!-- <field name="sub_category_id" domain="[('parent_category_id','=',category)]"/> -->
+                        <field name="state"/>
+                        <field name="approval_id"/>
+                      </group>
+                      <group attrs="{'invisible' :[('close_time', '=', False)]}">
+                        <table style="width:70%">
+                          <tr><td COLSPAN="2"><legend>Terminación</legend></td></tr>
+                          <tr>
+                            <th style="width:20%">Fecha de Terminación: </th>
+                            <td align="left"><field name="close_time" readonly="1"/></td>
+                          </tr>
+                          <tr>
+                            <th style="width:20%">Notas: </th>
+                            <td align="left"><field name="close_comment"/></td>
+                          </tr>
+                        </table>
+                      </group>
+                      <group attrs="{'invisible' :[('close_time', '=', False)]}">
+                        <table style="width:70%">
+                              <tr><td COLSPAN="2"><legend>Evaluación</legend></td></tr>
+                              <tr>
+                                  <th style="width:20%">Calificación</th>
+                                  <td align="left"><field name="support_rating" readonly="1"/></td>
+                              </tr>
+                              <tr>
+                                  <th style="width:20%">Comentarios</th>
+                                  <td align="left"><field name="support_comment" readonly="1"/></td>
+                              </tr>
+                          </table>
+                      </group>
+                    </group>
+                      
       	          </sheet>
                   <div class="oe_chatter">
                       <style>
@@ -69,13 +106,12 @@
       	      <tree colors="black:ticket_color==False">
       	          <!-- <field name="create_user_id" invisble="True"/> -->
       	          <field name="ticket_color" invisible="1"/>
-      	          <field name="ticket_number" string="Numero de Reporte"/>                  
-                  <field name="subject"/>                  
-                  <field name="person_name"/>    	          
+      	          <field name="ticket_number" string="Numero de Reporte"/>             
+                  <field name="subject"/>        	          
       	          <field name="category"/>                  
-                  <field name="priority_id"/>                 
-                  <field name="state"/>
+                  <field name="priority_id"/>                  
                   <field name="support_rating"/>
+                  <field name="state"/>
       	      </tree>
       	  </field>
       </record>

@@ -64,21 +64,23 @@
             <field name="name">Support Ticket User Change</field>
             <field name="model_id" ref="model_website_support_ticket"></field>
             <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>  
-            <field name="subject">A Support Ticket has been assigned to you</field>
+            <field name="subject">Solicitud de mantenimiento asignada</field>
             <field name="auto_delete" eval="False"/>
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
                 <p>Dear _user_name_,</p>
-                <p>A support ticket has been assigned to you aqui are the details</p>
+                <p>Se te ha asignado una solicitud</p>
                 <hr/>
-                <b>Numero:</b> ${object.ticket_number or object.id}<br/>
+                <b>Numero: #</b>${object.ticket_number or object.id}<br/>
                 <b>Granja:</b> 
                 % if object.category.name :
                     ${object.category.name}
                 % endif
                 <br/>
+                <b>Prioridad:</b> ${object.priority_id.name}<br/>
                 <b>Tipo de Mantenimiento:</b> ${object.tipo_mant_id.name}<br/>
-                <b>Descripcion:</b><br/>
+                <b>Asunto:</b> ${object.subject}<br/>
+                <b>Descripción:</b><br/>
                 ${object.description|safe}
                 <p>Click <a href="_ticket_url_">aqui</a> para la ver la solicitud.</p>                
             ]]>
@@ -293,8 +295,7 @@ label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
 <template id="support_ticket_view_list" name="Mis solicitudes de Mantenimiento" page="True">
     <t t-call="website.layout">
         <div class="container">
-
-
+          <div style="align:center">
             <div class="mt16 mb16">
                 <h1 class="text-center">Mis solicitudes</h1>
             </div>
@@ -370,6 +371,7 @@ label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
                 </t>
             </div>
             <div class="col-md-3"></div>
+          </div>
         </div>
         
     </t>
@@ -496,26 +498,37 @@ label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
     </t>
 </template>
 
-<template id="support_help_pages" name="Support Help Pages" page="True">
+<template id="support_help_pages" name="Mantenimiento Solicitudes" page="True">
     <t t-call="website.layout">
-    
         <div class="container">
-            <div class="col-md-12 mt16 mb16">
-                <div class="pull-right">
+            <div align="center">
+                <div class="col-md-12 mt16 mb16">
                     <t t-if="request.env.user.partner_id.name == 'Public user'">
                         <t t-if="setting_allow_user_signup">
                             <a href="/support/account/create">Create Account</a> |
                         </t>
                     </t>
-                    <a href="/support/ticket/submit">Enviar solicitud</a>
+                    <body background="/website_support/static/src/img/granja.jpg"
+                        style="background-repeat: no-repeat;
+                                background-attachment: fixed;
+                                background-position: center;
+                                background-size: cover;">
+                    <button class="btn btn-primary btn-lg">
+                        <a href="/support/ticket/submit" style="color:white">Enviar solicitud</a>
+                    </button>
                     <t t-if="request.env.user.partner_id.name != 'Public user'">
-                        | <a href="/support/ticket/view">Mis Solicitudes</a>
+                        <br/><br/>
+                        <button class="btn btn-primary btn-lg">
+                            <a href="/support/ticket/view" style="color:white">Mis Solicitudes</a>
+                        </button>
                     </t>
                     <t t-if="manager">
                         | <a href="/support/ticket/reporting">Reporting</a>
                     </t>
-                </div>
+                    </body>
+               </div>
             </div>
+        </div>
 
 <script>
 
@@ -536,7 +549,7 @@ $(document).ready(function() {
 
 </script>
 
-            <div class="mt16 mb16">
+          <!--  <div class="mt16 mb16">
                 <h1 class="text-center support-main-title">Help Pages</h1>
                 
                 <div name="search_from_container" t-attf-class="form-group">
@@ -560,11 +573,28 @@ $(document).ready(function() {
                         </t>
                     </div>
                 </t>
-            </div>
+            </div> -->
           
-        </div>
     </t>
 </template>
+
+<!--<template id="footer_mantenimiento" name="Footer Mantenimiento">
+    <t t-call ="website.layout">
+        <xpath expr="//div[@id='footer']" position="replace">
+            <div class="oe_structure" id="footer">
+            <section>
+                <div class="container">
+                    <div class="row">
+                        <img src="website_support/static/description/icon.png"/>
+                        <h1> MANTENIMIENTO </h1>
+                    </div>
+                </div>
+            </section>
+        </div>
+        </xpath>
+ </template>
+-->
+
 
 <template id="content_new_help" inherit_id="website.user_navbar">
     <xpath expr="//div[@id='o_website_add_page_modal']//ul" position="inside">
