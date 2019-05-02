@@ -28,6 +28,7 @@
                       <group>
                         <field name="partner_id"/>                                    
                         <field name="category"/>
+                        <field name="cat_mant_id"/>
                         <field name="tipo_mant_id"/>
                         <field name="description" widget="text"/>
                         <field name="attachment" filename="attachment_filename" attrs="{'invisible' :[('attachment', '=', False)]}"/>
@@ -107,7 +108,8 @@
       	          <!-- <field name="create_user_id" invisble="True"/> -->
       	          <field name="ticket_color" invisible="1"/>
       	          <field name="ticket_number" string="Numero de Reporte"/>             
-                  <field name="subject"/>        	          
+                  <field name="subject"/>
+                  <field name="cat_mant_id"/>        	          
       	          <field name="category"/>                  
                   <field name="priority_id"/>                  
                   <field name="support_rating"/>

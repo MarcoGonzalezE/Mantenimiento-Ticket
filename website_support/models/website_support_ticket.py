@@ -71,7 +71,8 @@ class WebsiteSupportTicket(models.Model):
     email = fields.Char(string="Correo")
     support_email = fields.Char(string="Support Email")
     category = fields.Many2one('website.support.ticket.categories', string="Granja", track_visibility='onchange')
-    sub_category_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
+    #sub_category_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
+    cat_mant_id = fields.Many2one('mantenimiento.categoria', string="Categoria")
     tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
     subject = fields.Char(string="Asunto")
     description = fields.Text(string="Descripcion")
@@ -572,6 +573,21 @@ class MantenimientoTipoEtiquetas(models.Model):
     wsts_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Mantenimiento")
     name = fields.Char(string="Etiqueta")
     type = fields.Selection([('textbox','Texto'), ('polar','Si / No')], default="textbox", string="Tipo")
+
+#CATEGORIA DE MANTENIMIENTO
+class MantenimientoCategoria(models.Model):
+
+    _name = "mantenimiento.categoria"
+    _order = "sequence asc"
+
+    sequence = fields.Integer(string="Sequence")
+    name = fields.Char(required=True, translate=True, string='Categoria Matenimiento')
+    
+    @api.model
+    def create(self, values):
+        sequence=self.env['ir.sequence'].next_by_code('mantenimiento.categoria')
+        values['sequence']=sequence
+        return super(MantenimientoCategoria, self).create(values)
 
 
                         

@@ -189,15 +189,15 @@
             </field>
         </record>        
         
-<template id="support_ticket_survey_page" name="Support Ticket Survey" page="True">
+<template id="support_ticket_survey_page" name="Evaluación del Servicio" page="True">
     <t t-call="website.layout">
         <div class="container">
 
             <div class="mt16 mb16">
-                <h1 class="text-center">Your Feedback</h1>
+                <h1 class="text-center">Tu Evaluación</h1>
             </div>
 
-            <p>Please give us feedback on our support service</p>
+            <p>Por favor evalúa el servicio de mantenimiento</p>
             <blockquote><t t-raw="support_ticket.description"/></blockquote>
 
             <form method="POST" t-attf-action="/support/survey/process/#{support_ticket.portal_access_key}">
@@ -244,12 +244,12 @@ label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
                 </label>
                 
                 <div class="form-group">
-                     <label for="comment">Comment</label>
+                     <label for="comment">Comentarios</label>
                     <textarea class="form-control" rows="5" name="comment"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <button class="btn btn-primary btn-lg">Submit Feedback</button>
+                    <button class="btn btn-primary btn-lg">Enviar</button>
                 </div>
 
             </form>
@@ -510,7 +510,7 @@ label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
                     </t>
                     <body background="/website_support/static/src/img/granja.jpg"
                         style="background-repeat: no-repeat;
-                                background-attachment: fixed;
+                                background-attachment: scroll;
                                 background-position: center;
                                 background-size: cover;">
                     <button class="btn btn-primary btn-lg">
@@ -665,9 +665,12 @@ $(document).ready(function() {
             <section>
                 <div class="container">
                     <div class="row">
-                        <div class="col-md-12">
-                            <h1 class="text-center">Thank You</h1>
-                            <h3 class="text-muted text-center">Thank you for you feedback about our support</h3>
+                        <div align="center">
+                            <img src="/website_support/static/src/img/evalua_env.png"/>
+                        </div>
+                        <div class="col-md-12" style="align:center;">  
+                            <h1 class="text-center">Evaluacion enviada</h1>
+                            <h3 class="text-muted text-center">Gracias por tus comentarios</h3>
                         </div>
                     </div>
                 </div>
@@ -793,6 +796,19 @@ $(document).ready(function() {
                 </div>
             </div>
             <!-- work -->
+            <div name="catmant_container" t-attf-class="form-group #{error and 'cat_mant_id' in error and 'has-error' or ''}">
+                <label class="col-md-3 col-sm-4 control-label" for="cat_mant_id">CATEGORIA DE MANTENIMIENTO</label>
+                <div class="col-md-7 col-md-8">
+                    <select class="form-control" id= "categoria_mantenimiento" name="categoria_mantenimiento">
+                        <t t-foreach="cat_mant" t-as="cat_mant_id">
+                            <option t-attf-value="#{cat_mant_id.id}">
+                                <t t-esc="cat_mant_id.name"/>
+                            </option>
+                        </t>
+                    </select>
+                </div>
+            </div>
+
             <div name="subcategoy_container" t-attf-class="form-group #{error and 'tipo_mant_id' in error and 'has-error' or ''}">
                 <label class="col-md-3 col-sm-4 control-label" for="tipo_mant_id">TIPO DE MANTENIMIENTO</label>
                 <div class="col-md-7 col-sm-8">
