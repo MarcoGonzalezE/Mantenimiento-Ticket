@@ -334,6 +334,7 @@ class WebsiteSupportTicket(models.Model):
         values = notification_template.generate_email(self.id)
         surevey_url = "support/survey/" + str(self.portal_access_key)
         values['body_html'] = values['body_html'].replace("_survey_url_",surevey_url)
+        values['email_to'] = my_user.partner_id.email
         send_mail = self.env['mail.mail'].create(values)
         send_mail.send(True)
 
