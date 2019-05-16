@@ -35,6 +35,7 @@
         'data/website.support.department.role.csv',
         'data/website.support.ticket.approval.xml',
         'data/mantenimiento.tipo.xml',
+        'data/mantenimiento.categoria.xml',
         'security/ir.model.access.csv',
     ],
     'demo': [],

@@ -2,7 +2,7 @@
 <odoo>
     <data noupdate="1">
 
-        <record id="mantenimiento_preventivo" model="mantenimiento.categoria">
+        <record id="mantenimiento_preventivo_" model="mantenimiento.categoria">
             <field name="name">Preventivo</field>
         </record>
 

@@ -9,6 +9,7 @@ from odoo import SUPERUSER_ID
 import logging
 _logger = logging.getLogger(__name__)
 
+
 class MLStripper(HTMLParser):
     def __init__(self):
         self.reset()
@@ -63,14 +64,23 @@ class WebsiteSupportTicket(models.Model):
     approval_id = fields.Many2one('website.support.ticket.approval', default=_default_approval_id, string="Estado de aprobación")
     create_user_id = fields.Many2one('res.users', "Creado por")
     priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad")
+
+    #TODO: Autocompletar este campo al cambiar la categoria
     partner_id = fields.Many2one('res.partner', string="Jefe de Granja")
+
+
     #supervisor = fields.Many2one('res.partner', string="Supervisor")
     user_id = fields.Many2one('res.partner', string="Asignar")
     #email_ger = fields.Char(string="Correo de Gerencia")
     person_name = fields.Char(string="Creado por")
     email = fields.Char(string="Correo")
     support_email = fields.Char(string="Support Email")
+
+
+    #TODO: onchage event
     category = fields.Many2one('website.support.ticket.categories', string="Granja", track_visibility='onchange')
+
+
     #sub_category_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
     cat_mant_id = fields.Many2one('mantenimiento.categoria', string="Categoria")
     tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
@@ -98,13 +108,11 @@ class WebsiteSupportTicket(models.Model):
     approve_url = fields.Char(compute="_compute_approve_url", string="Approve URL")
     disapprove_url = fields.Char(compute="_compute_disapprove_url", string="Disapprove URL")
 
-
-    """ @api.onchange('category')
+    #@Author: Ivan Porras
+    @api.onchange('category')
     def _compute_partner(self):
-        categories = self.env['website.support.ticket.categories'].search('id','=',self.category.id)
-        cat_per_user = categories.cat_user_ids.partner_id
-        for c in cat_per_user:
-            self.partner_id = c.id """
+        categories = self.env['website.support.ticket.categories'].search([('id','=',self.category.id)],limit=1)
+        self.partner_id = self.env['res.partner'].search([('id','=',categories.cat_user_ids.partner_id.id)])
 
     """@api.onchange('category')
     def _onchange_supervisor(self):
@@ -583,12 +591,9 @@ class MantenimientoCategoria(models.Model):
 
     sequence = fields.Integer(string="Sequence")
     name = fields.Char(required=True, translate=True, string='Categoria Matenimiento')
-    
+
     @api.model
     def create(self, values):
         sequence=self.env['ir.sequence'].next_by_code('mantenimiento.categoria')
         values['sequence']=sequence
         return super(MantenimientoCategoria, self).create(values)
-
-
-                        
