@@ -26,9 +26,9 @@
                       Asunto<h2><field name="subject"/></h2>
                     </div>
                     <group>
-                      <group>
-                        <field name="partner_id"/>                                    
+                      <group>                                                           
                         <field name="category"/>
+                        <field name="partner_id"/> 
                         <field name="cat_mant_id"/>
                         <field name="tipo_mant_id"/>
                         <field name="description" widget="text"/>

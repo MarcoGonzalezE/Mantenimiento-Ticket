@@ -49,12 +49,15 @@
             <field name="auto_delete" eval="False"/>
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
-                <p>_user_name_,</p>
-                <p>Se ha creado una nueva solicitud de Mantenimiento</p> 
-                <p>Por: ${object.person_name}</p>
+                <p>_user_name_, SE HA CREADO UNA NUEVA SOLICITUD DE MANTENIMIENTO</p> 
+                <p>HECHA POR: ${object.person_name or my_user}</p>
                 <p>GRANJA: ${object.category.name}</p>
                 <p>ASUNTO: ${object.subject}</p>
+                <p>MANTENIMIENTO: ${object.cat_mant_id.name}</p>
+                <p>CATEGORIA: ${object.tipo_mant_id.name}</p>
+                <p>ADJUNTOS: ${object.tipo_mant_id.name}</p>
                 <p>DESCRIPCION: ${object.description|safe}</p>
+                <p>ESTADO: ${object.approval_id.name}</p>
                 <p>Click <a href="_ticket_url_">aqui</a> para la ver la solicitud.</p>
             ]]>
             </field>
@@ -113,25 +116,26 @@
         </record>
 
         <record id="support_ticket_closed" model="mail.template">
-            <field name="name">Support Ticket Closed</field>
+            <field name="name">Solicitud Terminada</field>
             <field name="model_id" ref="model_website_support_ticket"></field>
             <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>
             <field name="email_to">${object.email|safe}</field>
-            <field name="subject">Your support ticket has been closed</field>
+            <field name="subject">Solicitud de mantenimiento terminada</field>
             <field name="auto_delete" eval="False"/>
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
-                <p>Dear ${object.person_name},</p>
-                <p>Your support ticket has been closed by our staff, aqui is the final comment</p>
+                <p>${object.partner_id}, el reporte de mantenimiento ha sido terminadao, aqui los comentarios finales</p>
                 <p>${object.close_comment or ''}</p>
                 <hr/>
-                <b>Ticket Number:</b> ${object.ticket_number or object.id}<br/>
-                <b>Ticket Category:</b> 
+                <b>Numero:</b> ${object.ticket_number or object.id}<br/>
+                <b>Granja:</b> 
                 % if object.category.name :
                     ${object.category.name}
                 % endif
                 <br/>
-                <b>Ticket Description:</b><br/>
+                <b>Mantenimiento:</b> ${object.cat_mant_id.name or object.id} - ${object.tipo_mant_id.name or object.id} <br/>
+                <b>Fecha de Terminacion:</b> ${object.close_time or object.id}<br/>
+                <b>Notas:</b><br/>
                 ${object.description|safe}
                 
             ]]>
@@ -508,17 +512,60 @@ label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
                             <a href="/support/account/create">Create Account</a> |
                         </t>
                     </t>
+                    <style>
+                        .myButton {
+                        -moz-box-shadow: 0px 10px 14px -7px #3e7327;
+                        -webkit-box-shadow: 0px 10px 14px -7px #3e7327;
+                        box-shadow: 0px 10px 14px -7px #3e7327;
+                        background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #77b55a), color-stop(1, #72b352));
+                        background:-moz-linear-gradient(top, #77b55a 5%, #72b352 100%);
+                        background:-webkit-linear-gradient(top, #77b55a 5%, #72b352 100%);
+                        background:-o-linear-gradient(top, #77b55a 5%, #72b352 100%);
+                        background:-ms-linear-gradient(top, #77b55a 5%, #72b352 100%);
+                        background:linear-gradient(to bottom, #77b55a 5%, #72b352 100%);
+                        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#77b55a', endColorstr='#72b352',GradientType=0);
+                        background-color:#77b55a;
+                        -moz-border-radius:4px;
+                        -webkit-border-radius:4px;
+                        border-radius:4px;
+                        border:1px solid #4b8f29;
+                        display:inline-block;
+                        cursor:pointer;
+                        color:#ffffff;
+                        font-family:Arial;
+                        font-size:28px;
+                        font-weight:bold;
+                        padding:8px 38px;
+                        text-decoration:none;
+                        text-shadow:0px 1px 0px #5b8a3c;
+                        }
+                        .myButton:hover {
+                        background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #72b352), color-stop(1, #77b55a));
+                        background:-moz-linear-gradient(top, #72b352 5%, #77b55a 100%);
+                        background:-webkit-linear-gradient(top, #72b352 5%, #77b55a 100%);
+                        background:-o-linear-gradient(top, #72b352 5%, #77b55a 100%);
+                        background:-ms-linear-gradient(top, #72b352 5%, #77b55a 100%);
+                        background:linear-gradient(to bottom, #72b352 5%, #77b55a 100%);
+                        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#72b352', endColorstr='#77b55a',GradientType=0);
+                        background-color:#72b352;
+                        }
+                        .myButton:active {
+                        position:relative;
+                        top:1px;
+                        }
+
+                    </style>
                     <body background="/website_support/static/src/img/granja.jpg"
                         style="background-repeat: no-repeat;
                                 background-attachment: scroll;
                                 background-position: center;
                                 background-size: cover;">
-                    <button class="btn btn-primary btn-lg">
+                    <button class="myButton">
                         <a href="/support/ticket/submit" style="color:white">Enviar solicitud</a>
                     </button>
                     <t t-if="request.env.user.partner_id.name != 'Public user'">
                         <br/><br/>
-                        <button class="btn btn-primary btn-lg">
+                        <button class="myButton">
                             <a href="/support/ticket/view" style="color:white">Mis Solicitudes</a>
                         </button>
                     </t>

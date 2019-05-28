@@ -45,7 +45,7 @@ class WebsiteSupportTicket(models.Model):
         return states.browse(state_ids)
         
     def _default_state(self):
-        return self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_open')
+        return self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_awaiting_approval')
 
     """def _default_gerencia(self):
         return self.env['res.users'].search([('name','=','Luz Alvarez')]) """
@@ -57,7 +57,7 @@ class WebsiteSupportTicket(models.Model):
 
     def _default_approval_id(self):
         try:
-            return self.env['ir.model.data'].get_object('website_support', 'no_approval_required')
+            return self.env['ir.model.data'].get_object('website_support', 'awaiting_approval')
         except ValueError:
             return False
 
@@ -114,11 +114,11 @@ class WebsiteSupportTicket(models.Model):
         categories = self.env['website.support.ticket.categories'].search([('id','=',self.category.id)],limit=1)
         self.partner_id = self.env['res.partner'].search([('id','=',categories.cat_user_ids.partner_id.id)])
 
-    """@api.onchange('category')
-    def _onchange_supervisor(self):
-        categories = self.env['website.support.ticket.categories'].search('id','=',self.category.id)
-        for c in categories.cat_user_ids.partner_id:
-            self.supervisor = self.c.id """
+    @api.onchange('tipo_mant_id')
+    def _compute_mant_person(self):
+        mant_person = self.env['mantenimiento.tipo'].search([('id','=',self.tipo_mant_id.id)])
+        self.user_id = self.env['res.partner'].search([('id','=',mant_person.mant_user_ids.partner_id.id)])    
+  
     
     @api.one
     def _compute_approve_url(self):
@@ -133,10 +133,6 @@ class WebsiteSupportTicket(models.Model):
         #self.person_name = self.partner_id.name
         self.email = self.partner_id.email
 
-    #Buscar usuario por tipo de mantenimiento
-    #@api.onchange('user_id')
-    #def _onchange_user_id(self):
-    #    self.user_id = self.env['mantenimiento.tipo.users'].search('id', '=', self.mantenimiento.tipo.id)
     
     def message_new(self, msg, custom_values=None):
         """ Create new support ticket upon receiving new email"""
@@ -274,12 +270,12 @@ class WebsiteSupportTicket(models.Model):
                 new_id.partner_id = new_contact.id
                     
         #(BACK COMPATABILITY) Fail safe if no template is selected, future versions will allow disabling email by removing template
-        ticket_open_email_template = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_open').mail_template_id
-        if ticket_open_email_template == False:
-            ticket_open_email_template = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_new')
-            ticket_open_email_template.send_mail(new_id.id, True)
-        else:
-            ticket_open_email_template.send_mail(new_id.id, True)
+        #ticket_open_email_template = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_open').mail_template_id
+        #if ticket_open_email_template == False:
+        #    ticket_open_email_template = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_new')
+        #    ticket_open_email_template.send_mail(new_id.id, True)
+        #else:
+        #    ticket_open_email_template.send_mail(new_id.id, True)
 
         #Send an email out to everyone in the category
         notification_template = self.env['ir.model.data'].sudo().get_object('website_support', 'new_support_ticket_category')
