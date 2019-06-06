@@ -40,6 +40,28 @@
             ]]>
             </field>
         </record>
+
+        <record id="mantenimiento_support" model="mail.template">
+            <field name="name">Nueva solicitud para mantenimiento</field>
+            <field name="model_id" ref="model_website_support_ticket"></field>
+            <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>
+            <field name="subject">Nueva Solicitud para Mantenimiento para la granja</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="built_in" eval="True"/>
+            <field name="body_html"><![CDATA[
+                <p>_user_name_,</p>
+                <p>Se ha creado una nueva solicitud para Mantenimiento</p> 
+                <p>GRANJA: ${object.category.name}</p>
+                <p>CATEGORIA: ${object.cat_mant_id.name}</p>
+                <p>TIPO DE MANTENIMIENTO: ${object.tipo_mant_id.nama}</p>
+                <p>PRIORIDAD: ${object.priority_id.name}</p>
+                <p>ASUNTO: ${object.subject}</p>
+                <p>DESCRIPCION: ${object.description|safe}</p>
+                <p>ESTADO: ${object.approval_id.name}</p>
+                <p>Click <a href="_ticket_url_">aqui</a> para la ver la solicitud.</p>
+            ]]>
+            </field>
+        </record>
         
         <record id="new_support_ticket_category" model="mail.template">
             <field name="name">Nueva solicitud de mantenimiento (Granja)</field>
@@ -49,13 +71,12 @@
             <field name="auto_delete" eval="False"/>
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
-                <p>_user_name_, SE HA CREADO UNA NUEVA SOLICITUD DE MANTENIMIENTO</p> 
-                <p>HECHA POR: ${object.person_name or my_user}</p>
+                <p>_user_name_, se ha creado una nueva solicitud de mantenimiento.</p> 
+                <p>HECHA POR: ${object.person_name or object.my_user}</p>
                 <p>GRANJA: ${object.category.name}</p>
                 <p>ASUNTO: ${object.subject}</p>
                 <p>MANTENIMIENTO: ${object.cat_mant_id.name}</p>
                 <p>CATEGORIA: ${object.tipo_mant_id.name}</p>
-                <p>ADJUNTOS: ${object.tipo_mant_id.name}</p>
                 <p>DESCRIPCION: ${object.description|safe}</p>
                 <p>ESTADO: ${object.approval_id.name}</p>
                 <p>Click <a href="_ticket_url_">aqui</a> para la ver la solicitud.</p>
@@ -90,6 +111,7 @@
             </field>
         </record>
 
+        <!-- CAMBIO DE GRANJA EN LA SOLICITUD 
         <record id="new_support_ticket_category_change" model="mail.template">
             <field name="name">Support Ticket Category Change</field>
             <field name="model_id" ref="model_website_support_ticket"></field>
@@ -113,7 +135,7 @@
                 
             ]]>
             </field>
-        </record>
+        </record> -->
 
         <record id="support_ticket_closed" model="mail.template">
             <field name="name">Solicitud Terminada</field>

@@ -3,13 +3,20 @@
     <data noupdate="1">
 
         <record id="support_group" model="res.groups">
-            <field name="name">Encargado</field>
+            <field name="name">Supervisor</field>
             <field name="category_id" ref="support_application"/>
             <field name="comment">Solo puede usar el sitio web</field>
         </record>
 
         <record id="support_staff" model="res.groups">
-            <field name="name">Supervisor</field>
+            <field name="name">Jefe de Granja</field>
+            <field name="implied_ids" eval="[(4, ref('support_group'))]"/>
+            <field name="category_id" ref="support_application"/>
+            <field name="comment">Puede ver y responder solicitudes, mas no configuracion</field>
+        </record>
+
+        <record id="support_mant" model="res.groups">
+            <field name="name">Mantenimiento</field>
             <field name="implied_ids" eval="[(4, ref('support_group'))]"/>
             <field name="category_id" ref="support_application"/>
             <field name="comment">Puede ver y responder solicitudes, mas no configuracion</field>

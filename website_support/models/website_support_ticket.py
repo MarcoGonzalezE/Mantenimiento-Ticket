@@ -117,7 +117,17 @@ class WebsiteSupportTicket(models.Model):
     @api.onchange('tipo_mant_id')
     def _compute_mant_person(self):
         mant_person = self.env['mantenimiento.tipo'].search([('id','=',self.tipo_mant_id.id)])
-        self.user_id = self.env['res.partner'].search([('id','=',mant_person.mant_user_ids.partner_id.id)])    
+        self.user_id = self.env['res.partner'].search([('id','=',mant_person.mant_user_ids.partner_id.id)])
+
+
+    #NUEVO
+    @api.onchange('approval_id')
+    def _compute_state(self):
+       sol_rechazada = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_approval_rejected')
+       apro_rechazada = self.env['ir.model.data'].get_object('website_support', 'approval_rejected')
+
+       if self.approval_id == 'approval_rejected'
+           self.state = 'website_ticket_state_approval_rejected'   
   
     
     @api.one
@@ -286,11 +296,9 @@ class WebsiteSupportTicket(models.Model):
             values = notification_template.generate_email(new_id.id)
             values['body_html'] = values['body_html'].replace("_ticket_url_", "web#id=" + str(new_id.id) + "&view_type=form&model=website.support.ticket&menu_id=" + str(support_ticket_menu.id) + "&action=" + str(support_ticket_action.id) ).replace("_user_name_",  my_user.partner_id.name)
             #values['body'] = values['body_html']
-            values['email_to'] = my_user.partner_id.email
-                        
+            values['email_to'] = my_user.partner_id.email                        
             send_mail = self.env['mail.mail'].create(values)
-            send_mail.send()
-            
+            send_mail.send()            
             #Remove the message from the chatter since this would bloat the communication history by a lot
             send_mail.mail_message_id.res_id = 0
             
@@ -306,9 +314,9 @@ class WebsiteSupportTicket(models.Model):
                 self.state.mail_template_id.send_mail(self.id, True)
                 
         #Email user if category has changed
-        if 'category' in values:
-            change_category_email = self.env['ir.model.data'].sudo().get_object('website_support', 'new_support_ticket_category_change')
-            change_category_email.send_mail(self.id, True)
+        # if 'category' in values:
+        #     change_category_email = self.env['ir.model.data'].sudo().get_object('website_support', 'new_support_ticket_category_change')
+        #     change_category_email.send_mail(self.id, True)
 
         if 'user_id' in values:
             setting_change_user_email_template_id = self.env['ir.values'].get_default('website.support.settings', 'change_user_email_template_id')
@@ -338,9 +346,22 @@ class WebsiteSupportTicket(models.Model):
         values = notification_template.generate_email(self.id)
         surevey_url = "support/survey/" + str(self.portal_access_key)
         values['body_html'] = values['body_html'].replace("_survey_url_",surevey_url)
-        values['email_to'] = my_user.partner_id.email
+        values['email_to'] = self.partner_id.email
         send_mail = self.env['mail.mail'].create(values)
         send_mail.send(True)
+
+   
+    def send_mantenimiento(self):
+        for my_user in self.ticket_number.tipo_mant_id.mant_user_ids:
+            notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'mantenimiento_support')
+            email_values = notification_mant.generate_email(self.id)
+            email_values['model'] = "website.support.ticket"
+            email_values['res_id'] = self.id            
+            email_values['email_to'] = my_user.partner_id.email
+            email_values['body_html'] = email_values['body_html'].replace("_user_name_", assigned_user.name)
+            email_values['body'] = email_values['body'].replace("_user_name_", assigned_user.name)
+            send_mail = self.env['mail.mail'].create(email_values)
+            send_mail.send() 
 
 class WebsiteSupportTicketApproval(models.Model):
 
@@ -470,13 +491,14 @@ class WebsiteSupportTicketCompose(models.Model):
             #if closed_state_mail_template == False:
             #    closed_state_mail_template = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_closed')
             #    closed_state_mail_template.send_mail(self.ticket_id.id, True)
-            
+
+    
 #working on it
 class WebsiteSupportTicketCompose(models.Model):
 
     _name = "website.support.ticket.compose"
 
-    ticket_id = fields.Many2one('website.support.ticket', string='Ticket ID')
+    ticket_id = fields.Many2one('website.support.ticket', string='Reporte')
     approval = fields.Boolean(string="Approval")
     partner_id = fields.Many2one('res.partner', string="Partner", readonly="True")
     email = fields.Char(string="Email", readonly="True")
@@ -529,6 +551,19 @@ class WebsiteSupportTicketCompose(models.Model):
 	    #Change the ticket state to staff replied        
 	    staff_replied = self.env['ir.model.data'].get_object('website_support','website_ticket_state_staff_replied')
 	    self.ticket_id.state = staff_replied.id
+
+    # def send_mantenimiento(self):
+    #     for my_user in ticket_id.tipo_mant_id.mant_user_ids:
+    #         notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'mantenimiento_support')
+    #         email_values = notification_mant.generate_email(self.id)
+    #         email_values['model'] = "website.support.ticket"
+    #         email_values['res_id'] = self.id
+    #         assigned_user = self.env['res.users'].browse(int(values['tipo_mant_id.mant_user_ids']) )
+    #         email_values['email_to'] = assigned_user.partner_id.email
+    #         email_values['body_html'] = email_values['body_html'].replace("_user_name_", assigned_user.name)
+    #         email_values['body'] = email_values['body'].replace("_user_name_", assigned_user.name)
+    #         send_mail = self.env['mail.mail'].create(email_values)
+    #         send_mail.send() 
 
 class WebsiteSupportWarehouse(models.Model):
 

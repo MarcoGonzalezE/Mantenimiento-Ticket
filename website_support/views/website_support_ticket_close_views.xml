@@ -8,12 +8,12 @@
           <field name="arch" type="xml">
       	      <form>
       	          <group>
-      	              <field name="ticket_id" invisible="True"/>
+      	              <field name="ticket_id" readonly="True"/>
                       <field name="message"/>
           	  </group>
                   <footer>
-                        <button string="Close Ticket" name="close_ticket" type="object" class="btn-primary"/>
-                        <button string="Cancel" class="btn-default" special="cancel"/>
+                        <button string="Terminar" name="close_ticket" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-default" special="cancel"/>
                   </footer>
       	      </form>
       	  </field>
