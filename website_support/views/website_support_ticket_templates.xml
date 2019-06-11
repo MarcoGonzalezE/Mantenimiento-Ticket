@@ -18,7 +18,7 @@
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
                 % if object.person_name :
-                    <p>Dear ${object.person_name},</p>
+                    <p>${object.partner_id.name},</p>
                 % endif
                 <p>Solicitud de Mantenimiento terminada, evalua el servicio</p>
                 <p><a href="_survey_url_">aqui</a></p>
@@ -32,7 +32,7 @@
                 <b>Tipo de Mantenimiento:</b> ${object.tipo_mant_id.name}<br/>
                 <b>Asunto:</b> ${object.subject} <br/>
                 <b>Descripcion:</b><br/>
-                ${object.description|safe}
+                ${object.description|safe}<br/>
                 <b>Estado:</b> ${object.state.name} <br/>
                 <b>Fecha de Terminacion:</b> ${object.close_time}<br/>
                 <b>Notas:</b> ${object.close_comment}<br/>
@@ -53,7 +53,7 @@
                 <p>Se ha creado una nueva solicitud para Mantenimiento</p> 
                 <p>GRANJA: ${object.category.name}</p>
                 <p>CATEGORIA: ${object.cat_mant_id.name}</p>
-                <p>TIPO DE MANTENIMIENTO: ${object.tipo_mant_id.nama}</p>
+                <p>TIPO DE MANTENIMIENTO: ${object.tipo_mant_id.name}</p>
                 <p>PRIORIDAD: ${object.priority_id.name}</p>
                 <p>ASUNTO: ${object.subject}</p>
                 <p>DESCRIPCION: ${object.description|safe}</p>
@@ -245,33 +245,33 @@ label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
 }
 </style>
                 <label>
-                    <input type="radio" name="rating" value="5"/>
+                    <input type="radio" name="rating2" value="5"/>
                     <img src="/website_support/static/src/img/5-star.jpg"/>
                 </label>
 
                 <label>
-                    <input type="radio" name="rating" value="4"/>
+                    <input type="radio" name="rating2" value="4"/>
                     <img src="/website_support/static/src/img/4-star.jpg"/>
                 </label>
 
                 <label>
-                    <input type="radio" name="rating" value="3"/>
+                    <input type="radio" name="rating2" value="3"/>
                     <img src="/website_support/static/src/img/3-star.jpg"/>
                 </label>
 
                 <label>
-                    <input type="radio" name="rating" value="2"/>
+                    <input type="radio" name="rating2" value="2"/>
                     <img src="/website_support/static/src/img/2-star.jpg"/>
                 </label>
 
                 <label>
-                    <input type="radio" name="rating" value="1"/>
+                    <input type="radio" name="rating2" value="1"/>
                     <img src="/website_support/static/src/img/1-star.jpg"/>
                 </label>
                 
                 <div class="form-group">
-                     <label for="comment">Comentarios</label>
-                    <textarea class="form-control" rows="5" name="comment"></textarea>
+                     <label for="comentario">Comentarios</label>
+                    <textarea class="form-control" rows="5" name="comentario"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -468,13 +468,21 @@ label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
         
             <div class="col-md-3"></div>
             <div class="col-md-6">
-                <b>Category</b> <t t-esc="support_ticket.category.name"/><br/>
-                <b>State</b> <t t-esc="support_ticket.state.name"/><br/>
-                <b>Description</b><br/><t t-raw="support_ticket.description"/><br/>
+                <h2 align="center"><b>Solicitud #</b><t t-esc="support_ticket.ticket_number_display"/><br/></h2>
+                <b>Granja:</b> <t t-esc="support_ticket.category.name"/><br/>
+                <b>Categoria:</b> <t t-esc="support_ticket.cat_mant_id.name"/><br/>
+                <b>Tipo de Mantenimiento:</b> <t t-esc="support_ticket.tipo_mant_id.name"/><br/>
+                <b>Descripcion:</b><br/><t t-raw="support_ticket.description"/><br/>
+                <br/>                
+                <b>Prioridad:</b> <t t-esc="support_ticket.priority_id.name"/><br/>
+                <b>Aprobacion:</b> <t t-esc="support_ticket.approval_id.name"/><br/>
                 <br/>
-                <b>Conversation History</b><br/>
+                <b>Estado</b> <t t-esc="support_ticket.state.name"/><br/>
+                <b>Realizada por:</b> <t t-esc="support_ticket.user_id.name"/><br/>
+                
+                <!-- <b>Historial de mensajes</b><br/>
                 <table class="table table-striped table-bordered table-hover table-condensed">
-                    <tr><th>From</th><th>Message</th></tr>
+                    <tr><th>De</th><th>Mensaje</th></tr>
                     <t t-foreach="support_ticket.conversation_history" t-as="chat">
                         <tr><td>
                             <t t-if="chat.by == ''">
@@ -498,25 +506,25 @@ label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
                 </table>
                 <t t-if="portal_access_key">
                     <form method="GET" t-attf-action="/support/portal/ticket/comment">
-                        <b>Add Comment</b><br/>
+                        <b>Agregar Mensaje</b><br/>
                         <textarea  class="form-control" name="comment" style="min-height: 120px" required="True"></textarea>
                         <br/>
                     
                         <input type="hidden" name="portal_access_key" t-attf-value="#{portal_access_key}"/>
-                        <button class="btn btn-primary btn-lg">Submit</button>
+                        <button class="btn btn-primary btn-lg">Enviar</button>
 		    </form>
 		</t>
                 <t t-if="not portal_access_key">
                     <form method="GET" t-attf-action="/support/ticket/comment">
-                        <b>Add Comment</b><br/>
+                        <b>Agregar Mensaje</b><br/>
                         <textarea  class="form-control" name="comment" style="min-height: 120px" required="True"></textarea>
                         <br/>
                     
                         <input type="hidden" name="ticket_id" t-attf-value="#{support_ticket.id}"/>
-                        <button class="btn btn-primary btn-lg">Submit</button>
+                        <button class="btn btn-primary btn-lg">Enviar</button>
 		   </form>
                 
-                </t>
+                </t> -->
             </div>
             <div class="col-md-3"></div>
         </div>

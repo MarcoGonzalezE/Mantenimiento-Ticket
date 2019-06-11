@@ -66,7 +66,7 @@ class WebsiteSupportTicket(models.Model):
     priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad")
 
     #TODO: Autocompletar este campo al cambiar la categoria
-    partner_id = fields.Many2one('res.partner', string="Jefe de Granja")
+    partner_id = fields.Many2one('res.partner', string="Jefe de Granja", compute="_compute_partner")
 
 
     #supervisor = fields.Many2one('res.partner', string="Supervisor")
@@ -86,7 +86,11 @@ class WebsiteSupportTicket(models.Model):
     tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
     subject = fields.Char(string="Asunto")
     description = fields.Text(string="Descripcion")
+    
+    
     state = fields.Many2one('website.support.ticket.states', default=_default_state, group_expand='_read_group_state', string="Estado")
+    #valor_state = fields.Char(related='state.name')
+
     conversation_history = fields.One2many('website.support.ticket.message', 'ticket_id', string="Conversation History")
     attachment = fields.Binary(string="Archivos")
     attachment_filename = fields.Char(string="Archivos Adjuntos")
@@ -109,27 +113,38 @@ class WebsiteSupportTicket(models.Model):
     disapprove_url = fields.Char(compute="_compute_disapprove_url", string="Disapprove URL")
 
     #@Author: Ivan Porras
-    @api.onchange('category')
+    @api.depends('category')
     def _compute_partner(self):
         categories = self.env['website.support.ticket.categories'].search([('id','=',self.category.id)],limit=1)
         self.partner_id = self.env['res.partner'].search([('id','=',categories.cat_user_ids.partner_id.id)])
 
     @api.onchange('tipo_mant_id')
     def _compute_mant_person(self):
+        self.user_id = None
+        personal=[]
         mant_person = self.env['mantenimiento.tipo'].search([('id','=',self.tipo_mant_id.id)])
-        self.user_id = self.env['res.partner'].search([('id','=',mant_person.mant_user_ids.partner_id.id)])
+        for x in mant_person.mant_user_ids:
+            personal.append(int(x.partner_id.id))
+
+        if len(personal)>0:
+            return {'domain':{'user_id':[('id','in',personal)]}}
+        #self.user_id = self.env['res.partner'].search([('id','=',mant_person.mant_user_ids.partner_id.id)])
+
+    # @api.depends('state')
+    # def _compute_is_state(self):
+    #     for x in self:
+    #         x.is_state = (x.state.name == self.env.ref("website.support.ticket.states").name)
 
 
     #NUEVO
     @api.onchange('approval_id')
     def _compute_state(self):
-       sol_rechazada = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_approval_rejected')
-       apro_rechazada = self.env['ir.model.data'].get_object('website_support', 'approval_rejected')
-
-       if self.approval_id == 'approval_rejected'
-           self.state = 'website_ticket_state_approval_rejected'   
-  
+        if self.approval_id.name == 'Rechazado':
+            self.state = self.env['website.support.ticket.states'].search([('name','=','Rechazado')])
+        if self.approval_id.name == 'Aceptado':
+            self.state = self.env['website.support.ticket.states'].search([('name','=','Aceptado')])
     
+
     @api.one
     def _compute_approve_url(self):
         self.approve_url = "/support/approve/" + str(self.id)
@@ -241,6 +256,8 @@ class WebsiteSupportTicket(models.Model):
         
     @api.multi
     def open_close_ticket_wizard(self):
+        if self.state.name == 'Rechazado':
+            raise ValidationError('NO SE PUEDE TERMINAR UNA SOLICITUD RECHAZADA')
 
         return {
             'name': "Close Support Ticket",
@@ -260,6 +277,8 @@ class WebsiteSupportTicket(models.Model):
 
     @api.model
     def create(self, vals):
+        
+
         new_id = super(WebsiteSupportTicket, self).create(vals)
 
         new_id.ticket_number = new_id.company_id.next_support_ticket_number
@@ -352,16 +371,16 @@ class WebsiteSupportTicket(models.Model):
 
    
     def send_mantenimiento(self):
-        for my_user in self.ticket_number.tipo_mant_id.mant_user_ids:
-            notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'mantenimiento_support')
-            email_values = notification_mant.generate_email(self.id)
-            email_values['model'] = "website.support.ticket"
-            email_values['res_id'] = self.id            
-            email_values['email_to'] = my_user.partner_id.email
-            email_values['body_html'] = email_values['body_html'].replace("_user_name_", assigned_user.name)
-            email_values['body'] = email_values['body'].replace("_user_name_", assigned_user.name)
-            send_mail = self.env['mail.mail'].create(email_values)
-            send_mail.send() 
+        for my_user in self.tipo_mant_id.mant_user_ids:
+                notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'mantenimiento_support')
+                email_values = notification_mant.generate_email(self.id)
+                email_values['model'] = "website.support.ticket"
+                email_values['res_id'] = self.id            
+                email_values['email_to'] = my_user.partner_id.email
+                email_values['body_html'] = email_values['body_html'].replace("_user_name_", my_user.partner_id.name)
+                email_values['body'] = email_values['body'].replace("_user_name_", my_user.partner_id.name)
+                send_mail = self.env['mail.mail'].create(email_values)
+                send_mail.send() 
 
 class WebsiteSupportTicketApproval(models.Model):
 
@@ -551,19 +570,6 @@ class WebsiteSupportTicketCompose(models.Model):
 	    #Change the ticket state to staff replied        
 	    staff_replied = self.env['ir.model.data'].get_object('website_support','website_ticket_state_staff_replied')
 	    self.ticket_id.state = staff_replied.id
-
-    # def send_mantenimiento(self):
-    #     for my_user in ticket_id.tipo_mant_id.mant_user_ids:
-    #         notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'mantenimiento_support')
-    #         email_values = notification_mant.generate_email(self.id)
-    #         email_values['model'] = "website.support.ticket"
-    #         email_values['res_id'] = self.id
-    #         assigned_user = self.env['res.users'].browse(int(values['tipo_mant_id.mant_user_ids']) )
-    #         email_values['email_to'] = assigned_user.partner_id.email
-    #         email_values['body_html'] = email_values['body_html'].replace("_user_name_", assigned_user.name)
-    #         email_values['body'] = email_values['body'].replace("_user_name_", assigned_user.name)
-    #         send_mail = self.env['mail.mail'].create(email_values)
-    #         send_mail.send() 
 
 class WebsiteSupportWarehouse(models.Model):
 

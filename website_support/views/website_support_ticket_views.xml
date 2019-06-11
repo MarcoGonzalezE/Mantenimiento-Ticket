@@ -9,12 +9,13 @@
       	      <form>
                   <header>
                       <!-- <button type="action" name="%(website_support_ticket_compose_action)d" context="{'default_ticket_id': active_id, 'default_partner_id': partner_id, 'default_email':email, 'default_subject':subject}" string="Reply"/> -->
-                      <button type="object" name="open_close_ticket_wizard" string="Terminar Solicitud" class="btn-primary" attrs="{'invisible' :[('close_time', '!=', False)]}"/>
-                      <button type="object" name="send_mantenimiento" string="Enviar a Mantenimieno" class="btn-primary"/>
+                      <!-- <field name="group_name" invisible="1"/> -->
+                      <button type="object" name="open_close_ticket_wizard" string="Terminar Solicitud" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('state', '==', 'Rechazado')]}"/>
+                      <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '!=', False)]}"/>
                       <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|', ('support_rating', '!=', 0),('close_time', '=', False)]}" class="btn-primary"/>
 <!-- #BOTON PARA LA SOLICITUD DE APROBACION
-                      <button type="object" name="request_approval" string="Solicitar Aprobacion"/> 
-                      <field name="state" widget="statusbar" statusbar_visible="Abierto,Aceptado,Rechazado,Terminado"/> -->
+                      <button type="object" name="request_approval" string="Solicitar Aprobacion"/>  -->
+                      <field name="state" widget="statusbar" statusbar_visible="Abierto,Aceptado,Rechazado,Terminado"/>
                   </header>
       	          <sheet>
                     <div class="oe_title">
@@ -48,8 +49,7 @@
                           </tree>
                         </field>                        
                       </group>
-                      <group>
-                        <field name="user_id"/>
+                      <group>                        
                         <!-- <field name="create_user_id" invisble="True"/> -->
                         <!-- <field name="ticket_number"/> -->
                         <field name="priority_id"/>
@@ -57,8 +57,9 @@
                         <!--  <field name="supervisor" readonly="1"/> -->
                         <!-- <field name="email"/> -->
                         <!-- <field name="sub_category_id" domain="[('parent_category_id','=',category)]"/> -->
-                        <field name="state"/>
+                        <!-- <field name="state"/> -->
                         <field name="approval_id"/>
+                        <field name="user_id"/>
                       </group>
                       <group attrs="{'invisible' :[('close_time', '=', False)]}">
                         <table style="width:70%">
@@ -175,7 +176,7 @@
       </record>
 
       <record id="website_support_ticket_action_partner" model="ir.actions.act_window">
-          <field name="name">Solicitudes de Mantenimieno</field>
+          <field name="name">Solicitudes de Mantenimiento</field>
 	  <field name="res_model">website.support.ticket</field>
 	  <field name="view_mode">tree,kanban,form,graph</field>
 	  <field name="help" type="html">

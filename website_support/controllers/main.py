@@ -145,8 +145,8 @@ class SupportTicketController(http.Controller):
             #TODO some security incase they guess the portal key of an incomplete survey
             return "Evaluacion Completada"
         else:
-            support_ticket.support_rating = values['rating']
-            support_ticket.support_comment = values['comment']
+            support_ticket.support_rating = values['rating2']
+            support_ticket.support_comment = values['comentario']
             return http.request.render('website_support.support_survey_thank_you', {})
 
     @http.route('/support/account/create', type="http", auth="public", website=True)
