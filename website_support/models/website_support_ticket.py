@@ -67,7 +67,7 @@ class WebsiteSupportTicket(models.Model):
     priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad")
 
     #TODO: Autocompletar este campo al cambiar la categoria
-    partner_id = fields.Many2one('res.partner', string="Jefe de Granja", compute="_compute_partner")
+    partner_id = fields.Many2one('res.partner', string="Jefe de Granja", compute="_compute_partner", store=True)
 
 
     #supervisor = fields.Many2one('res.partner', string="Supervisor")
