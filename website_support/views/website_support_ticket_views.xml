@@ -10,8 +10,8 @@
                   <header>
                       <!-- <button type="action" name="%(website_support_ticket_compose_action)d" context="{'default_ticket_id': active_id, 'default_partner_id': partner_id, 'default_email':email, 'default_subject':subject}" string="Reply"/> -->
                       <!-- <field name="group_name" invisible="1"/> -->
-                      <button type="object" name="open_close_ticket_wizard" string="Terminar Solicitud" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('state', '==', 'Rechazado')]}"/>
-                      <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '!=', False)]}"/>
+                      <button type="object" name="open_close_ticket_wizard" string="Terminar Solicitud" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '=', False)]}"/>
+                      <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '=', False)]}"/>
                       <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|', ('support_rating', '!=', 0),('close_time', '=', False)]}" class="btn-primary"/>
 <!-- #BOTON PARA LA SOLICITUD DE APROBACION
                       <button type="object" name="request_approval" string="Solicitar Aprobacion"/>  -->
@@ -34,12 +34,12 @@
                         <field name="cat_mant_id"/>
                         <field name="tipo_mant_id"/>
                         <field name="description" widget="text"/>
-                        <field name="attachment" filename="attachment_filename" attrs="{'invisible' :[('attachment', '=', False)]}"/>
+                        <field name="attachment" widget="html" filename="attachment_filename" attrs="{'invisible' :[('attachment', '=', False)]}"/>
                         <field name="attachment_filename" invisible="True"/>
                         <field name="attachment_ids" attrs="{'invisible' :[('attachment_ids', '=', [])]}">
                           <tree>
                             <field name="datas_fname"/>
-                            <field name="datas"/>
+                            <field name="datas" widget="image"/>
                           </tree>
                         </field>
                         <field name="extra_field_ids" attrs="{'invisible' :[('extra_field_ids', '=', [])]}">
@@ -50,7 +50,7 @@
                         </field>                        
                       </group>
                       <group>                        
-                        <!-- <field name="create_user_id" invisble="True"/> -->
+                        <!-- <field name="create_user_id" invisible="True"/> -->
                         <!-- <field name="ticket_number"/> -->
                         <field name="priority_id"/>
                         <!--  <field name="user_id" readonly="1"/> -->
@@ -70,6 +70,8 @@
                           </tr>
                           <tr>
                             <th style="width:20%">Notas: </th>
+                          </tr>
+                          <tr>
                             <td align="left"><field name="close_comment"/></td>
                           </tr>
                         </table>
@@ -78,12 +80,19 @@
                         <table style="width:70%">
                               <tr><td COLSPAN="2"><legend>Evaluación</legend></td></tr>
                               <tr>
-                                  <th style="width:20%">Calificación</th>
-                                  <td align="left"><field name="support_rating" readonly="1"/></td>
+                                  <th style="width:20%">Calificación</th>                                  
+                                  <td align="left" attrs="{'invisible' :[('support_rating', '!=', 1)]}"><button icon="fa-star"/></td>
+                                  <td align="left" attrs="{'invisible' :[('support_rating', '!=', 2)]}"><button icon="fa-star"/><button icon="fa-star"/></td>
+                                  <td align="left" attrs="{'invisible' :[('support_rating', '!=', 3)]}"><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/></td>
+                                  <td align="left" attrs="{'invisible' :[('support_rating', '!=', 4)]}"><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/></td>
+                                  <td align="left" attrs="{'invisible' :[('support_rating', '!=', 5)]}"><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/></td>
+                                  <td><field name="support_rating" readonly="1" invisible="True"/></td>
+                              </tr>
+                              <tr>                                
+                                <th style="width:20%">Comentarios </th>
                               </tr>
                               <tr>
-                                  <th style="width:20%">Comentarios</th>
-                                  <td align="left"><field name="support_comment" readonly="1"/></td>
+                                <td align="left"><field name="support_comment" readonly="1"/></td>
                               </tr>
                           </table>
                       </group>
@@ -108,15 +117,20 @@
           <field name="model">website.support.ticket</field>
           <field name="arch" type="xml">
       	      <tree colors="black:ticket_color==False">
-      	          <!-- <field name="create_user_id" invisble="True"/> -->
+      	          <!-- <field name="create_user_id" invisible="True"/> -->
       	          <field name="ticket_color" invisible="1"/>
       	          <field name="ticket_number" string="Numero de Reporte"/>             
                   <field name="subject"/>
                   <field name="cat_mant_id"/>        	          
       	          <field name="category"/>                  
-                  <field name="priority_id"/>                  
-                  <field name="support_rating"/>
+                  <field name="priority_id"/>                 
+                  <field name="support_rating" invisible="True"/>
                   <field name="state"/>
+                  <button icon="fa-star" attrs="{'invisible' :[('support_rating', '=', 0)]}"/>
+                  <button icon="fa-star" attrs="{'invisible' :['|',('support_rating', '=', 1),('support_rating', '=', 0)]}"/>
+                  <button icon="fa-star" attrs="{'invisible' :['|',('support_rating', '=', 2),('support_rating', '=', 0)]}"/>
+                  <button icon="fa-star" attrs="{'invisible' :['|',('support_rating', '=', 3),('support_rating', '=', 0)]}"/>
+                  <button icon="fa-star" attrs="{'invisible' :['|',('support_rating', '!=', 5),('support_rating', '=', 0)]}"/>
       	      </tree>
       	  </field>
       </record>

@@ -343,13 +343,13 @@ label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
                         </tr>
                         <t t-foreach="support_tickets" t-as="support_ticket">
                             <tr>
-                                <td><t t-esc="support_ticket.person_name"/></td>
+                                <td><t t-esc="support_ticket.partner_id.name"/></td>
                                 <td><t t-esc="support_ticket.ticket_number"/></td>
                                 <td><a t-attf-href="/support/ticket/view/#{support_ticket.id}">
                                     <t t-esc="support_ticket.subject"/></a></td>
                                 <td><t t-esc="support_ticket.category.name"/></td>
                                 <td><t t-esc="support_ticket.tipo_mant_id.name"/></td>
-                                <td><t t-esc="support_ticket.priority_id.name"/></td>
+                                <td><t t-esc="support_ticket.state.name"/></td>
                                 <td><t t-esc="support_ticket.create_date"/></td>                            
                                 <td>
                                     <t t-if="support_ticket.approval_id.name == 'Sin solicitud de aprobación'"> 

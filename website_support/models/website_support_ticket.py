@@ -6,6 +6,7 @@ from random import randint
 import datetime
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT
 from odoo import SUPERUSER_ID
+from odoo.exceptions import UserError, ValidationError
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -113,21 +114,25 @@ class WebsiteSupportTicket(models.Model):
     disapprove_url = fields.Char(compute="_compute_disapprove_url", string="Disapprove URL")
 
     #@Author: Ivan Porras
+    @api.multi
     @api.depends('category')
     def _compute_partner(self):
-        categories = self.env['website.support.ticket.categories'].search([('id','=',self.category.id)],limit=1)
-        self.partner_id = self.env['res.partner'].search([('id','=',categories.cat_user_ids.partner_id.id)])
+        for r in self:
+            categories = self.env['website.support.ticket.categories'].search([('id','=',r.category.id)],limit=1)
+            r.partner_id = self.env['res.partner'].search([('id','=',categories.cat_user_ids.partner_id.id)])
 
+    @api.multi
     @api.onchange('tipo_mant_id')
     def _compute_mant_person(self):
-        self.user_id = None
-        personal=[]
-        mant_person = self.env['mantenimiento.tipo'].search([('id','=',self.tipo_mant_id.id)])
-        for x in mant_person.mant_user_ids:
-            personal.append(int(x.partner_id.id))
+        for r in self:
+            r.user_id = None
+            personal=[]
+            mant_person = self.env['mantenimiento.tipo'].search([('id','=',r.tipo_mant_id.id)])
+            for x in mant_person.mant_user_ids:
+                personal.append(int(x.partner_id.id))
 
-        if len(personal)>0:
-            return {'domain':{'user_id':[('id','in',personal)]}}
+            if len(personal)>0:
+                return {'domain':{'user_id':[('id','in',personal)]}}
         #self.user_id = self.env['res.partner'].search([('id','=',mant_person.mant_user_ids.partner_id.id)])
 
     # @api.depends('state')
@@ -325,39 +330,42 @@ class WebsiteSupportTicket(models.Model):
         
     @api.multi
     def write(self, values, context=None):
+        for r in self:
+            update_rec = super(WebsiteSupportTicket, r).write(values)
 
-        update_rec = super(WebsiteSupportTicket, self).write(values)
-
-        if 'state' in values:
-            if self.state.mail_template_id:
-                self.state.mail_template_id.send_mail(self.id, True)
+            if 'state' in values:
+                if r.state.mail_template_id:
+                    r.state.mail_template_id.send_mail(r.id, True)
                 
         #Email user if category has changed
         # if 'category' in values:
         #     change_category_email = self.env['ir.model.data'].sudo().get_object('website_support', 'new_support_ticket_category_change')
         #     change_category_email.send_mail(self.id, True)
 
-        if 'user_id' in values:
-            setting_change_user_email_template_id = self.env['ir.values'].get_default('website.support.settings', 'change_user_email_template_id')
-        
-            if setting_change_user_email_template_id:
-                email_template = self.env['mail.template'].browse(setting_change_user_email_template_id)
-            else:
-                #Default email template
-                email_template = self.env['ir.model.data'].get_object('website_support','support_ticket_user_change')
+            if 'user_id' in values:
+    
+                setting_change_user_email_template_id = self.env['ir.values'].get_default('website.support.settings', 'change_user_email_template_id')
+            
+                if setting_change_user_email_template_id:
+                    email_template = self.env['mail.template'].browse(setting_change_user_email_template_id)
+                else:
+                    #Default email template
+                    email_template = self.env['ir.model.data'].get_object('website_support','support_ticket_user_change')
+    
+                email_values = email_template.generate_email([r.id])[r.id]
+                email_values['model'] = "website.support.ticket"
+                email_values['res_id'] = r.id
+                assigned_user = self.env['res.users'].browse( int(values['user_id'])-1 )
+                email_values['email_to'] = assigned_user.partner_id.email
+                email_values['body_html'] = email_values['body_html'].replace("_user_name_", assigned_user.name)
+                email_values['body'] = email_values['body'].replace("_user_name_", assigned_user.name)
+                send_mail = self.env['mail.mail'].create(email_values)
+                send_mail.send()
+    
+                _logger.info("HOLA MUNDO..........................")
 
-            email_values = email_template.generate_email([self.id])[self.id]
-            email_values['model'] = "website.support.ticket"
-            email_values['res_id'] = self.id
-            assigned_user = self.env['res.users'].browse( int(values['user_id']) )
-            email_values['email_to'] = assigned_user.partner_id.email
-            email_values['body_html'] = email_values['body_html'].replace("_user_name_", assigned_user.name)
-            email_values['body'] = email_values['body'].replace("_user_name_", assigned_user.name)
-            send_mail = self.env['mail.mail'].create(email_values)
-            send_mail.send()
-
         
-        return update_rec
+            return update_rec
 
     def send_survey(self):
 
@@ -370,14 +378,16 @@ class WebsiteSupportTicket(models.Model):
         send_mail.send(True)
 
    
-    def send_mantenimiento(self):
+    def send_mantenimiento(self):        
+        support_ticket_menu = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_menu')
+        support_ticket_action = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_action')
         for my_user in self.tipo_mant_id.mant_user_ids:
                 notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'mantenimiento_support')
                 email_values = notification_mant.generate_email(self.id)
                 email_values['model'] = "website.support.ticket"
                 email_values['res_id'] = self.id            
                 email_values['email_to'] = my_user.partner_id.email
-                email_values['body_html'] = email_values['body_html'].replace("_user_name_", my_user.partner_id.name)
+                email_values['body_html'] = email_values['body_html'].replace("_ticket_url_", "web#id=" + str(self.id) + "&view_type=form&model=website.support.ticket&menu_id=" + str(support_ticket_menu.id) + "&action=" + str(support_ticket_action.id) ).replace("_user_name_",  my_user.partner_id.name)
                 email_values['body'] = email_values['body'].replace("_user_name_", my_user.partner_id.name)
                 send_mail = self.env['mail.mail'].create(email_values)
                 send_mail.send() 
