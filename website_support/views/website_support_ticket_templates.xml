@@ -49,8 +49,8 @@
             <field name="auto_delete" eval="False"/>
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
-                <p>_user_name_,</p>
-                <p>Se ha creado una nueva solicitud para Mantenimiento</p> 
+                <p>_user_name_, Se ha creado una nueva solicitud para Mantenimiento</p>
+                <p>NUMERO: #{object.ticket_number}</P>
                 <p>GRANJA: ${object.category.name}</p>
                 <p>CATEGORIA: ${object.cat_mant_id.name}</p>
                 <p>TIPO DE MANTENIMIENTO: ${object.tipo_mant_id.name}</p>
@@ -146,7 +146,7 @@
             <field name="auto_delete" eval="False"/>
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
-                <p>${object.partner_id}, el reporte de mantenimiento ha sido terminadao, aqui los comentarios finales</p>
+                <p>${object.partner_id}, el reporte de mantenimiento ha sido terminado, aqui los comentarios finales</p>
                 <p>${object.close_comment or ''}</p>
                 <hr/>
                 <b>Numero:</b> ${object.ticket_number or object.id}<br/>

@@ -11,7 +11,7 @@
                       <!-- <button type="action" name="%(website_support_ticket_compose_action)d" context="{'default_ticket_id': active_id, 'default_partner_id': partner_id, 'default_email':email, 'default_subject':subject}" string="Reply"/> -->
                       <!-- <field name="group_name" invisible="1"/> -->
                       <button type="object" name="open_close_ticket_wizard" string="Terminar Solicitud" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '=', False)]}"/>
-                      <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '=', False)]}"/>
+                      <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '!=', False)]}"/>
                       <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|', ('support_rating', '!=', 0),('close_time', '=', False)]}" class="btn-primary"/>
 <!-- #BOTON PARA LA SOLICITUD DE APROBACION
                       <button type="object" name="request_approval" string="Solicitar Aprobacion"/>  -->
@@ -70,8 +70,6 @@
                           </tr>
                           <tr>
                             <th style="width:20%">Notas: </th>
-                          </tr>
-                          <tr>
                             <td align="left"><field name="close_comment"/></td>
                           </tr>
                         </table>
@@ -90,8 +88,6 @@
                               </tr>
                               <tr>                                
                                 <th style="width:20%">Comentarios </th>
-                              </tr>
-                              <tr>
                                 <td align="left"><field name="support_comment" readonly="1"/></td>
                               </tr>
                           </table>
@@ -172,9 +168,10 @@
           <field name="arch" type="xml">
       	      <search>
       	          <field name="partner_id"/>
-                  <filter string="Reporte Incompletos" name="unattended_tickets" domain="[('unattended', '=', True )]" />
+                  <filter string="Sin Terminar" name="unattended_tickets" domain="[('unattended', '=', True )]" />
+                  <filter string="Terminadas" name="attended_tickets" domain="[('unattended', '=', False )]" />
                   <filter name="group_by_category" string="Granja" domain="[]"  context="{'group_by':'category'}"/>
-                  <filter name="group_by_user" string="User" domain="[]"  context="{'group_by':'user_id'}"/>
+                  <filter name="group_by_user" string="Personal de Mantenimiento" domain="[]"  context="{'group_by':'user_id'}"/>
       	      </search>
       	  </field>
       </record>
