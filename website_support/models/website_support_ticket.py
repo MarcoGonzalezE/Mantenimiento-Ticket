@@ -422,7 +422,7 @@ class WebsiteSupportTicketCategories(models.Model):
     
     sequence = fields.Integer(string="Sequence")
     name = fields.Char(required=True, translate=True, string='Granja')
-    cat_user_ids = fields.Many2many('res.users', string="Supervisores")
+    cat_user_ids = fields.Many2many('res.users', string="Jefe de Granja")
 
     @api.model
     def create(self, values):

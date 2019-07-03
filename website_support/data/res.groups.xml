@@ -17,7 +17,7 @@
 
         <record id="support_mant" model="res.groups">
             <field name="name">Mantenimiento</field>
-            <field name="implied_ids" eval="[(4, ref('support_group'))]"/>
+            <field name="implied_ids" eval="[(4, ref('support_staff'))]"/>
             <field name="category_id" ref="support_application"/>
             <field name="comment">Puede ver y responder solicitudes, mas no configuracion</field>
         </record>
