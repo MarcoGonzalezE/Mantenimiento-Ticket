@@ -40,3 +40,4 @@ access_website_support_ticket_approval,access website.support.ticket.approval,mo
 access_website_support_ticket_field_staff,support mant access website.support.ticket.field,model_website_support_ticket_field,support_mant,1,1,1,1
 access_website_support_ticket_categorias,categorias de mantenimiento,model_mantenimiento_categoria,support_mant,1,1,1,0
 access_website_support_ticket_tipo_mantenimiento,tipo de mantenimiento,model_mantenimiento_tipo,support_mant,1,1,1,0
+access_website_support_ticket_priority_mantenimiento,support mante access website.support.ticket.priority,model_website_support_ticket_priority,support_mant,1,0,0,0

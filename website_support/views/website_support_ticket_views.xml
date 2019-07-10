@@ -10,9 +10,9 @@
                   <header>
                       <!-- <button type="action" name="%(website_support_ticket_compose_action)d" context="{'default_ticket_id': active_id, 'default_partner_id': partner_id, 'default_email':email, 'default_subject':subject}" string="Reply"/> -->
                       <!-- <field name="group_name" invisible="1"/> -->
-                      <button type="object" name="open_close_ticket_wizard" string="Terminar Solicitud" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '=', False)]}"/>
-                      <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '!=', False)]}"/>
-                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|', ('support_rating', '!=', 0),('close_time', '=', False)]}" class="btn-primary"/>
+                      <button type="object" name="open_close_ticket_wizard" string="Terminar Solicitud" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '=', False)]}" groups="base.support_mant"/>
+                      <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '!=', False)]}" groups="base.support_staff"/>
+                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|', ('support_rating', '!=', 0),('close_time', '=', False)]}" class="btn-primary" groups="base.support_mant"/>
 <!-- #BOTON PARA LA SOLICITUD DE APROBACION
                       <button type="object" name="request_approval" string="Solicitar Aprobacion"/>  -->
                       <field name="state" widget="statusbar" statusbar_visible="Abierto,Aceptado,Rechazado,Terminado"/>
@@ -59,7 +59,7 @@
                         <!-- <field name="sub_category_id" domain="[('parent_category_id','=',category)]"/> -->
                         <!-- <field name="state"/> -->
                         <field name="approval_id"/>
-                        <field name="user_id"/>
+                        <field name="user_id" groups="base.support_mant"/>
                       </group>
                       <group attrs="{'invisible' :[('close_time', '=', False)]}">
                         <table style="width:70%">
