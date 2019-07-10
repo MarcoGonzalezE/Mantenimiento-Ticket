@@ -31,8 +31,7 @@ class WebsiteSupportTicket(models.Model):
     def _read_group_state(self, states, domain, order):
         """ Read group customization in order to display all the states in the
             kanban view, even if they are empty
-        """
-        
+        """        
         staff_replied_state = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_staff_replied')
         customer_replied_state = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_customer_replied')
         customer_closed = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_customer_closed')
@@ -274,12 +273,13 @@ class WebsiteSupportTicket(models.Model):
             'target': 'new'
         }
 
+    ''' Funcion eliminada por borrar el status "Cliente Respondio" @ivan.porras
     @api.model
     def _needaction_domain_get(self):
         open_state = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_open')
         custom_replied_state = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_customer_replied')
         return ['|',('state', '=', open_state.id ), ('state', '=', custom_replied_state.id)]
-
+    '''
     @api.model
     def create(self, vals):
         
