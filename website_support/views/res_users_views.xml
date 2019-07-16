@@ -8,7 +8,7 @@
             <field name="inherit_id" ref="base.view_users_form"/>
             <field name="arch" type="xml">
                 <notebook position="inside">
-                    <page string="Website Support">
+                    <page string="Mantenimiento">
                         <group>
                             <field name="cat_user_ids"/>
                         </group>

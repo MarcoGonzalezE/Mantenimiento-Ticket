@@ -32,12 +32,13 @@ class WebsiteSupportTicket(models.Model):
         """ Read group customization in order to display all the states in the
             kanban view, even if they are empty
         """        
-        staff_replied_state = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_staff_replied')
-        customer_replied_state = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_customer_replied')
-        customer_closed = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_customer_closed')
+        #staff_replied_state = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_staff_replied')
+        #customer_replied_state = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_customer_replied')
+        #customer_closed = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_customer_closed')
         staff_closed = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_staff_closed')
         
-        exclude_states = [staff_replied_state.id, customer_replied_state.id, customer_closed.id, staff_closed.id]
+        #exclude_states = [staff_replied_state.id, customer_replied_state.id, customer_closed.id, staff_closed.id]
+        exclude_states = [staff_closed.id]
         
         #state_ids = states._search([('id','not in',exclude_states)], order=order, access_rights_uid=SUPERUSER_ID)
         state_ids = states._search([], order=order, access_rights_uid=SUPERUSER_ID)
@@ -49,6 +50,8 @@ class WebsiteSupportTicket(models.Model):
 
     """def _default_gerencia(self):
         return self.env['res.users'].search([('name','=','Luz Alvarez')]) """
+    def _default_fecha(self):
+        return datetime.date.today()
 
     
     def _default_priority_id(self):
@@ -61,36 +64,25 @@ class WebsiteSupportTicket(models.Model):
         except ValueError:
             return False
 
+
+
+#Campos de Jefe de Granja
     approval_id = fields.Many2one('website.support.ticket.approval', default=_default_approval_id, string="Estado de aprobación")
-    create_user_id = fields.Many2one('res.users', "Creado por")
-    priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad")
-
-    #TODO: Autocompletar este campo al cambiar la categoria
+        #TODO: Autocompletar este campo al cambiar la categoria
     partner_id = fields.Many2one('res.partner', string="Jefe de Granja", compute="_compute_partner", store=True)
-
-
-    #supervisor = fields.Many2one('res.partner', string="Supervisor")
-    user_id = fields.Many2one('res.partner', string="Asignar")
-    #email_ger = fields.Char(string="Correo de Gerencia")
-    person_name = fields.Char(string="Creado por")
-    email = fields.Char(string="Correo")
-    support_email = fields.Char(string="Support Email")
-
-
-    #TODO: onchage event
+    priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad")
+        #TODO: onchage event
     category = fields.Many2one('website.support.ticket.categories', string="Granja", track_visibility='onchange')
+    
 
 
-    #sub_category_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
-    cat_mant_id = fields.Many2one('mantenimiento.categoria', string="Categoria")
-    tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
+#Campos de Ticket o Encargado de Granja
+    create_user_id = fields.Many2one('res.users', "Creado por")
+    fecha_solicitud = fields.Date(string="Fecha de Solicitud", default=_default_fecha)
+    person_name = fields.Char(string="Solicitante")
     subject = fields.Char(string="Asunto")
     description = fields.Text(string="Descripcion")
-    
-    
     state = fields.Many2one('website.support.ticket.states', default=_default_state, group_expand='_read_group_state', string="Estado")
-    #valor_state = fields.Char(related='state.name')
-
     conversation_history = fields.One2many('website.support.ticket.message', 'ticket_id', string="Conversation History")
     attachment = fields.Binary(string="Archivos")
     attachment_filename = fields.Char(string="Archivos Adjuntos")
@@ -111,6 +103,36 @@ class WebsiteSupportTicket(models.Model):
     extra_field_ids = fields.One2many('website.support.ticket.field', 'wst_id', string="Extra Details")
     approve_url = fields.Char(compute="_compute_approve_url", string="Approve URL")
     disapprove_url = fields.Char(compute="_compute_disapprove_url", string="Disapprove URL")
+
+    current_user = fields.Many2one('res.users','Current User', default=lambda self: self.env.user)
+
+
+#Campos de Personal de Mantenimiento
+    user_id = fields.Many2one('res.partner', string="Responsable")
+    cat_mant_id = fields.Many2one('mantenimiento.categoria', string="Categoria")
+    tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
+    fecha_estimada = fields.Date(string="Fecha Estimada")
+    progress_rate = fields.Integer()
+    maximum_rate = fields.Integer()
+
+
+    
+    
+
+#TODO: Futuras Ideas    
+    #email_ger = fields.Char(string="Correo de Gerencia")
+    email = fields.Char(string="Correo")
+    support_email = fields.Char(string="Support Email")
+    #sub_category_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")    
+    #valor_state = fields.Char(related='state.name')
+
+
+#Indicadores
+    group_mant = fields.Boolean(string="Grupo de Mantenimieto", compute="_get_mant")
+    group_jefe = fields.Boolean(string="Grupo Jefe de Granja", compute="_get_jefe")
+    enviado = fields.Boolean(string="Correo Enviado")
+
+    
 
     #@Author: Ivan Porras
     @api.multi
@@ -139,6 +161,27 @@ class WebsiteSupportTicket(models.Model):
     #     for x in self:
     #         x.is_state = (x.state.name == self.env.ref("website.support.ticket.states").name)
 
+
+#Para identificar grupo en que pertenece el usuario logeado
+    #JEFE DE GRANJA
+    @api.depends('group_jefe')
+    def _get_jefe(self):
+        user_crnt = self._uid
+        res_user = self.env['res.users'].search([('id','=',self._uid)]) 
+        if res_user.has_group('website_support.support_staff'):
+            self.group_jefe = True
+        else:
+            self.group_jefe = False
+
+    #PERSONAL DE MANTENIMIENTO
+    @api.depends('group_mant')
+    def _get_mant(self):
+        user_crnt = self._uid
+        res_user = self.env['res.users'].search([('id','=',self._uid)]) 
+        if res_user.has_group('website_support.support_mant'): 
+            self.group_mant = True
+        else:
+            self.group_mant = False
 
     #NUEVO
     @api.onchange('approval_id')
@@ -213,31 +256,34 @@ class WebsiteSupportTicket(models.Model):
         self.conversation_history.create({'ticket_id': self.id, 'by': 'customer', 'content': body_short })
 
         #If the to email address is to the customer then it must be a staff member...
-        if msg_dict.get('to') == self.email:
-            change_state = self.env['ir.model.data'].get_object('website_support','website_ticket_state_staff_replied')        
-        else:
-            change_state = self.env['ir.model.data'].get_object('website_support','website_ticket_state_customer_replied')
+        #if msg_dict.get('to') == self.email:
+        #    change_state = self.env['ir.model.data'].get_object('website_support','website_ticket_state_staff_replied')        
+        #else:
+        #    change_state = self.env['ir.model.data'].get_object('website_support','website_ticket_state_customer_replied')
         
-        self.state = change_state.id
+        #self.state = change_state.id
 
         return super(WebsiteSupportTicket, self).message_update(msg_dict, update_vals=update_vals)
 
     @api.one
     @api.depends('ticket_number')
     def _compute_ticket_number_display(self):
-        if self.ticket_number:
-            self.ticket_number_display = str(self.id)# + " / " + "{:,}".format( self.ticket_number ) #Por Borrar
-        else:
-            self.ticket_number_display = self.id
+        self.ticket_number_display = self.ticket_number
+
+        #if self.ticket_number:
+        #    self.ticket_number_display = str(self.id) + " / " + "{:,}".format( self.ticket_number ) #Por Borrar
+        #else:
+        #    self.ticket_number_display = self.id
             
     @api.depends('state')
     def _compute_unattend(self):
-        staff_replied = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_staff_replied')
-        customer_closed = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_customer_closed')
+        #staff_replied = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_staff_replied')
+        #customer_closed = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_customer_closed')
         staff_closed = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_staff_closed')
 
         #If not closed or replied to then consider all other states to be attended to
-        if self.state != staff_replied and self.state != customer_closed and self.state != staff_closed:
+        #if self.state != staff_replied and self.state != customer_closed and self.state != staff_closed:
+        if self.state != staff_closed:
             self.unattended = True
 
     #working on it
@@ -293,6 +339,7 @@ class WebsiteSupportTicket(models.Model):
 
         #Auto create contact if one with that email does not exist
         setting_auto_create_contact = self.env['ir.values'].get_default('website.support.settings', 'auto_create_contact')
+        new_id.fecha_solicitud = datetime.date.today()
         
         if setting_auto_create_contact and 'email' in vals:
             if self.env['res.partner'].search_count([('email','=',vals['email'])]) == 0:
@@ -382,15 +429,18 @@ class WebsiteSupportTicket(models.Model):
         support_ticket_menu = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_menu')
         support_ticket_action = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_action')
         for my_user in self.tipo_mant_id.mant_user_ids:
-                notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'mantenimiento_support')
-                email_values = notification_mant.generate_email(self.id)
-                email_values['model'] = "website.support.ticket"
-                email_values['res_id'] = self.id            
-                email_values['email_to'] = my_user.partner_id.email
-                email_values['body_html'] = email_values['body_html'].replace("_ticket_url_", "web#id=" + str(self.id) + "&view_type=form&model=website.support.ticket&menu_id=" + str(support_ticket_menu.id) + "&action=" + str(support_ticket_action.id) ).replace("_user_name_",  my_user.partner_id.name)
-                email_values['body'] = email_values['body'].replace("_user_name_", my_user.partner_id.name)
-                send_mail = self.env['mail.mail'].create(email_values)
-                send_mail.send() 
+            notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'mantenimiento_support')
+            email_values = notification_mant.generate_email(self.id)
+            email_values['model'] = "website.support.ticket"
+            email_values['res_id'] = self.id            
+            email_values['email_to'] = my_user.partner_id.email
+            email_values['body_html'] = email_values['body_html'].replace("_ticket_url_", "web#id=" + str(self.id) + "&view_type=form&model=website.support.ticket&menu_id=" + str(support_ticket_menu.id) + "&action=" + str(support_ticket_action.id) ).replace("_user_name_",  my_user.partner_id.name)
+            email_values['body'] = email_values['body'].replace("_user_name_", my_user.partner_id.name)
+            send_mail = self.env['mail.mail'].create(email_values)
+            send_mail.send()
+        self.enviado = True
+
+
 
 class WebsiteSupportTicketApproval(models.Model):
 
@@ -423,12 +473,14 @@ class WebsiteSupportTicketCategories(models.Model):
     sequence = fields.Integer(string="Sequence")
     name = fields.Char(required=True, translate=True, string='Granja')
     cat_user_ids = fields.Many2many('res.users', string="Jefe de Granja")
+    encargados_ids = fields.Many2many('res.partner', string="Encargados de Granja")
 
     @api.model
     def create(self, values):
         sequence=self.env['ir.sequence'].next_by_code('website.support.ticket.categories')
         values['sequence']=sequence
         return super(WebsiteSupportTicketCategories, self).create(values)
+
         
 class WebsiteSupportTicketSubCategories(models.Model):
 
@@ -480,7 +532,12 @@ class WebsiteSupportTicketUsers(models.Model):
 
     _inherit = "res.users"
     
-    cat_user_ids = fields.Many2many('website.support.ticket.categories', string="Supervisando")
+    cat_user_ids = fields.Many2many('website.support.ticket.categories', string="Jefe de Granjas")
+
+class WebsiteSupportTicketEncargados(models.Model):
+    _inherit = "res.partner"
+
+    encargados_ids = fields.Many2many('website.support.ticket.categories', string="Encargado")
 
 class WebsiteSupportTicketCompose(models.Model):
 
@@ -576,10 +633,10 @@ class WebsiteSupportTicketCompose(models.Model):
 	    #Also change the approval
 	    awaiting_approval = self.env['ir.model.data'].get_object('website_support','awaiting_approval')
 	    self.ticket_id.approval_id = awaiting_approval.id        
-        else:
+        #else:
 	    #Change the ticket state to staff replied        
-	    staff_replied = self.env['ir.model.data'].get_object('website_support','website_ticket_state_staff_replied')
-	    self.ticket_id.state = staff_replied.id
+	    #staff_replied = self.env['ir.model.data'].get_object('website_support','website_ticket_state_staff_replied')
+	    #self.ticket_id.state = staff_replied.id
 
 class WebsiteSupportWarehouse(models.Model):
 

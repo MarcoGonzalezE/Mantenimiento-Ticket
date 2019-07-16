@@ -379,8 +379,9 @@ class SupportTicketController(http.Controller):
         for extra_permission in http.request.env.user.partner_id.stp_ids:
             extra_access.append(extra_permission.id)
         
-        support_tickets = http.request.env['website.support.ticket'].sudo().search(['|', ('partner_id','=',http.request.env.user.partner_id.id), ('user_id','=',http.request.env.user.user_id.id) ])
-        
+        #support_tickets = http.request.env['website.support.ticket'].sudo().search(['|', ('partner_id','=',http.request.env.user.partner_id.id), ('user_id','=',http.request.env.user.user_id.id)])
+        support_tickets = http.request.env['website.support.ticket'].sudo().search(['|', ('partner_id','=',http.request.env.user.partner_id.id), ('partner_id', 'in', extra_access), ('partner_id','!=',False)])
+
         return http.request.render('website_support.support_ticket_view_list', {'support_tickets':support_tickets,'ticket_count':len(support_tickets)})
 
     @http.route('/support/ticket/view/<ticket>', type="http", auth="user", website=True)

@@ -92,7 +92,7 @@
             <field name="auto_delete" eval="False"/>
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
-                <p>Dear _user_name_,</p>
+                <p>_user_name_,</p>
                 <p>Se te ha asignado una solicitud</p>
                 <hr/>
                 <b>Numero: #</b>${object.ticket_number or object.id}<br/>
@@ -756,7 +756,7 @@ $(document).ready(function() {
     </t>
 </template>
 
-<template id="support_thank_you" name="Support Ticket Thank You" page="True">
+<template id="support_thank_you" name="Solicitud enviada" page="True">
     <t t-call="website.layout">
         <div id="wrap" class="oe_structure oe_empty">
             <section>
@@ -776,7 +776,7 @@ $(document).ready(function() {
     </t>
 </template>
 
-<template id="support_submit_ticket" name="Submit Support Ticket" page="True">
+<template id="support_submit_ticket" name="Crear solicitud de mantenimiento" page="True">
     <t t-call="website.layout">     
 
       <div id="wrap" class="oe_structure oe_empty">

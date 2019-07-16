@@ -10,36 +10,50 @@
                   <header>
                       <!-- <button type="action" name="%(website_support_ticket_compose_action)d" context="{'default_ticket_id': active_id, 'default_partner_id': partner_id, 'default_email':email, 'default_subject':subject}" string="Reply"/> -->
                       <!-- <field name="group_name" invisible="1"/> -->
-                      <button type="object" name="open_close_ticket_wizard" string="Terminar Solicitud" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '=', False)]}" groups="base.support_mant"/>
-                      <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('user_id', '!=', False)]}" groups="base.support_staff"/>
-                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|', ('support_rating', '!=', 0),('close_time', '=', False)]}" class="btn-primary" groups="base.support_mant"/>
+
+                      <button type="object" name="open_close_ticket_wizard" string="Terminar Reporte" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('group_jefe', '!=', False)]}"/> <!--"Finalizar reporte de mantenimiento. (Solo puede ver personal de mantenimiento"-->
+
+                      <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('group_mant', '=', True),('user_id', '!=', False)]}" /> <!--"Enviar solicitud a Personal de Mantenimiento.(Solo puede ver Jefe de Granja)"-->
+
+                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|',('support_rating', '!=', 0),('close_time', '=', False),('group_jefe', '!=', False)]}" class="btn-primary"/> <!--"Reporte finalizado, envia la evaluacion del servicio.(Solo puede ver personal de mantenimiento"-->
+
 <!-- #BOTON PARA LA SOLICITUD DE APROBACION
                       <button type="object" name="request_approval" string="Solicitar Aprobacion"/>  -->
+
                       <field name="state" widget="statusbar" statusbar_visible="Abierto,Aceptado,Rechazado,Terminado"/>
                   </header>
       	          <sheet>
                     <div class="oe_title">
                       <table style="width:100%">
-                        <td><h1>Reporte #<field name="ticket_number_display" readonly="1"/></h1></td>
-                        <td align="right" attrs="{'invisible' :[('person_name', '=', False)]}">Creado por: <strong><field name="person_name" readonly="1"/></strong></td>
+                        <tr>
+                          <td>
+                            <h1 attrs="{'invisible' :[('user_id', '!=', False)]}">Solicitud # <field name="ticket_number" readonly="1"/></h1>
+                          </td>
+                          <td>
+                            <h1 attrs="{'invisible' :[('user_id', '=', False)]}">Reporte # <field name="ticket_number_display" readonly="1"/></h1>
+                          </td>
+                          <td align="right" attrs="{'invisible' :[('person_name', '=', False)]}">Solicitante: <strong><field name="person_name" readonly="1"/></strong></td>
+                        </tr>
                       </table>                          
                     </div>
                     <div class="oe_title">
-                      Asunto<h2><field name="subject"/></h2>
+                      Asunto<h2><field name="subject" attrs="{'readonly':[('group_mant', '=', True)]}"/></h2>
                     </div>
                     <group>
-                      <group>                                                           
-                        <field name="category"/>
+                      <group>
+                        <field name="group_jefe" invisible="1"/>
+                        <field name="group_mant" invisible="1"/>
+                        <field name="category" attrs="{'readonly':[('group_mant', '=', True)]}" required="1"/>
                         <field name="partner_id"/> 
                         <field name="cat_mant_id"/>
                         <field name="tipo_mant_id"/>
-                        <field name="description" widget="text"/>
-                        <field name="attachment" widget="html" filename="attachment_filename" attrs="{'invisible' :[('attachment', '=', False)]}"/>
+                        <field name="description" widget="text" attrs="{'readonly':[('group_mant', '=', True)]}"/>
+                        <field name="attachment" widget="html" filename="attachment_filename" attrs="{'invisible' :['|', ('attachment', '=', False), ('attachment_ids', '=', [])]}"/>
                         <field name="attachment_filename" invisible="True"/>
-                        <field name="attachment_ids" attrs="{'invisible' :[('attachment_ids', '=', [])]}">
+                        <field name="attachment_ids"  widget="many2many_kanban" attrs="{'invisible' :[('attachment_ids', '=', [])]}">
                           <tree>
-                            <field name="datas_fname"/>
-                            <field name="datas" widget="image"/>
+                            <!--<field name="datas_fname"/>-->
+                            <field name="datas"/>
                           </tree>
                         </field>
                         <field name="extra_field_ids" attrs="{'invisible' :[('extra_field_ids', '=', [])]}">
@@ -52,47 +66,64 @@
                       <group>                        
                         <!-- <field name="create_user_id" invisible="True"/> -->
                         <!-- <field name="ticket_number"/> -->
+                        <field name="fecha_solicitud"/>
                         <field name="priority_id"/>
                         <!--  <field name="user_id" readonly="1"/> -->
                         <!--  <field name="supervisor" readonly="1"/> -->
                         <!-- <field name="email"/> -->
                         <!-- <field name="sub_category_id" domain="[('parent_category_id','=',category)]"/> -->
-                        <!-- <field name="state"/> -->
-                        <field name="approval_id"/>
-                        <field name="user_id" groups="base.support_mant"/>
+                        <!-- <field name="state"/> -->                        
+                        <field name="approval_id" attrs="{'readonly':[('group_mant', '=', True)]}"/>
+                        <field name="enviado" invisible="1"/>
                       </group>
-                      <group attrs="{'invisible' :[('close_time', '=', False)]}">
-                        <table style="width:70%">
-                          <tr><td COLSPAN="2"><legend>Terminación</legend></td></tr>
-                          <tr>
-                            <th style="width:20%">Fecha de Terminación: </th>
-                            <td align="left"><field name="close_time" readonly="1"/></td>
-                          </tr>
-                          <tr>
-                            <th style="width:20%">Notas: </th>
-                            <td align="left"><field name="close_comment"/></td>
-                          </tr>
-                        </table>
-                      </group>
-                      <group attrs="{'invisible' :[('close_time', '=', False)]}">
-                        <table style="width:70%">
-                              <tr><td COLSPAN="2"><legend>Evaluación</legend></td></tr>
+                    </group>
+<!-- Personal de Matenimiento -->                    
+                      <notebook>
+                        <page string="Departamento de Mantenimiento" attrs="{'invisible' :[('enviado', '=', False)]}">
+                          <group><field name="user_id" attrs="{'readonly':[('group_jefe', '=', True)]}"/></group>
+                          <group><field name="fecha_estimada" widget="gauge" attrs="{'invisible':[('user_id', '=', False)], 'readonly':[('group_jefe', '=', True)]}"/></group>
+                          <group attrs="{'invisible' :[('enviado', '=', False)]}">
+                            <table style="width:70%">
+                              <!--tr>
+                                <th style="width:20%"><strong>Responsable: </strong></th>
+                                <td align="left"><field name="user_id" attrs="{'readonly':[('group_jefe', '=', True)]}"/></td>
+                                <th style="width:20%" attrs="{'invisible':[('user_id', '=', False)]}"><strong>Fecha estimada: </strong></th>
+                                <td align="left"><field name="fecha_estimada" attrs="{'invisible':[('user_id', '=', False)]}"/></td>
+                              </tr-->
+                              <tr attrs="{'invisible' :[('close_time', '=', False)]}">
+                                <td COLSPAN="4"><legend>Terminación</legend></td>
+                              </tr>
+                              <tr attrs="{'invisible' :[('close_time', '=', False)]}">
+                                <th style="width:20%">Fecha de Terminación: </th>
+                                <td align="left"><field name="close_time" readonly="1"/></td>
+                              </tr>
+                              <tr attrs="{'invisible' :[('close_time', '=', False)]}">
+                                <th style="width:20%">Notas: </th>
+                                <td align="left"><field name="close_comment" attrs="{'readonly':[('group_jefe', '=', True)]}"/></td>
+                              </tr>
+                            </table>
+                          </group>
+                          <group attrs="{'invisible' :[('close_time', '=', False)]}">
+                            <table style="width:70%">
+                              <tr><td COLSPAN="4"><legend>Evaluación</legend></td></tr>
                               <tr>
-                                  <th style="width:20%">Calificación</th>                                  
-                                  <td align="left" attrs="{'invisible' :[('support_rating', '!=', 1)]}"><button icon="fa-star"/></td>
-                                  <td align="left" attrs="{'invisible' :[('support_rating', '!=', 2)]}"><button icon="fa-star"/><button icon="fa-star"/></td>
-                                  <td align="left" attrs="{'invisible' :[('support_rating', '!=', 3)]}"><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/></td>
-                                  <td align="left" attrs="{'invisible' :[('support_rating', '!=', 4)]}"><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/></td>
-                                  <td align="left" attrs="{'invisible' :[('support_rating', '!=', 5)]}"><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/></td>
-                                  <td><field name="support_rating" readonly="1" invisible="True"/></td>
+                                <th style="width:20%">Calificación</th>                                  
+                                <td align="left" attrs="{'invisible' :[('support_rating', '!=', 1)]}"><button icon="fa-star"/></td>
+                                <td align="left" attrs="{'invisible' :[('support_rating', '!=', 2)]}"><button icon="fa-star"/><button icon="fa-star"/></td>
+                                <td align="left" attrs="{'invisible' :[('support_rating', '!=', 3)]}"><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/></td>
+                                <td align="left" attrs="{'invisible' :[('support_rating', '!=', 4)]}"><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/></td>
+                                <td align="left" attrs="{'invisible' :[('support_rating', '!=', 5)]}"><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/></td>
+                                <td><field name="support_rating" readonly="1" invisible="True"/></td>
                               </tr>
                               <tr>                                
                                 <th style="width:20%">Comentarios </th>
-                                <td align="left"><field name="support_comment" readonly="1"/></td>
+                                <td align="left"><field name="support_comment" readonly="1" attrs="{'readonly':[('group_mant', '=', True)]}"/></td>
                               </tr>
-                          </table>
-                      </group>
-                    </group>
+                            </table>
+                          </group>
+                        </page>
+                      </notebook>
+                      
                       
       	          </sheet>
                   <div class="oe_chatter">
@@ -141,6 +172,7 @@
                   <field name="state"/>
                   <field name="category"/>
                   <field name="description"/>
+                  
                   <templates>
                       <t t-name="kanban-box">
                           <div class="oe_kanban_global_click o_res_partner_kanban">

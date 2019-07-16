@@ -10,6 +10,7 @@
       	          <group>
       	              <field name="name"/>
       	              <field name="cat_user_ids"/>
+                      <field name="encargados_ids"/>
       	          </group>
       	      </form>
       	  </field>
