@@ -39,7 +39,8 @@
         'security/ir.model.access.csv',
     ],
     'demo': [],
-    'depends': ['mail','web', 'website', 'contacts'],
+    'depends': ['mail','web', 'website',
+        'purchase', 'contacts'],
     #'images':[
     #    'static/description/3.jpg',
     #    'static/description/1.jpg',

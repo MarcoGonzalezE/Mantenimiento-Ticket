@@ -48,5 +48,35 @@
           <field eval="1" name="number_increment"/>
       </record>
 
+<!--Personal de Mantenimiento-->
+      <record id="personal_mantenimient_form_view" model="ir.ui.view">
+        <field name="name">personal.mantenimiento form view</field>
+        <field name="model">personal.mantenimiento</field>
+        <field name="arch" type="xml">
+          <form>
+            <group>
+              <field name="name"/>
+            </group>
+          </form>
+        </field>
+      </record>
+      <record id="personal_mantenimiento_view_tree" model="ir.ui.view">
+          <field name="name">personal.mantenimiento tree view</field>
+          <field name="model">personal.mantenimiento</field>
+          <field name="arch" type="xml">
+              <tree>
+                  <field name="name"/>
+              </tree>
+          </field>
+      </record>
+      <record id="personal_mantenimiento_action" model="ir.actions.act_window">
+          <field name="name">Personal de Mantenimiento</field>
+          <field name="res_model">personal.mantenimiento</field>
+          <field name="view_type">form</field>
+          <field name="view_mode">tree,form</field>
+          <field name="help" type="html">
+            <p class="oe_view_nocontent_create">Crear registro</p>
+          </field>
+      </record>
     </data>
 </openerp>

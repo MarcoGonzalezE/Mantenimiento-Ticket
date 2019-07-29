@@ -51,7 +51,7 @@ class WebsiteSupportTicket(models.Model):
     """def _default_gerencia(self):
         return self.env['res.users'].search([('name','=','Luz Alvarez')]) """
     def _default_fecha(self):
-        return datetime.date.today()
+        return datetime.datetime.now()
 
     
     def _default_priority_id(self):
@@ -78,7 +78,7 @@ class WebsiteSupportTicket(models.Model):
 
 #Campos de Ticket o Encargado de Granja
     create_user_id = fields.Many2one('res.users', "Creado por")
-    fecha_solicitud = fields.Date(string="Fecha de Solicitud", default=_default_fecha)
+    fecha_solicitud = fields.Datetime(string="Fecha de Solicitud", default=_default_fecha)
     person_name = fields.Char(string="Solicitante")
     subject = fields.Char(string="Asunto")
     description = fields.Text(string="Descripcion")
@@ -103,15 +103,20 @@ class WebsiteSupportTicket(models.Model):
     extra_field_ids = fields.One2many('website.support.ticket.field', 'wst_id', string="Extra Details")
     approve_url = fields.Char(compute="_compute_approve_url", string="Approve URL")
     disapprove_url = fields.Char(compute="_compute_disapprove_url", string="Disapprove URL")
+    fecha_incio_real = fields.Datetime(string="Inicio real", default=_default_fecha)
 
     current_user = fields.Many2one('res.users','Current User', default=lambda self: self.env.user)
+    compras_ids = fields.One2many('purchase.order', 'reporte', string='Compra(s)')
 
 
 #Campos de Personal de Mantenimiento
     user_id = fields.Many2one('res.partner', string="Responsable")
+    prioridad_mant = fields.Many2one('website.support.ticket.priority', string="Prioridad de Mantenimiento")
+    asignar = fields.Many2one('personal.mantenimiento', string="Asignado a")
     cat_mant_id = fields.Many2one('mantenimiento.categoria', string="Categoria")
     tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
     fecha_estimada = fields.Date(string="Fecha Estimada")
+    fecha_reporte = fields.Datetime(string="Fecha de Solicitud")
     progress_rate = fields.Integer()
     maximum_rate = fields.Integer()
 
@@ -130,7 +135,7 @@ class WebsiteSupportTicket(models.Model):
 #Indicadores
     group_mant = fields.Boolean(string="Grupo de Mantenimieto", compute="_get_mant")
     group_jefe = fields.Boolean(string="Grupo Jefe de Granja", compute="_get_jefe")
-    enviado = fields.Boolean(string="Correo Enviado")
+    enviado = fields.Boolean(string="Solicitud enviada a Mantenimiento")
 
     
 
@@ -204,6 +209,10 @@ class WebsiteSupportTicket(models.Model):
     def _onchange_partner_id(self):      
         #self.person_name = self.partner_id.name
         self.email = self.partner_id.email
+
+    @api.onchange('asignar')
+    def _inicio_real(self):
+        self.fecha_incio_real = datetime.datetime.now()
 
     
     def message_new(self, msg, custom_values=None):
@@ -339,7 +348,8 @@ class WebsiteSupportTicket(models.Model):
 
         #Auto create contact if one with that email does not exist
         setting_auto_create_contact = self.env['ir.values'].get_default('website.support.settings', 'auto_create_contact')
-        new_id.fecha_solicitud = datetime.date.today()
+        new_id.fecha_reporte = datetime.date.today()
+        new_id.fecha_solicitud = datetime.datetime.now()
         
         if setting_auto_create_contact and 'email' in vals:
             if self.env['res.partner'].search_count([('email','=',vals['email'])]) == 0:
@@ -438,7 +448,11 @@ class WebsiteSupportTicket(models.Model):
             email_values['body'] = email_values['body'].replace("_user_name_", my_user.partner_id.name)
             send_mail = self.env['mail.mail'].create(email_values)
             send_mail.send()
-        self.enviado = True
+        if self.tipo_mant_id.mant_user_ids == False:
+            raise ValidationError('Personal de Mantenimiento no esta asignada al tipo de Mantenimiento')
+        else:
+            self.enviado = True
+
 
 
 
@@ -687,6 +701,13 @@ class MantenimientoTipoEtiquetas(models.Model):
     name = fields.Char(string="Etiqueta")
     type = fields.Selection([('textbox','Texto'), ('polar','Si / No')], default="textbox", string="Tipo")
 
+#PERSONAL DE MANTENIMIENTO
+class PersonalMantenimiento(models.Model):
+    _name = "personal.mantenimiento"
+
+    name = fields.Char(string="Nombre")
+        
+
 #CATEGORIA DE MANTENIMIENTO
 class MantenimientoCategoria(models.Model):
 
@@ -701,3 +722,8 @@ class MantenimientoCategoria(models.Model):
         sequence=self.env['ir.sequence'].next_by_code('mantenimiento.categoria')
         values['sequence']=sequence
         return super(MantenimientoCategoria, self).create(values)
+
+#PEDIDO DE COMPRA
+class orden_servicio(models.Model):
+    _inherit = "purchase.order"
+    reporte = fields.Many2one('website.support.ticket',  string='Reporte de Mantenimiento', required=True)

@@ -48,9 +48,10 @@
                         <field name="cat_mant_id"/>
                         <field name="tipo_mant_id"/>
                         <field name="description" widget="text" attrs="{'readonly':[('group_mant', '=', True)]}"/>
-                        <field name="attachment" widget="html" filename="attachment_filename" attrs="{'invisible' :['|', ('attachment', '=', False), ('attachment_ids', '=', [])]}"/>
+                        <!-- <field name="attachment" widget="html" filename="attachment_filename" attrs="{'invisible' :['|', ('attachment', '=', False), ('attachment_ids', '=', [])]}"/>-->
+                        <field name="attachment" widget="html" filename="attachment_filename" invisible="1"/>
                         <field name="attachment_filename" invisible="True"/>
-                        <field name="attachment_ids"  widget="many2many_kanban" attrs="{'invisible' :[('attachment_ids', '=', [])]}">
+                        <field name="attachment_ids"  widget="many2many_kanban" attrs="{'invisible' :[('attachment_ids', '=', [])], 'readonly':[('group_mant', '=', True)]}">
                           <tree>
                             <!--<field name="datas_fname"/>-->
                             <field name="datas"/>
@@ -66,48 +67,84 @@
                       <group>                        
                         <!-- <field name="create_user_id" invisible="True"/> -->
                         <!-- <field name="ticket_number"/> -->
-                        <field name="fecha_solicitud"/>
-                        <field name="priority_id"/>
+                        <field name="fecha_solicitud" readonly="1"/>
+                        <field name="priority_id" attrs="{'readonly':[('group_mant', '=', True)]}"/>
                         <!--  <field name="user_id" readonly="1"/> -->
                         <!--  <field name="supervisor" readonly="1"/> -->
                         <!-- <field name="email"/> -->
                         <!-- <field name="sub_category_id" domain="[('parent_category_id','=',category)]"/> -->
                         <!-- <field name="state"/> -->                        
                         <field name="approval_id" attrs="{'readonly':[('group_mant', '=', True)]}"/>
-                        <field name="enviado" invisible="1"/>
+                        <field name="enviado" attrs="{'invisible':[('enviado', '=', False)]}" readonly="1"/>
                       </group>
                     </group>
 <!-- Personal de Matenimiento -->                    
                       <notebook>
                         <page string="Departamento de Mantenimiento" attrs="{'invisible' :[('enviado', '=', False)]}">
-                          <group><field name="user_id" attrs="{'readonly':[('group_jefe', '=', True)]}"/></group>
-                          <group><field name="fecha_estimada" widget="gauge" attrs="{'invisible':[('user_id', '=', False)], 'readonly':[('group_jefe', '=', True)]}"/></group>
-                          <group attrs="{'invisible' :[('enviado', '=', False)]}">
-                            <table style="width:70%">
-                              <!--tr>
+                          <group>
+                            <group>
+                              <field name="user_id" attrs="{'readonly':[('group_jefe', '=', True)]}"/>           
+                            </group>
+                            <group>
+                              <field name="asignar" attrs="{'readonly':[('group_jefe', '=', True)], 'invisible':[('user_id', '=', False)]}"/>                              
+                              <field name="prioridad_mant" attrs="{'readonly':[('group_jefe', '=', True)], 'invisible' :[('user_id', '=', False)]}"/>
+                            </group>
+                          </group>                          
+                          <group col= "4" string="Terminación" attrs="{'invisible' :[('user_id', '=', False)]}">
+                            <field name="fecha_reporte" readonly="1"/>                            
+                            <field name="fecha_incio_real" attrs="{'invisible' :[('fecha_incio_real', '=', False)]}" readonly="1"/>
+                            <field name="fecha_estimada" attrs="{'invisible':[('user_id', '=', False)], 'readonly':[('group_jefe', '=', True)]}"/>
+                            <field name="close_time" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>
+                            <!-- <table style="width:70%">
+                              <tr>
                                 <th style="width:20%"><strong>Responsable: </strong></th>
                                 <td align="left"><field name="user_id" attrs="{'readonly':[('group_jefe', '=', True)]}"/></td>
                                 <th style="width:20%" attrs="{'invisible':[('user_id', '=', False)]}"><strong>Fecha estimada: </strong></th>
                                 <td align="left"><field name="fecha_estimada" attrs="{'invisible':[('user_id', '=', False)]}"/></td>
-                              </tr-->
+                              </tr>
                               <tr attrs="{'invisible' :[('close_time', '=', False)]}">
                                 <td COLSPAN="4"><legend>Terminación</legend></td>
                               </tr>
+                              <tr attrs="{'invisible' :[('asignar', '=', False)]}">
+                                <th style="width:20%">Inicio Real: </th>
+                                <td align="left"><field name="fecha_incio_real" readonly="1"/></td>
+                                <th style="width:20%" attrs="{'invisible' :[('close_time', '=', False)]}">Terminación Real: </th>
+                                <td align="left"><field name="close_time" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/></td>
+                              </tr>
                               <tr attrs="{'invisible' :[('close_time', '=', False)]}">
-                                <th style="width:20%">Fecha de Terminación: </th>
-                                <td align="left"><field name="close_time" readonly="1"/></td>
+                                <th style="width:20%">Diferecia: </th>
                               </tr>
                               <tr attrs="{'invisible' :[('close_time', '=', False)]}">
                                 <th style="width:20%">Notas: </th>
                                 <td align="left"><field name="close_comment" attrs="{'readonly':[('group_jefe', '=', True)]}"/></td>
                               </tr>
-                            </table>
+                            </table>-->
                           </group>
-                          <group attrs="{'invisible' :[('close_time', '=', False)]}">
+                          <group>                                                    
+                            <field name="close_comment" attrs="{'readonly':[('group_jefe', '=', True)], 'invisible' :[('close_time', '=', False)]}"/>
+                          </group>
+                          <group string="Evaluación" attrs="{'invisible' :[('close_time', '=', False)]}">
                             <table style="width:70%">
-                              <tr><td COLSPAN="4"><legend>Evaluación</legend></td></tr>
                               <tr>
-                                <th style="width:20%">Calificación</th>                                  
+                                <th style="width:20%">Calificación</th>
+                                <!--<td align="left" attrs="{'invisible' :[('support_rating', '!=', 1)]}">
+                                  <img src='src="/website_support/static/src/img/1-star-eval.jpg' widget="image"/>
+                                </td>
+                                <td align="left" attrs="{'invisible' :[('support_rating', '!=', 2)]}">
+                                  <img src='src="/website_support/static/src/img/2-star-eval.jpg' widget="image"/>
+                                </td>
+                                <td align="left" attrs="{'invisible' :[('support_rating', '!=', 3)]}">
+                                  <img src='src="/website_support/static/src/img/3-star-eval.jpg' widget="image"/>
+                                </td>
+                                <td align="left" attrs="{'invisible' :[('support_rating', '!=', 4)]}">
+                                  <img src='src="/website_support/static/src/img/4-star-eval.jpg' widget="image"/>
+                                </td>
+                                <td align="left" attrs="{'invisible' :[('support_rating', '!=', 5)]}">
+                                  <img src='src="/website_support/static/src/img/5-star-eval.jpg' widget="image"/>
+                                </td>
+                                <td>
+                                  <field name="support_rating" readonly="1" invisible="True"/>
+                                </td>-->                            
                                 <td align="left" attrs="{'invisible' :[('support_rating', '!=', 1)]}"><button icon="fa-star"/></td>
                                 <td align="left" attrs="{'invisible' :[('support_rating', '!=', 2)]}"><button icon="fa-star"/><button icon="fa-star"/></td>
                                 <td align="left" attrs="{'invisible' :[('support_rating', '!=', 3)]}"><button icon="fa-star"/><button icon="fa-star"/><button icon="fa-star"/></td>
@@ -117,10 +154,13 @@
                               </tr>
                               <tr>                                
                                 <th style="width:20%">Comentarios </th>
-                                <td align="left"><field name="support_comment" readonly="1" attrs="{'readonly':[('group_mant', '=', True)]}"/></td>
+                                <td align="left"><field name="support_comment" attrs="{'readonly':[('group_mant', '=', True)]}"/></td>
                               </tr>
                             </table>
                           </group>
+                        </page>
+                          <page string="Refacciones" attrs="{'invisible' :[('enviado', '=', False)]}">
+                            <field name="compras_ids"/>
                         </page>
                       </notebook>
                       
@@ -240,6 +280,18 @@
 	      </p>
           </field>
       </record>
+
+<!-- Campo Reporte de Mantenimiento en la Compra -->
+        <record id="view_purchase_order_form" model="ir.ui.view">
+        <field name="name">purchase_order.form</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+        <field name="date_order" position="after" >
+          <field name="reporte" options="{'no_create': True}"/>
+        </field>
+        </field>
+    </record>
  
     </data>
 </openerp>

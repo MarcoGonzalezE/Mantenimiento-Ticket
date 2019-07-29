@@ -2,20 +2,24 @@
 <odoo>
     <data noupdate="1">
 
+        <record id="mantenimiento_alimentacion" model="mantenimiento.tipo">
+            <field name="name">Sistema Alimentacion</field>
+        </record>
+
+        <record id="mantenimiento_gas" model="mantenimiento.tipo">
+            <field name="name">Sistema de Gas</field>
+        </record>
+
         <record id="mantenimiento_electrico" model="mantenimiento.tipo">
-            <field name="name">Electrico</field>
-        </record>
-
-        <record id="mantenimiento_hidraulico" model="mantenimiento.tipo">
-            <field name="name">Hidraulico</field>
-        </record>
-
-        <record id="mantenimiento_mecanico" model="mantenimiento.tipo">
-            <field name="name">Mecanico</field>
+            <field name="name">Sistema Electrico</field>
         </record>
 
         <record id="mantenimiento_obra_civil" model="mantenimiento.tipo">
             <field name="name">Obra Civil</field>
+        </record>
+
+        <record id="mantenimiento_instalaciones" model="mantenimiento.tipo">
+            <field name="name">Instalaciones</field>
         </record>
             
     </data>     
