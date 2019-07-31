@@ -67,10 +67,10 @@ class WebsiteSupportTicket(models.Model):
 
 
 #Campos de Jefe de Granja
-    approval_id = fields.Many2one('website.support.ticket.approval', default=_default_approval_id, string="Estado de aprobación")
+    approval_id = fields.Many2one('website.support.ticket.approval', default=_default_approval_id, string="Estado de aprobación", track_visibility='onchange')
         #TODO: Autocompletar este campo al cambiar la categoria
     partner_id = fields.Many2one('res.partner', string="Jefe de Granja", compute="_compute_partner", store=True)
-    priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad")
+    priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad", track_visibility='onchange')
         #TODO: onchage event
     category = fields.Many2one('website.support.ticket.categories', string="Granja", track_visibility='onchange')
     
@@ -82,7 +82,7 @@ class WebsiteSupportTicket(models.Model):
     person_name = fields.Char(string="Solicitante")
     subject = fields.Char(string="Asunto")
     description = fields.Text(string="Descripcion")
-    state = fields.Many2one('website.support.ticket.states', default=_default_state, group_expand='_read_group_state', string="Estado")
+    state = fields.Many2one('website.support.ticket.states', default=_default_state, group_expand='_read_group_state', string="Estado", track_visibility='onchange')
     conversation_history = fields.One2many('website.support.ticket.message', 'ticket_id', string="Conversation History")
     attachment = fields.Binary(string="Archivos")
     attachment_filename = fields.Char(string="Archivos Adjuntos")
@@ -96,10 +96,13 @@ class WebsiteSupportTicket(models.Model):
     support_rating = fields.Integer(string="Calificacion del Servicio")
     support_comment = fields.Text(string="Comentarios")
     close_comment = fields.Text(string="Nota:")
-    close_time = fields.Datetime(string="Fecha de Terminacion:")
+    close_time = fields.Datetime(string="Terminacion Real")
     close_date = fields.Date(string="Close Date")
     closed_by_id = fields.Many2one('res.users', string="Closed By")
-    time_to_close = fields.Integer(string="Time to close (seconds)")
+
+    time_to_close = fields.Integer(string="Time to close (seconds) Real")
+    time_to_close_est = fields.Integer(string="Time to close (seconds) Estimada")
+
     extra_field_ids = fields.One2many('website.support.ticket.field', 'wst_id', string="Extra Details")
     approve_url = fields.Char(compute="_compute_approve_url", string="Approve URL")
     disapprove_url = fields.Char(compute="_compute_disapprove_url", string="Disapprove URL")
@@ -110,15 +113,13 @@ class WebsiteSupportTicket(models.Model):
 
 
 #Campos de Personal de Mantenimiento
-    user_id = fields.Many2one('res.partner', string="Responsable")
-    prioridad_mant = fields.Many2one('website.support.ticket.priority', string="Prioridad de Mantenimiento")
-    asignar = fields.Many2one('personal.mantenimiento', string="Asignado a")
-    cat_mant_id = fields.Many2one('mantenimiento.categoria', string="Categoria")
-    tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")
-    fecha_estimada = fields.Date(string="Fecha Estimada")
-    fecha_reporte = fields.Datetime(string="Fecha de Solicitud")
-    progress_rate = fields.Integer()
-    maximum_rate = fields.Integer()
+    user_id = fields.Many2one('res.partner', string="Responsable", track_visibility='onchange')
+    prioridad_mant = fields.Many2one('website.support.ticket.priority', string="Prioridad de Mantenimiento", track_visibility='onchange')
+    asignar = fields.Many2one('personal.mantenimiento', string="Asignado a", track_visibility='onchange')
+    cat_mant_id = fields.Many2one('mantenimiento.categoria', string="Categoria", track_visibility='onchange')
+    tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento", track_visibility='onchange')
+    fecha_estimada = fields.Datetime(string="Fecha Estimada", track_visibility='onchange')
+    fecha_reporte = fields.Datetime(string="Fecha de Reporte")
 
 
     
@@ -187,6 +188,12 @@ class WebsiteSupportTicket(models.Model):
             self.group_mant = True
         else:
             self.group_mant = False
+
+    @api.multi
+    @api.onchange('fecha_estimada')
+    def _compute_tiempo_est(self):
+        diff_time_est = datetime.datetime.strptime(self.fecha_estimada, DEFAULT_SERVER_DATETIME_FORMAT) - datetime.datetime.strptime(self.fecha_incio_real, DEFAULT_SERVER_DATETIME_FORMAT)
+        self.time_to_close_est = diff_time_est.days
 
     #NUEVO
     @api.onchange('approval_id')
@@ -348,7 +355,7 @@ class WebsiteSupportTicket(models.Model):
 
         #Auto create contact if one with that email does not exist
         setting_auto_create_contact = self.env['ir.values'].get_default('website.support.settings', 'auto_create_contact')
-        new_id.fecha_reporte = datetime.date.today()
+        new_id.fecha_reporte = datetime.datetime.now()
         new_id.fecha_solicitud = datetime.datetime.now()
         
         if setting_auto_create_contact and 'email' in vals:
@@ -452,6 +459,9 @@ class WebsiteSupportTicket(models.Model):
             raise ValidationError('Personal de Mantenimiento no esta asignada al tipo de Mantenimiento')
         else:
             self.enviado = True
+
+    def solicitud_cancelar(self):
+        self.state = self.env['website.support.ticket.states'].search([('name','=','Cancelado')])
 
 
 
@@ -568,7 +578,9 @@ class WebsiteSupportTicketCompose(models.Model):
         self.ticket_id.close_date = datetime.date.today()
         
         diff_time = datetime.datetime.strptime(self.ticket_id.close_time, DEFAULT_SERVER_DATETIME_FORMAT) - datetime.datetime.strptime(self.ticket_id.create_date, DEFAULT_SERVER_DATETIME_FORMAT)            
-        self.ticket_id.time_to_close = diff_time.seconds
+        self.ticket_id.time_to_close = diff_time.days
+
+        
 
         closed_state = self.env['ir.model.data'].sudo().get_object('website_support', 'website_ticket_state_staff_closed')        
         

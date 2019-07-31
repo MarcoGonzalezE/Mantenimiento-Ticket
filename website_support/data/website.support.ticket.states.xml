@@ -39,6 +39,9 @@
             <field name="name">Terminado</field>
             <!-- <field name="mail_template_id" ref="support_ticket_closed"/> -->
         </record>
+        <record id="website_ticket_state_cancelled" model="website.support.ticket.states">
+            <field name="name">Cancelado</field>
+        </record>
         
     </data>     
 </odoo>
