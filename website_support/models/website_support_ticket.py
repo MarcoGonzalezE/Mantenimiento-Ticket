@@ -99,19 +99,14 @@ class WebsiteSupportTicket(models.Model):
     close_time = fields.Datetime(string="Terminacion Real")
     close_date = fields.Date(string="Close Date")
     closed_by_id = fields.Many2one('res.users', string="Closed By")
-
     time_to_close = fields.Integer(string="Time to close (seconds) Real")
     time_to_close_est = fields.Integer(string="Time to close (seconds) Estimada")
-
     extra_field_ids = fields.One2many('website.support.ticket.field', 'wst_id', string="Extra Details")
     approve_url = fields.Char(compute="_compute_approve_url", string="Approve URL")
     disapprove_url = fields.Char(compute="_compute_disapprove_url", string="Disapprove URL")
     fecha_incio_real = fields.Datetime(string="Inicio real", default=_default_fecha)
-
     current_user = fields.Many2one('res.users','Current User', default=lambda self: self.env.user)
     compras_ids = fields.One2many('purchase.order', 'reporte', string='Compra(s)')
-
-
 #Campos de Personal de Mantenimiento
     user_id = fields.Many2one('res.partner', string="Responsable", track_visibility='onchange')
     prioridad_mant = fields.Many2one('website.support.ticket.priority', string="Prioridad de Mantenimiento", track_visibility='onchange')
@@ -120,26 +115,16 @@ class WebsiteSupportTicket(models.Model):
     tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento", track_visibility='onchange')
     fecha_estimada = fields.Datetime(string="Fecha Estimada", track_visibility='onchange')
     fecha_reporte = fields.Datetime(string="Fecha de Reporte")
-
-
-    
-    
-
 #TODO: Futuras Ideas    
     #email_ger = fields.Char(string="Correo de Gerencia")
     email = fields.Char(string="Correo")
     support_email = fields.Char(string="Support Email")
     #sub_category_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")    
     #valor_state = fields.Char(related='state.name')
-
-
 #Indicadores
     group_mant = fields.Boolean(string="Grupo de Mantenimieto", compute="_get_mant")
     group_jefe = fields.Boolean(string="Grupo Jefe de Granja", compute="_get_jefe")
     enviado = fields.Boolean(string="Solicitud enviada a Mantenimiento")
-
-    
-
     #@Author: Ivan Porras
     @api.multi
     @api.depends('category')
@@ -149,7 +134,7 @@ class WebsiteSupportTicket(models.Model):
             r.partner_id = self.env['res.partner'].search([('id','=',categories.cat_user_ids.partner_id.id)])
 
     @api.multi
-    @api.onchange('tipo_mant_id')
+    @api.depends('tipo_mant_id')
     def _compute_mant_person(self):
         for r in self:
             r.user_id = None
@@ -157,7 +142,6 @@ class WebsiteSupportTicket(models.Model):
             mant_person = self.env['mantenimiento.tipo'].search([('id','=',r.tipo_mant_id.id)])
             for x in mant_person.mant_user_ids:
                 personal.append(int(x.partner_id.id))
-
             if len(personal)>0:
                 return {'domain':{'user_id':[('id','in',personal)]}}
         #self.user_id = self.env['res.partner'].search([('id','=',mant_person.mant_user_ids.partner_id.id)])
@@ -166,8 +150,6 @@ class WebsiteSupportTicket(models.Model):
     # def _compute_is_state(self):
     #     for x in self:
     #         x.is_state = (x.state.name == self.env.ref("website.support.ticket.states").name)
-
-
 #Para identificar grupo en que pertenece el usuario logeado
     #JEFE DE GRANJA
     @api.depends('group_jefe')
@@ -178,7 +160,6 @@ class WebsiteSupportTicket(models.Model):
             self.group_jefe = True
         else:
             self.group_jefe = False
-
     #PERSONAL DE MANTENIMIENTO
     @api.depends('group_mant')
     def _get_mant(self):
@@ -188,13 +169,11 @@ class WebsiteSupportTicket(models.Model):
             self.group_mant = True
         else:
             self.group_mant = False
-
     @api.multi
     @api.onchange('fecha_estimada')
     def _compute_tiempo_est(self):
         diff_time_est = datetime.datetime.strptime(self.fecha_estimada, DEFAULT_SERVER_DATETIME_FORMAT) - datetime.datetime.strptime(self.fecha_incio_real, DEFAULT_SERVER_DATETIME_FORMAT)
         self.time_to_close_est = diff_time_est.days
-
     #NUEVO
     @api.onchange('approval_id')
     def _compute_state(self):
@@ -202,8 +181,6 @@ class WebsiteSupportTicket(models.Model):
             self.state = self.env['website.support.ticket.states'].search([('name','=','Rechazado')])
         if self.approval_id.name == 'Aceptado':
             self.state = self.env['website.support.ticket.states'].search([('name','=','Aceptado')])
-    
-
     @api.one
     def _compute_approve_url(self):
         self.approve_url = "/support/approve/" + str(self.id)
@@ -211,7 +188,7 @@ class WebsiteSupportTicket(models.Model):
     @api.one
     def _compute_disapprove_url(self):
         self.disapprove_url = "/support/disapprove/" + str(self.id)
-    
+
     @api.onchange('partner_id')
     def _onchange_partner_id(self):      
         #self.person_name = self.partner_id.name
@@ -221,7 +198,7 @@ class WebsiteSupportTicket(models.Model):
     def _inicio_real(self):
         self.fecha_incio_real = datetime.datetime.now()
 
-    
+
     def message_new(self, msg, custom_values=None):
         """ Create new support ticket upon receiving new email"""
 
@@ -344,7 +321,7 @@ class WebsiteSupportTicket(models.Model):
     '''
     @api.model
     def create(self, vals):
-        
+
 
         new_id = super(WebsiteSupportTicket, self).create(vals)
 
@@ -357,7 +334,7 @@ class WebsiteSupportTicket(models.Model):
         setting_auto_create_contact = self.env['ir.values'].get_default('website.support.settings', 'auto_create_contact')
         new_id.fecha_reporte = datetime.datetime.now()
         new_id.fecha_solicitud = datetime.datetime.now()
-        
+
         if setting_auto_create_contact and 'email' in vals:
             if self.env['res.partner'].search_count([('email','=',vals['email'])]) == 0:
                 if 'person_name' in vals:
@@ -389,46 +366,37 @@ class WebsiteSupportTicket(models.Model):
             send_mail.send()            
             #Remove the message from the chatter since this would bloat the communication history by a lot
             send_mail.mail_message_id.res_id = 0
-            
+
         return new_id
         
     @api.multi
-    def write(self, values, context=None):
+    def write(self, values):
         for r in self:
-            update_rec = super(WebsiteSupportTicket, r).write(values)
-
             if 'state' in values:
                 if r.state.mail_template_id:
                     r.state.mail_template_id.send_mail(r.id, True)
-                
         #Email user if category has changed
         # if 'category' in values:
         #     change_category_email = self.env['ir.model.data'].sudo().get_object('website_support', 'new_support_ticket_category_change')
         #     change_category_email.send_mail(self.id, True)
-
             if 'user_id' in values:
-    
                 setting_change_user_email_template_id = self.env['ir.values'].get_default('website.support.settings', 'change_user_email_template_id')
-            
                 if setting_change_user_email_template_id:
                     email_template = self.env['mail.template'].browse(setting_change_user_email_template_id)
                 else:
                     #Default email template
                     email_template = self.env['ir.model.data'].get_object('website_support','support_ticket_user_change')
-    
                 email_values = email_template.generate_email([r.id])[r.id]
                 email_values['model'] = "website.support.ticket"
                 email_values['res_id'] = r.id
-                assigned_user = self.env['res.users'].browse( int(values['user_id'])-1 )
-                email_values['email_to'] = assigned_user.partner_id.email
+                print(values['user_id'])
+                assigned_user = self.env['res.partner'].browse(int(values['user_id']))
+                email_values['email_to'] = assigned_user.email
                 email_values['body_html'] = email_values['body_html'].replace("_user_name_", assigned_user.name)
                 email_values['body'] = email_values['body'].replace("_user_name_", assigned_user.name)
                 send_mail = self.env['mail.mail'].create(email_values)
                 send_mail.send()
-    
-                _logger.info("HOLA MUNDO..........................")
-
-        
+            update_rec = super(WebsiteSupportTicket, r).write(values)
             return update_rec
 
     def send_survey(self):
