@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        <record id="low" model="website.support.ticket.priority">
+        <!-- <record id="low" model="website.support.ticket.priority">
             <field name="name">Sin definir</field>
             <field name="color">#000000</field>
-        </record>
+        </record> -->
         <record id="low" model="website.support.ticket.priority">
             <field name="name">Baja</field>
             <field name="color">#000000</field>
         </record>
 
-        <record id="normal" model="website.support.ticket.priority">
+        <!-- <record id="normal" model="website.support.ticket.priority">
             <field name="name">Normal</field>
             <field name="color">#000000</field>
-        </record>
+        </record> -->
 
         <record id="moderately" model="website.support.ticket.priority">
-            <field name="name">Moderada</field>
+            <field name="name">Media</field>
             <field name="color">#FFBB00</field>
         </record>
 

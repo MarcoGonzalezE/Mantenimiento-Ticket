@@ -16,7 +16,7 @@
                       <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('group_mant', '=', True),('user_id', '!=', False)]}" /> <!--"Enviar solicitud a Personal de Mantenimiento.(Solo puede ver Jefe de Granja)"-->
 
                       <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|',('support_rating', '!=', 0),('close_time', '=', False),('group_jefe', '!=', False)]}" class="btn-primary"/> <!--"Reporte finalizado, envia la evaluacion del servicio.(Solo puede ver personal de mantenimiento"-->
-                      <button type="object" name="solicitud_cancelar" string="Cancelar"/>
+                      <!--<button type="object" name="solicitud_cancelar" string="Cancelar"/>-->
 
 <!-- #BOTON PARA LA SOLICITUD DE APROBACION
                       <button type="object" name="request_approval" string="Solicitar Aprobacion"/>  -->
@@ -95,10 +95,10 @@
                             <field name="fecha_reporte" readonly="1"/>                            
                             <field name="fecha_incio_real" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>
                             <field name="fecha_estimada" attrs="{'invisible':[('user_id', '=', False)], 'readonly':[('close_time', '!=', False)]}"/>
-                            <field name="close_time" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>
-                            <field name="time_to_close"/>
-                            <field name="time_to_close_est"/>
-                            <field name="closed_by_id"/>
+                            <field name="close_time" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>                      
+                            <field name="time_to_close_est" readonly="1"/>
+                            <field name="time_to_close" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>
+                            <!--<field name="closed_by_id"/>-->
                             <!-- <table style="width:70%">
                               <tr>
                                 <th style="width:20%"><strong>Responsable: </strong></th>

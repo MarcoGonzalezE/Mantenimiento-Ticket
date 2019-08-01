@@ -3,7 +3,7 @@
     <data noupdate="1">
 
         <record id="support_group" model="res.groups">
-            <field name="name">Supervisor</field>
+            <field name="name">Encargado</field>
             <field name="category_id" ref="support_application"/>
             <field name="comment">Solo puede usar el sitio web</field>
         </record>

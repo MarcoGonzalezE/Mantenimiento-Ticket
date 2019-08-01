@@ -77,6 +77,7 @@ class WebsiteSupportTicket(models.Model):
 
 
 #Campos de Ticket o Encargado de Granja
+    name = fields.Integer("Nombre")
     create_user_id = fields.Many2one('res.users', "Creado por")
     fecha_solicitud = fields.Datetime(string="Fecha de Solicitud", default=_default_fecha)
     person_name = fields.Char(string="Solicitante")
@@ -99,8 +100,8 @@ class WebsiteSupportTicket(models.Model):
     close_time = fields.Datetime(string="Terminacion Real")
     close_date = fields.Date(string="Close Date")
     closed_by_id = fields.Many2one('res.users', string="Closed By")
-    time_to_close = fields.Integer(string="Time to close (seconds) Real")
-    time_to_close_est = fields.Integer(string="Time to close (seconds) Estimada")
+    time_to_close = fields.Integer(string="Tiempo de terminacion real (Dias)")
+    time_to_close_est = fields.Integer(string="Tiempo de terminacion estimado (Dias)")
     extra_field_ids = fields.One2many('website.support.ticket.field', 'wst_id', string="Extra Details")
     approve_url = fields.Char(compute="_compute_approve_url", string="Approve URL")
     disapprove_url = fields.Char(compute="_compute_disapprove_url", string="Disapprove URL")
@@ -169,11 +170,18 @@ class WebsiteSupportTicket(models.Model):
             self.group_mant = True
         else:
             self.group_mant = False
+
     @api.multi
     @api.onchange('fecha_estimada')
     def _compute_tiempo_est(self):
-        diff_time_est = datetime.datetime.strptime(self.fecha_estimada, DEFAULT_SERVER_DATETIME_FORMAT) - datetime.datetime.strptime(self.fecha_incio_real, DEFAULT_SERVER_DATETIME_FORMAT)
-        self.time_to_close_est = diff_time_est.days
+        if self.fecha_estimada != False:
+            d1= datetime.datetime.strptime(str(self.fecha_estimada), DEFAULT_SERVER_DATETIME_FORMAT)
+            d2= datetime.datetime.strptime(str(self.fecha_reporte), DEFAULT_SERVER_DATETIME_FORMAT)
+            diff_time_est = abs((d1-d2))
+        #diff_time_est = datetime.datetime.strptime(self.fecha_estimada, DEFAULT_SERVER_DATETIME_FORMAT) - datetime.datetime.strptime(self.fecha_incio_real, DEFAULT_SERVER_DATETIME_FORMAT)
+        #diff_time_est= datetime.datetime.strptime(self.fecha_estimada, DEFAULT_SERVER_DATETIME_FORMAT) - datetime.datetime.strptime(self.fecha_incio_real, DEFAULT_SERVER_DATETIME_FORMAT)
+            self.time_to_close_est = diff_time_est.days
+
     #NUEVO
     @api.onchange('approval_id')
     def _compute_state(self):
@@ -262,6 +270,7 @@ class WebsiteSupportTicket(models.Model):
     @api.depends('ticket_number')
     def _compute_ticket_number_display(self):
         self.ticket_number_display = self.ticket_number
+        self.name = self.ticket_number
 
         #if self.ticket_number:
         #    self.ticket_number_display = str(self.id) + " / " + "{:,}".format( self.ticket_number ) #Por Borrar
@@ -654,7 +663,7 @@ class MantenimientoTipo(models.Model):
 
     sequence = fields.Integer(string="Sequence")
     name = fields.Char(required=True, translate=True, string='Tipo de Matenimiento')
-    mant_user_ids = fields.Many2many('res.users', string="Personal")   
+    mant_user_ids = fields.Many2many('res.users', string="Jefe de Mantenimiento")
     #parent_category_id = fields.Many2one('mantenimiento.tipo', required=True, string="Parent Category")
     additional_field_ids = fields.One2many('mantenimiento.tipo.etiquetas', 'wsts_id', string="Adicional")
  
