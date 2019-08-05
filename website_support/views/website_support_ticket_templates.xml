@@ -93,7 +93,7 @@
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
                 <p>_user_name_,</p>
-                <p>Se te ha asignado una solicitud</p>
+                <p>Se te ha asignado como responsable de una solicitud</p>
                 <hr/>
                 <b>Numero: #</b>${object.ticket_number or object.id}<br/>
                 <b>Granja:</b> 
@@ -101,7 +101,7 @@
                     ${object.category.name}
                 % endif
                 <br/>
-                <b>Prioridad:</b> ${object.priority_id.name}<br/>
+                <b>Prioridad:</b> ${object.prioridad_mant.name}<br/>
                 <b>Tipo de Mantenimiento:</b> ${object.tipo_mant_id.name}<br/>
                 <b>Asunto:</b> ${object.subject}<br/>
                 <b>Descripción:</b><br/>

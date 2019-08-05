@@ -77,7 +77,6 @@ class WebsiteSupportTicket(models.Model):
 
 
 #Campos de Ticket o Encargado de Granja
-    name = fields.Integer("Nombre")
     create_user_id = fields.Many2one('res.users', "Creado por")
     fecha_solicitud = fields.Datetime(string="Fecha de Solicitud", default=_default_fecha)
     person_name = fields.Char(string="Solicitante")
@@ -203,8 +202,20 @@ class WebsiteSupportTicket(models.Model):
         self.email = self.partner_id.email
 
     @api.onchange('asignar')
-    def _inicio_real(self):
+    def _inicio_real(self):                   
         self.fecha_incio_real = datetime.datetime.now()
+        self.state = self.env['website.support.ticket.states'].search([('name','=','En Proceso')])
+
+    @api.multi
+    @api.depends('compras_ids')
+    def _compras_state(self):
+        compras=[]
+        for x in self.compras_ids:
+            compras.append(x.state)
+        if 'purchase' in compras:
+            self.state = self.env['website.support.ticket.states'].search([('name','=','Autorizado por Gerencia')]) 
+        else:
+            self.state= self.env['website.support.ticket.states'].search([('name','=','Esperando material')])
 
 
     def message_new(self, msg, custom_values=None):
@@ -270,7 +281,6 @@ class WebsiteSupportTicket(models.Model):
     @api.depends('ticket_number')
     def _compute_ticket_number_display(self):
         self.ticket_number_display = self.ticket_number
-        self.name = self.ticket_number
 
         #if self.ticket_number:
         #    self.ticket_number_display = str(self.id) + " / " + "{:,}".format( self.ticket_number ) #Por Borrar
@@ -715,4 +725,4 @@ class MantenimientoCategoria(models.Model):
 #PEDIDO DE COMPRA
 class orden_servicio(models.Model):
     _inherit = "purchase.order"
-    reporte = fields.Many2one('website.support.ticket',  string='Reporte de Mantenimiento', required=True)
+    reporte = fields.Many2one('website.support.ticket',  string='Reporte de Mantenimiento')

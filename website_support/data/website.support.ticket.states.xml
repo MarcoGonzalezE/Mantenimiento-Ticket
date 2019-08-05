@@ -48,9 +48,9 @@
         </record>
         -->
         
-        <!--<record id="website_ticket_state_cancelled" model="website.support.ticket.states">
+        <record id="website_ticket_state_cancelled" model="website.support.ticket.states">
             <field name="name">Cancelado</field>
-        </record>-->
+        </record>
         
     </data>     
 </odoo>
