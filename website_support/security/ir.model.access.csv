@@ -9,7 +9,7 @@ access_website_support_ticket_states_mant,Estados.Mante,model_website_support_ti
 access_website_support_ticket_message,access website.support.ticket.message,model_website_support_ticket_message,support_staff,1,0,1,0
 access_mail_followers_support,public access.mail.followers.support,mail.model_mail_followers,base.group_public,0,0,1,0
 access_website_support_ticket_categorias_mant,Categorias de mantenimiento.Mante,model_mantenimiento_categoria,support_mant,1,1,1,0
-access_website_support_ticket_categories,Granjas.Jefe,model_website_support_ticket_categories,support_staff,1,0,0,0
+access_website_support_ticket_categories,Granjas.Jefe,model_website_support_ticket_categories,support_staff,1,1,1,0
 access_website_support_ticket_categories_manager,Granjas.Gerente,model_website_support_ticket_categories,support_manager,1,1,1,1
 access_website_support_ticket_categories_mant,Granjas.Mante,model_website_support_ticket_categories,support_mant,1,1,1,1
 access_website_support_ticket_subcategory,support staff access website.support.ticket.subcategory,model_website_support_ticket_subcategory,support_staff,1,0,0,0
@@ -37,6 +37,10 @@ access_ir_config_parameter,support manager access ir.config_parameter,base.model
 access_res_users,support manager access res.users,base.model_res_users,support_manager,1,0,1,0
 access_website_support_ticket_tipo_mantenimiento,Tipo de mantenimiento.Mante,model_mantenimiento_tipo,support_mant,1,1,1,0
 access_website_support_ticket_tipo_mantenimiento,Tipo de mantenimiento.Jefe,model_mantenimiento_tipo,support_staff,1,1,1,0
-access_website_support_ticket_tipo_mantenimiento,Tipo de mantenimiento.Jefe,model_mantenimiento_tipo,support_mant,1,1,1,0
+access_website_support_ticket_tipo_mantenimiento,Tipo de mantenimiento.Mante,model_mantenimiento_tipo,support_mant,1,1,1,0
 access_website_support_ticket_personal_mantenimiento,Personal de mantenimineto.Admin,model_personal_mantenimiento,support_manager,1,1,1,1
 access_website_support_ticket_personal_mantenimiento,Personal de mantenimineto.Mante,model_personal_mantenimiento,support_mant,1,1,1,1
+access_res_users,support manager access res.users,base.model_res_users,support_mant,1,0,1,0
+access_res_users,support manager access res.users,base.model_res_users,support_staff,1,0,1,0
+access_res_partner,support manager access res.partner,base.model_res_partner,support_staff,1,0,1,0
+access_website_support_ticket_approval,access website.support.ticket.approval,model_website_support_ticket_approval,support_mant,1,0,0,0

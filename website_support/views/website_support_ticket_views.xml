@@ -11,12 +11,12 @@
                       <!-- <button type="action" name="%(website_support_ticket_compose_action)d" context="{'default_ticket_id': active_id, 'default_partner_id': partner_id, 'default_email':email, 'default_subject':subject}" string="Reply"/> -->
                       <!-- <field name="group_name" invisible="1"/> -->
 
-                      <button type="object" name="open_close_ticket_wizard" string="Terminar Reporte" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('group_jefe', '!=', False)]}"/> <!--"Finalizar reporte de mantenimiento. (Solo puede ver personal de mantenimiento"-->
+                      <button type="object" name="open_close_ticket_wizard" string="Terminar Reporte" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('group_jefe', '=', True)]}"/> <!--"Finalizar reporte de mantenimiento. (Solo puede ver personal de mantenimiento"-->
 
                       <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('group_mant', '=', True),('user_id', '!=', False)]}" /> <!--"Enviar solicitud a Personal de Mantenimiento.(Solo puede ver Jefe de Granja)"-->
 
-                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|',('support_rating', '!=', 0),('close_time', '=', False),('group_jefe', '!=', False)]}" class="btn-primary"/> <!--"Reporte finalizado, envia la evaluacion del servicio.(Solo puede ver personal de mantenimiento"-->
-                      <button type="object" name="solicitud_cancelar" string="Cancelar"/>
+                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|',('support_rating', '!=', 0),('close_time', '=', False),('group_jefe', '=', True)]}" class="btn-primary"/> <!--"Reporte finalizado, envia la evaluacion del servicio.(Solo puede ver personal de mantenimiento"-->
+                      <button type="object" name="solicitud_cancelar" string="Cancelar" attrs="{'invisible' :[('cancelar','=', True)]}"/>
 
 <!-- #BOTON PARA LA SOLICITUD DE APROBACION
                       <button type="object" name="request_approval" string="Solicitar Aprobacion"/>  -->
@@ -38,22 +38,22 @@
                       </table>                          
                     </div>
                     <div class="oe_title">
-                      Asunto<h2><field name="subject" attrs="{'readonly':[('group_mant', '=', True)]}"/></h2>
+                      Asunto<h2><field name="subject" attrs="{'readonly':['|',('group_mant', '=', True),('cancelar','=', True)]}"/></h2>
                     </div>
                     <group>
                       <group>
                         <field name="group_jefe" invisible="1"/>
                         <field name="group_mant" invisible="1"/>
-                        <field name="cancelar" invisible="1"/>                        
-                        <field name="category" attrs="{'readonly':[('group_mant', '=', True)]}" required="1"/>
+                        <field name="cancelar"/>
+                        <field name="category" attrs="{'readonly':['|', ('group_mant', '=', True),('cancelar','=', True)]}" required="1"/>
                         <field name="partner_id"/> 
-                        <field name="cat_mant_id"/>
-                        <field name="tipo_mant_id"/>
-                        <field name="description" widget="text" attrs="{'readonly':[('group_mant', '=', True)]}"/>
+                        <field name="cat_mant_id" attrs="{'readonly':[('cancelar','=', True)]}"/>
+                        <field name="tipo_mant_id" attrs="{'readonly':[('cancelar','=', True)]}"/>
+                        <field name="description" widget="text" attrs="{'readonly':['|',('group_mant', '=', True),('cancelar','=', True)]}"/>
                         <!-- <field name="attachment" widget="html" filename="attachment_filename" attrs="{'invisible' :['|', ('attachment', '=', False), ('attachment_ids', '=', [])]}"/>-->
                         <field name="attachment" widget="html" filename="attachment_filename" invisible="1"/>
                         <field name="attachment_filename" invisible="True"/>
-                        <field name="attachment_ids"  widget="many2many_kanban" attrs="{'invisible' :[('attachment_ids', '=', [])], 'readonly':[('group_mant', '=', True)]}">
+                        <field name="attachment_ids"  widget="many2many_kanban" attrs="{'invisible' :[('attachment_ids', '=', [])], 'readonly':['|', ('group_mant', '=', True), ('cancelar','=', True)]}">
                           <tree>
                             <!--<field name="datas_fname"/>-->
                             <field name="datas"/>
@@ -70,13 +70,13 @@
                         <!-- <field name="create_user_id" invisible="True"/> -->
                         <!-- <field name="ticket_number"/> -->
                         <field name="fecha_solicitud" readonly="1"/>
-                        <field name="priority_id" attrs="{'readonly':[('group_mant', '=', True)]}"/>
+                        <field name="priority_id" attrs="{'readonly':['|', ('group_mant', '=', True), ('cancelar','=', True)]}"/>
                         <!--  <field name="user_id" readonly="1"/> -->
                         <!--  <field name="supervisor" readonly="1"/> -->
                         <!-- <field name="email"/> -->
                         <!-- <field name="sub_category_id" domain="[('parent_category_id','=',category)]"/> -->
                         <!-- <field name="state"/> -->                        
-                        <field name="approval_id" attrs="{'readonly':[('group_mant', '=', True)]}"/>
+                        <field name="approval_id" attrs="{'readonly':['|', ('group_mant', '=', True), ('cancelar','=', True)]}"/>
                         <field name="enviado" attrs="{'invisible':[('enviado', '=', False)]}" readonly="1"/>
                       </group>
                     </group>
@@ -85,17 +85,17 @@
                         <page string="Departamento de Mantenimiento" attrs="{'invisible' :[('enviado', '=', False)]}">
                           <group>
                             <group>
-                              <field name="user_id" attrs="{'readonly':[('group_jefe', '=', True)]}"/>           
+                              <field name="user_id" attrs="{'readonly':['|', ('group_jefe', '=', True), ('cancelar','=', True)]}"/>           
                             </group>
                             <group>
-                              <field name="asignar" attrs="{'readonly':[('group_jefe', '=', True)], 'invisible':[('user_id', '=', False)]}"/>                              
-                              <field name="prioridad_mant" attrs="{'readonly':[('group_jefe', '=', True)], 'invisible' :[('user_id', '=', False)]}"/>
+                              <field name="asignar" attrs="{'readonly':['|', ('group_jefe', '=', True), ('cancelar','=', True)], 'invisible':[('user_id', '=', False)]}"/>                              
+                              <field name="prioridad_mant" attrs="{'readonly':['|', ('group_jefe', '=', True), ('cancelar','=', True)], 'invisible' :[('user_id', '=', False)]}"/>
                             </group>
                           </group>                          
                           <group col= "4" string="Terminación" attrs="{'invisible' :[('user_id', '=', False)]}">
                             <field name="fecha_reporte" readonly="1"/>                            
                             <field name="fecha_incio_real" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>
-                            <field name="fecha_estimada" attrs="{'invisible':[('user_id', '=', False)], 'readonly':[('close_time', '!=', False)]}"/>
+                            <field name="fecha_estimada" attrs="{'invisible':[('user_id', '=', False),('cancelar','=', True)], 'readonly':[('close_time', '!=', False)]}"/>
                             <field name="close_time" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>                      
                             <field name="time_to_close_est" readonly="1"/>
                             <field name="time_to_close" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>
@@ -126,7 +126,7 @@
                             </table>-->
                           </group>
                           <group>                                                    
-                            <field name="close_comment" attrs="{'readonly':[('group_jefe', '=', True)], 'invisible' :[('close_time', '=', False)]}"/>
+                            <field name="close_comment" attrs="{'readonly':['|', ('group_jefe', '=', True), ('cancelar','=', True)], 'invisible' :[('close_time', '=', False)]}"/>
                           </group>
                           <group string="Evaluación" attrs="{'invisible' :[('close_time', '=', False)]}">
                             <table style="width:70%">
@@ -159,7 +159,7 @@
                               </tr>
                               <tr>                                
                                 <th style="width:20%">Comentarios </th>
-                                <td align="left"><field name="support_comment" attrs="{'readonly':[('group_mant', '=', True)]}"/></td>
+                                <td align="left"><field name="support_comment" attrs="{'readonly':['|', ('group_mant', '=', True), ('cancelar','=', True)]}"/></td>
                               </tr>
                             </table>
                           </group>
@@ -195,7 +195,7 @@
                   <field name="subject"/>
                   <field name="cat_mant_id"/>        	          
       	          <field name="category"/>                  
-                  <field name="priority_id"/>                 
+                  <field name="prioridad_mant"/>                 
                   <field name="support_rating" invisible="True"/>
                   <field name="state"/>
                   <button icon="fa-star" attrs="{'invisible' :[('support_rating', '=', 0)]}"/>
@@ -246,7 +246,7 @@
       	      <search>
       	          <field name="partner_id"/>
                   <filter string="Sin Terminar" name="unattended_tickets" domain="[('unattended', '=', True )]" />
-                  <filter string="Terminadas" name="attended_tickets" domain="[('unattended', '=', False )]" />
+                  <filter string="Terminadas" name="attended_tickets" domain="[('unattended', '=', False )" />
                   <filter name="group_by_category" string="Granja" domain="[]"  context="{'group_by':'category'}"/>
                   <filter name="group_by_user" string="Personal de Mantenimiento" domain="[]"  context="{'group_by':'user_id'}"/>
       	      </search>

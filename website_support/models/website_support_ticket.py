@@ -24,7 +24,7 @@ class WebsiteSupportTicket(models.Model):
 
     _name = "website.support.ticket"
     _description = "Solicitud de Mantenimiento"
-    _rec_name = "subject"
+    _rec_name = "ticket_number_display"
     _inherit = ['mail.thread','ir.needaction_mixin']
 
     @api.model
@@ -91,7 +91,7 @@ class WebsiteSupportTicket(models.Model):
     portal_access_key = fields.Char(string="Portal Access Key")
     ticket_number = fields.Integer(string="Reporte #")
     ticket_number_display = fields.Char(string="Reporte #", compute="_compute_ticket_number_display")
-    ticket_color = fields.Char(related="priority_id.color", string="Ticket Color")
+    ticket_color = fields.Char(related="prioridad_mant.color", string="Ticket Color")
     company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env['res.company']._company_default_get('website.support.ticket') )
     support_rating = fields.Integer(string="Calificacion del Servicio")
     support_comment = fields.Text(string="Comentarios")
@@ -107,6 +107,7 @@ class WebsiteSupportTicket(models.Model):
     fecha_incio_real = fields.Datetime(string="Inicio real", default=_default_fecha)
     current_user = fields.Many2one('res.users','Current User', default=lambda self: self.env.user)
     compras_ids = fields.One2many('purchase.order', 'reporte', string='Compra(s)')
+
 #Campos de Personal de Mantenimiento
     user_id = fields.Many2one('res.partner', string="Responsable", track_visibility='onchange')
     prioridad_mant = fields.Many2one('website.support.ticket.priority', string="Prioridad de Mantenimiento", track_visibility='onchange')
@@ -115,6 +116,7 @@ class WebsiteSupportTicket(models.Model):
     tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento", track_visibility='onchange')
     fecha_estimada = fields.Datetime(string="Fecha Estimada", track_visibility='onchange')
     fecha_reporte = fields.Datetime(string="Fecha de Reporte")
+
 #TODO: Futuras Ideas    
     #email_ger = fields.Char(string="Correo de Gerencia")
     email = fields.Char(string="Correo")
@@ -125,6 +127,8 @@ class WebsiteSupportTicket(models.Model):
     group_mant = fields.Boolean(string="Grupo de Mantenimieto", compute="_get_mant")
     group_jefe = fields.Boolean(string="Grupo Jefe de Granja", compute="_get_jefe")
     enviado = fields.Boolean(string="Solicitud enviada a Mantenimiento")
+    cancelar = fields.Boolean(string="Cancelacion de solicitud")
+
     #@Author: Ivan Porras
     @api.multi
     @api.depends('category')
@@ -280,7 +284,7 @@ class WebsiteSupportTicket(models.Model):
     @api.one
     @api.depends('ticket_number')
     def _compute_ticket_number_display(self):
-        self.ticket_number_display = self.ticket_number
+        self.ticket_number_display = 'RM' + str(self.ticket_number)
 
         #if self.ticket_number:
         #    self.ticket_number_display = str(self.id) + " / " + "{:,}".format( self.ticket_number ) #Por Borrar
@@ -449,9 +453,7 @@ class WebsiteSupportTicket(models.Model):
 
     def solicitud_cancelar(self):
         self.state = self.env['website.support.ticket.states'].search([('name','=','Cancelado')])
-
-
-
+        self.cancelar = True
 
 class WebsiteSupportTicketApproval(models.Model):
 

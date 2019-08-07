@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <report id="reporte_sm" string="Reporte de Mantenimiento" model="website.support.ticket" report_type="qweb-pdf" name="website_support.reporte_sm_document"/>
+        <template id="reporte_sm_document">
+        	<t t-call="report.html_container">
+                <t t-call="report.external_layout">
+                    <t t-foreach="docs" t-as="o">
+                        <div class="page">
+                            <table style="width:100%;">
+                                <tr>
+                                	
+                                    <th>
+                                        <h3 align="center" style="color:white; background-color:#083464;">Reporte de Mantenimiento
+                                            <strong><p align="center" style="color:white; background-color:#083464;" t-esc="o.ticket_number_display"/></strong>
+                                        </h3>
+                                    </th>
+                                </tr>
+                            </table>
+                            <div class="row">
+                                <style>
+                                    th, td{
+                                    padding: 5px;
+                                    }
+                                    strong{
+                                    font-size:125%
+                                    }
+                                </style>
+                                <table style="width:100%;">
+                                    <thead>
+                                    	<tr>
+                                        	<td>
+                                            	<strong><span t-esc="o.subject"/></strong>
+                                        	</td>
+                                    	</tr>
+                                        <td style="width:100%;" colspan="4">
+                                            <h4 style="color:#083464;">Detalles</h4>
+                                            <hr/>
+                                        </td>
+                                        <tr>
+                                            <th>Granja</th>
+                                            <td>
+                                                <span t-esc="o.category.name"/>
+                                            </td>
+                                            <th>Fecha de Solicitud</th>
+                                            <td>
+                                                <span t-esc="o.fecha_solicitud"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Jefe de Granja</th>
+                                            <td>
+                                                <span t-esc="o.partner_id.name"/>
+                                            </td>
+                                            <th>Prioridad</th>
+                                            <td>
+                                                <span t-esc="o.priority_id.name"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Categoria</th>
+                                            <td>
+                                                <span t-esc="o.cat_mant_id.name"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Tipo de Mantenimiento</th>
+                                            <td>
+                                                <span t-esc="o.tipo_mant_id.name"/>
+                                            </td>
+                                        </tr>
+                                        <td style="width:100%; " colspan="4">
+                                            <h3 style="color:#083464;">Descripcion</h3>
+                                        </td>
+                                        <tr>
+                                            <td style="width:100%;" colspan="4">
+                                                <span t-esc="o.description"/>
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <h3 style="color:white; background-color:#083464; padding: 2px;">Departamento de Mantenimiento</h3>
+                                <table style="width:100%">
+                                    <tr>
+                                        <th>Responsable</th>
+                                        <th>Asignada</th>
+                                        <th>Prioridad</th>
+                                    </tr>
+                                    <tr>
+                                        <td><span t-field="o.user_id.name"/> </td>
+                                        <td><span t-field="o.asignar.name"/> </td>
+                                        <td><span t-field="o.prioridad_mant.name"/> </td>
+                                    </tr>
+                                </table>
+                                <h4 style="color:#083464;">Terminacion</h4>
+                                <hr/>
+                                <table style="width:100%">
+                                	<thead>
+                                		<tr>
+                                			<th>Fecha de Reporte</th>
+                                			<td>
+                                				<span t-esc="o.fecha_reporte"/>
+                                			</td>
+                                			<th>Inicio real</th>
+                                			<td>
+                                				<span t-esc="o.fecha_incio_real"/>
+                                			</td>
+                                		</tr>
+                                		<tr>
+                                			<th>Fechas Estimada</th>
+                                			<td>
+                                				<span t-esc="o.fecha_estimada"/>
+                                			</td>
+                                			<th>Terminacion Real</th>
+                                			<td>
+                                				<span t-esc="o.close_time"/>
+                                			</td>
+                                		</tr>
+                                		<td style="width:100%; " colspan="4">
+                                			<h3 style="color:#083464;">Nota:</h3>
+                                		</td>
+                                		<tr>
+                                			<td style="width:100%;" colspan="4">
+                                				<span t-esc="o.close_comment"/>
+                                			</td>
+                                		</tr>
+                                	</thead>
+                                </table>
+                                <H4 style="color:#083464;">Evaluacion</H4>
+                                <hr/>
+                                <table style="width:100%">
+                                	<tr>
+                                		<th>Calificacion</th>
+                                        <th>Comentarios</th>
+                                    </tr>
+                                    <tr>
+                                    	<td>
+                                    		<t t-if="o.support_rating == 5">
+                                        		<label>
+                                            		<img src="/website_support/static/src/img/5-star-eval.png" width="167" height="50"/>
+                                        		</label>
+                                    		</t>
+                                    		<t t-if="o.support_rating == 4">
+                                        		<label>
+                                            		<img src="/website_support/static/src/img/4-star-eval.png" width="167" height="50"/>
+                                        		</label>
+                                   			</t>
+                                    		<t t-if="o.support_rating == 3">
+                                        		<label>
+                                            		<img src="/website_support/static/src/img/3-star-eval.png" width="167" height="50"/>
+                                        		</label>
+                                    		</t>
+                                    		<t t-if="o.support_rating == 2">
+                                       			<label>
+                                            		<img src="/website_support/static/src/img/2-star-eval.png" width="167" height="50"/>
+                                        		</label>
+                                    		</t>
+                                    		<t t-if="o.support_rating == 1">
+                                        		<label>
+                                            		<img src="/website_support/static/src/img/1-star-eval.png" width="167" height="50"/>
+                                        		</label>
+                                    		</t>
+                                		</td>
+                                        <td><span t-field="o.support_comment"/></td>
+                                    </tr>
+                                </table>
+                                <hr/>
+                                <h3 style="color:white; background-color:#083464; padding: 2px;">Compras</h3>
+                                <t t-foreach="o.compras_ids" t-as="compra">
+                                    <t t-foreach="compra.order_line" t-as="lineas">
+                                        <table style="width:100%">
+                                            <thead>
+                                                <tr>
+                                	                <th>Pedido</th>
+                                                    <th>Proveedor</th>
+                                                    <th>Refacciones</th>
+                                                    <th>Cantitad</th>
+                                                    <th>Costo</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <span t-field="compra.name"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="compra.partner_id.name"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="lineas.product_id.name"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="lineas.product_qty"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="lineas.price_subtotal"/>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </t>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
