@@ -595,10 +595,17 @@ label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
                     <button class="myButton">
                         <a href="/support/ticket/submit" style="color:white">Enviar solicitud</a>
                     </button>
+
                     <t t-if="request.env.user.partner_id.name != 'Public user'">
                         <br/><br/>
                         <button class="myButton">
                             <a href="/support/ticket/view" style="color:white">Mis Solicitudes</a>
+                        </button>
+                    </t>
+                    <t t-if="request.env.user.partner_id.name == 'Public user'">
+                        <br/><br/>
+                        <button class="myButton">
+                            <a href="/web/login" style="color:white">Iniciar sesion</a>
                         </button>
                     </t>
                     <t t-if="manager">

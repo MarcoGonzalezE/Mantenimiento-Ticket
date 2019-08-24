@@ -18,7 +18,7 @@
                 <notebook position="inside">
                     <page string="Mantenimiento">
                         <group>
-                            <field name="stp_ids"/>                            
+                            <!--<field name="stp_ids"/>-->
                             <field name="encargados_ids"/>
                         </group>
                     </page>

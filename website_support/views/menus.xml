@@ -4,6 +4,7 @@
 
         <menuitem id="website_support_parent_menu" name="Matenimiento" groups="support_staff,support_mant" sequence="40" web_icon="website_support,static/description/icon2.png"/>
         <menuitem id="website_support_ticket_menu" name="Solicitudes de Matenimiento" parent="website_support_parent_menu" action="website_support_ticket_action" groups="support_staff,support_mant" sequence="10"/>
+        <menuitem id="website_support_parvada_menu" name="Cierre de Parvada" parent="website_support_parent_menu" action="website_support_parvada_action" groups="support_staff,support_mant" sequence="11"/>
         <!--  Departamento de Mantenimiento
                     > Tipo de Mantenimiento
                     > Personal
@@ -14,13 +15,14 @@
                     > Ajustes
         -->
 <!--- Departamento de Mantenimiento-->
-        <menuitem id="departamento_mantenimiento" name="Departamento de Mantenimiento" parent="website_support_parent_menu" groups="support_manager,support_mant" sequence="998"/>        
+        <menuitem id="departamento_mantenimiento" name="Departamento de Mantenimiento" parent="website_support_parent_menu" groups="support_manager,support_mant" sequence="997"/>        
         <menuitem id="mantenimiento_tipo_menu" name="Tipo de Matenimiento" parent="departamento_mantenimiento" action="mantenimiento_tipo_action" groups="support_manager,support_mant" sequence="20"/>
         <menuitem id="personal_mant_menu" name="Personal" parent="departamento_mantenimiento" action="personal_mantenimiento_action" groups="support_manager,support_mant" sequence="50"/>
 
 <!-- Configuracion -->
-        <menuitem id="website_support_config_parent_menu" name="Configuracion" parent="website_support_parent_menu" groups="support_manager,support_staff,support_mant" sequence="999"/>
+        <menuitem id="website_support_config_parent_menu" name="Configuracion" parent="website_support_parent_menu" groups="support_manager,support_staff,support_mant" sequence="998"/>
         <menuitem id="website_support_ticket_categories_menu" name="Granja" parent="website_support_config_parent_menu" action="website_support_ticket_categories_action" groups="support_manager,support_staff" sequence="10"/>
+        <menuitem id="website_support_ticket_mantenimiento_menu" name="Jefes de Mantenimiento" parent="website_support_config_parent_menu" action="website_support_mantenimiento_action" groups="support_manager" sequence="15"/>
        <!--<menuitem id="website_support_ticket_subcategory_menu" name="Tipo de Matenimiento" parent="website_support_config_parent_menu" action="website_support_ticket_subcategory_action" groups="support_manager" sequence="20"/> -->
         <menuitem id="website_support_ticket_states_menu" name="Estados" parent="website_support_config_parent_menu" action="website_support_ticket_states_action" groups="support_manager" sequence="30"/>
         <menuitem id="website_support_ticket_priority_menu" name="Prioridades" parent="website_support_config_parent_menu" action="website_support_ticket_priority_action" groups="support_manager" sequence="50"/>
@@ -29,6 +31,8 @@
        <!-- <menuitem id="website_support_help_page_menu" name="Help Pages" parent="website_support_config_parent_menu" action="website_support_help_page_action" groups="support_manager" sequence="90"/> -->
         <menuitem id="website_support_settings_menu" name="Ajustes" parent="website_support_config_parent_menu" action="website_support_settings_action" groups="support_manager" sequence="100"/>
         <!-- <menuitem id="website_support_warehouse_menu" name="Granjas" parent = "website_support_config_parent_menu" action="website_support_warehouse_action" groups="support_manager" sequence="110"/> -->
+<!-- Acerca de -->
+        <menuitem id="website_support_acerca_de_menu" name="Acerca de" parent="website_support_parent_menu" groups="support_manager,support_staff,support_mant" action="website_support_ticket_acerca_de" sequence="999"/>
  
     </data>
 </openerp>

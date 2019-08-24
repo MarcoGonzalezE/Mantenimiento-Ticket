@@ -15,7 +15,7 @@
 
                       <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('group_mant', '=', True),('user_id', '!=', False)]}" /> <!--"Enviar solicitud a Personal de Mantenimiento.(Solo puede ver Jefe de Granja)"-->
 
-                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|',('support_rating', '!=', 0),('close_time', '=', False),('group_jefe', '=', True)]}" class="btn-primary"/> <!--"Reporte finalizado, envia la evaluacion del servicio.(Solo puede ver personal de mantenimiento"-->
+                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|',('support_rating', '!=', 0),('cancelar','=', True),('group_jefe', '=', True)]}" class="btn-primary"/> <!--"Reporte finalizado, envia la evaluacion del servicio.(Solo puede ver personal de mantenimiento"-->
                       <button type="object" name="solicitud_cancelar" string="Cancelar" attrs="{'invisible' :[('cancelar','=', True)]}"/>
 
 <!-- #BOTON PARA LA SOLICITUD DE APROBACION
@@ -44,7 +44,7 @@
                       <group>
                         <field name="group_jefe" invisible="1"/>
                         <field name="group_mant" invisible="1"/>
-                        <field name="cancelar"/>
+                        <field name="cancelar" invisible="1"/>
                         <field name="category" attrs="{'readonly':['|', ('group_mant', '=', True),('cancelar','=', True)]}" required="1"/>
                         <field name="partner_id"/> 
                         <field name="cat_mant_id" attrs="{'readonly':[('cancelar','=', True)]}"/>
@@ -95,7 +95,7 @@
                           <group col= "4" string="Terminación" attrs="{'invisible' :[('user_id', '=', False)]}">
                             <field name="fecha_reporte" readonly="1"/>                            
                             <field name="fecha_incio_real" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>
-                            <field name="fecha_estimada" attrs="{'invisible':[('user_id', '=', False),('cancelar','=', True)], 'readonly':[('close_time', '!=', False)]}"/>
+                            <field name="fecha_estimada" attrs="{'invisible':[('user_id', '=', False)], 'readonly':[('cancelar','=', True)]}"/>
                             <field name="close_time" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>                      
                             <field name="time_to_close_est" readonly="1"/>
                             <field name="time_to_close" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>
@@ -165,7 +165,7 @@
                           </group>
                         </page>
                           <page string="Refacciones" attrs="{'invisible' :[('enviado', '=', False)]}">
-                            <field name="compras_ids"/>
+                            <field name="compras_ids" attrs="{'readonly':[('cancelar','=', True)]}"/>
                         </page>
                       </notebook>
                       
@@ -191,11 +191,15 @@
       	      <tree colors="black:ticket_color==False">
       	          <!-- <field name="create_user_id" invisible="True"/> -->
       	          <field name="ticket_color" invisible="1"/>
-      	          <field name="ticket_number" string="Numero de Reporte"/>             
+                  <field name="ticket_number" string="Numero de Reporte"/>             
                   <field name="subject"/>
-                  <field name="cat_mant_id"/>        	          
-      	          <field name="category"/>                  
-                  <field name="prioridad_mant"/>                 
+                  <field name="tipo_mant_id"/>
+                  <field name="cat_mant_id"/>                   
+                  <field name="category"/>                  
+                  <field name="prioridad_mant"/>
+                  <field name="user_id"/>
+                  <field name="fecha_solicitud"/>
+                  <field name="fecha_estimada"/>
                   <field name="support_rating" invisible="True"/>
                   <field name="state"/>
                   <button icon="fa-star" attrs="{'invisible' :[('support_rating', '=', 0)]}"/>
@@ -245,8 +249,8 @@
           <field name="arch" type="xml">
       	      <search>
       	          <field name="partner_id"/>
-                  <filter string="Sin Terminar" name="unattended_tickets" domain="[('unattended', '=', True )]" />
-                  <filter string="Terminadas" name="attended_tickets" domain="[('unattended', '=', False )" />
+                  <filter string="Sin Terminar" name="unattended_tickets" domain="[('unattended', '=', True)]" />
+                  <filter string="Terminadas" name="attended_tickets" domain="[('unattended', '=', False)]"/>
                   <filter name="group_by_category" string="Granja" domain="[]"  context="{'group_by':'category'}"/>
                   <filter name="group_by_user" string="Personal de Mantenimiento" domain="[]"  context="{'group_by':'user_id'}"/>
       	      </search>
@@ -296,6 +300,7 @@
           <field name="reporte" options="{'no_create': True}" domain="[('state.name','!=','Terminado'),('state.name','!=','Rechazado'),('state.name','!=','Cancelado')]"/>
         </field>
         </field>
+
     </record>
  
     </data>

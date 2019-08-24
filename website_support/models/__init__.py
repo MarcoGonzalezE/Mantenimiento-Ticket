@@ -1,1 +1,1 @@
-import website_support_ticket, res_partner, website_support_help, res_company, website_support_settings, mail_template, website_support_department
+import website_support_ticket, res_partner, website_support_help, res_company, website_support_settings, mail_template, website_support_department, website_support_parvada
