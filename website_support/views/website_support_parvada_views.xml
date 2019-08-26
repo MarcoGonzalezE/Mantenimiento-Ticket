@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<openerp>
+    <data>
+        <record id="website_support_parvada_view_form" model="ir.ui.view">
+            <field name="name">website.support.parvada.form.view</field>
+            <field name="model">website.support.parvada</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="granja"/>
+                            </group>
+                            <group>
+                                <field name="fecha"/>
+                                <field name="fecha_fin"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Lista de Tareas">
+                                <field name="tareas_ids">
+                                    <tree editable="bottom">
+                                        <field name="name"/>
+                                        <field name="responsable"/>
+                                        <field name="fecha_tarea"/>
+                                        <field name="fecha_tarea_final" readonly="1" attrs="{'invisible' :['|',('state', '=', 'cancel'),('state', '=', 'rejected'),('state', '=', 'process')]}"/>
+                                        <field name="state"/>
+                                        <button icon="fa-circle" style="color:green" attrs="{'invisible' :[('state', '!=', 'finish')]}" readonly="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <!--<div class="oe_chatter">
+                        <style>
+                            .o_chatter_button_new_message {
+                            display: none;
+                            }
+                        </style>
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>-->
+                </form>
+            </field>
+        </record>
+
+        <record id="website_support_parvada_view_tree" model="ir.ui.view">
+            <field name="name">website.support.parvada.tree.view</field>
+            <field name="model">website.support.parvada</field>
+            <field name="arch" type="xml">
+                <tree string="Cierre de Parvada">
+                    <field name="name"/>
+                    <field name="granja"/>
+                    <field name="fecha"/>
+                    <field name="fecha_fin"/>
+                    <field name="state"/>
+                    <button icon="fa-circle" style="color:green" attrs="{'invisible' :[('state', '!=', 'finish')]}" readonly="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="website_support_parvada_action" model="ir.actions.act_window">
+            <field name="name">Cierre de Parvada</field>
+            <field name="res_model">website.support.parvada</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p>
+                    No se encontro ninguna solicitud de cierre.
+                </p>
+            </field>
+        </record>
+<!--Jefes de Mantenimiento -->
+        <record id = "website_suppport_mantenimiento_view_tree" model="ir.ui.view">
+            <field name="name">website.support.mantenimiento.tree.view</field>
+            <field name="model">website.support.mantenimiento</field>
+            <field name="arch" type="xml">
+                <tree editable="top">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="website_support_mantenimiento_action" model="ir.actions.act_window">
+            <field name="name">Mantenimiento</field>
+            <field name="res_model">website.support.mantenimiento</field>
+            <field name="view_mode">tree</field>
+            <field name="help" type="html">
+                <p>No hay Jefes de Manteniminto Registrados</p>
+            </field>
+        </record>
+    </data>
+</openerp>
