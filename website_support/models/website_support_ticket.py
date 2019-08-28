@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from openerp import api, fields, models
-from openerp import tools
+from odoo import api, fields, models
+from odoo import tools
 from HTMLParser import HTMLParser
 from random import randint
 import datetime
@@ -64,6 +64,14 @@ class WebsiteSupportTicket(models.Model):
         except ValueError:
             return False
 
+    def _default_user_id(self):
+        self.user_id = None
+        personal = []
+        mant_person = self.env['mantenimiento.tipo'].search([('id','=',self.tipo_mant_id.id)])
+        for x in mant_person.mant_user_ids:
+            personal.append(int(x.partner_id.id))
+        return self.env['res.partner'].search([('id','in',personal)])
+
 
 
 #Campos de Jefe de Granja
@@ -109,7 +117,7 @@ class WebsiteSupportTicket(models.Model):
     compras_ids = fields.One2many('purchase.order', 'reporte', string='Compra(s)')
 
 #Campos de Personal de Mantenimiento
-    user_id = fields.Many2one('res.partner', string="Responsable", track_visibility='onchange')
+    user_id = fields.Many2one('res.partner', string="Responsable", track_visibility='onchange', default=_default_user_id)
     prioridad_mant = fields.Many2one('website.support.ticket.priority', string="Prioridad de Mantenimiento", track_visibility='onchange')
     asignar = fields.Many2one('personal.mantenimiento', string="Asignado a", track_visibility='onchange')
     cat_mant_id = fields.Many2one('mantenimiento.categoria', string="Categoria", track_visibility='onchange')
@@ -141,7 +149,7 @@ class WebsiteSupportTicket(models.Model):
             r.partner_id = self.env['res.partner'].search([('id','=',categories.cat_user_ids.partner_id.id)])
 
     @api.multi
-    @api.depends('tipo_mant_id')
+    @api.onchange('tipo_mant_id')
     def _compute_mant_person(self):
         for r in self:
             r.user_id = None
@@ -150,8 +158,9 @@ class WebsiteSupportTicket(models.Model):
             for x in mant_person.mant_user_ids:
                 personal.append(int(x.partner_id.id))
             if len(personal)>0:
+                print (personal)
                 return {'domain':{'user_id':[('id','in',personal)]}}
-        self.user_id = self.env['res.partner'].search([('id','=',mant_person.mant_user_ids.partner_id.id)])
+        #self.user_id = self.env['res.partner'].search([('id','=',mant_person.mant_user_ids.partner_id.id)])
 
     # @api.depends('state')
     # def _compute_is_state(self):
