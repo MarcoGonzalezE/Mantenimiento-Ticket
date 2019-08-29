@@ -62,16 +62,7 @@ class WebsiteSupportTicket(models.Model):
         try:
             return self.env['ir.model.data'].get_object('website_support', 'awaiting_approval')
         except ValueError:
-            return False
-
-    def _default_user_id(self):
-        self.user_id = None
-        personal = []
-        mant_person = self.env['mantenimiento.tipo'].search([('id','=',self.tipo_mant_id.id)])
-        for x in mant_person.mant_user_ids:
-            personal.append(int(x.partner_id.id))
-        return self.env['res.partner'].search([('id','in',personal)])
-
+            return
 
 
 #Campos de Jefe de Granja
@@ -81,8 +72,6 @@ class WebsiteSupportTicket(models.Model):
     priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad", track_visibility='onchange')
         #TODO: onchage event
     category = fields.Many2one('website.support.ticket.categories', string="Granja", track_visibility='onchange')
-    
-
 
 #Campos de Ticket o Encargado de Granja
     create_user_id = fields.Many2one('res.users', "Creado por")
@@ -112,12 +101,12 @@ class WebsiteSupportTicket(models.Model):
     extra_field_ids = fields.One2many('website.support.ticket.field', 'wst_id', string="Extra Details")
     approve_url = fields.Char(compute="_compute_approve_url", string="Approve URL")
     disapprove_url = fields.Char(compute="_compute_disapprove_url", string="Disapprove URL")
-    fecha_incio_real = fields.Datetime(string="Inicio real")
+    fecha_incio_real = fields.Datetime(string="Inicio real", default=None)
     current_user = fields.Many2one('res.users','Current User', default=lambda self: self.env.user)
     compras_ids = fields.One2many('purchase.order', 'reporte', string='Compra(s)')
 
 #Campos de Personal de Mantenimiento
-    user_id = fields.Many2one('res.partner', string="Responsable", track_visibility='onchange', default=_default_user_id)
+    user_id = fields.Many2one('res.partner', string="Responsable", track_visibility='onchange')
     prioridad_mant = fields.Many2one('website.support.ticket.priority', string="Prioridad de Mantenimiento", track_visibility='onchange')
     asignar = fields.Many2one('personal.mantenimiento', string="Asignado a", track_visibility='onchange')
     cat_mant_id = fields.Many2one('mantenimiento.categoria', string="Categoria", track_visibility='onchange')
@@ -131,15 +120,11 @@ class WebsiteSupportTicket(models.Model):
     support_email = fields.Char(string="Support Email")
     #sub_category_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")    
     #valor_state = fields.Char(related='state.name')
-    
-
-
-#Indicadores
+    #Indicadores
     group_mant = fields.Boolean(string="Grupo de Mantenimieto", compute="_get_mant")
     group_jefe = fields.Boolean(string="Grupo Jefe de Granja", compute="_get_jefe")
     enviado = fields.Boolean(string="Solicitud enviada a Mantenimiento")
     cancelar = fields.Boolean(string="Cancelacion de solicitud")
-
     #@Author: Ivan Porras
     @api.multi
     @api.depends('category')
@@ -149,7 +134,7 @@ class WebsiteSupportTicket(models.Model):
             r.partner_id = self.env['res.partner'].search([('id','=',categories.cat_user_ids.partner_id.id)])
 
     @api.multi
-    @api.onchange('tipo_mant_id')
+    @api.depends('tipo_mant_id')
     def _compute_mant_person(self):
         for r in self:
             r.user_id = None
@@ -157,8 +142,18 @@ class WebsiteSupportTicket(models.Model):
             mant_person = self.env['mantenimiento.tipo'].search([('id','=',r.tipo_mant_id.id)])
             for x in mant_person.mant_user_ids:
                 personal.append(int(x.partner_id.id))
+            r.user_id =[(6,0, personal)]
+
+    @api.multi
+    @api.onchange('tipo_mant_id')
+    def _onchange_mant_person(self):
+        for r in self:
+            r.user_id = None
+            personal=[]
+            mant_person = self.env['mantenimiento.tipo'].search([('id','=',r.tipo_mant_id.id)])
+            for x in mant_person.mant_user_ids:
+                personal.append(int(x.partner_id.id))
             if len(personal)>0:
-                print (personal)
                 return {'domain':{'user_id':[('id','in',personal)]}}
         #self.user_id = self.env['res.partner'].search([('id','=',mant_person.mant_user_ids.partner_id.id)])
 
@@ -428,13 +423,13 @@ class WebsiteSupportTicket(models.Model):
                 email_values = email_template.generate_email([r.id])[r.id]
                 email_values['model'] = "website.support.ticket"
                 email_values['res_id'] = r.id
-                print(values['user_id'])
                 assigned_user = self.env['res.partner'].browse(int(values['user_id']))
                 email_values['email_to'] = assigned_user.email
                 email_values['body_html'] = email_values['body_html'].replace("_user_name_", assigned_user.name)
                 email_values['body'] = email_values['body'].replace("_user_name_", assigned_user.name)
                 send_mail = self.env['mail.mail'].create(email_values)
                 send_mail.send()
+
             update_rec = super(WebsiteSupportTicket, r).write(values)
             return update_rec
 

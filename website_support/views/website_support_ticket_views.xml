@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-    <data>                    
-    
+<odoo>
+    <data>
       <record id="website_support_ticket_view_form" model="ir.ui.view">
           <field name="name">website.support.ticket.form.view</field>
           <field name="model">website.support.ticket</field>
@@ -10,17 +9,12 @@
                   <header>
                       <!-- <button type="action" name="%(website_support_ticket_compose_action)d" context="{'default_ticket_id': active_id, 'default_partner_id': partner_id, 'default_email':email, 'default_subject':subject}" string="Reply"/> -->
                       <!-- <field name="group_name" invisible="1"/> -->
-
                       <button type="object" name="open_close_ticket_wizard" string="Terminar Reporte" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('group_jefe', '=', True)]}"/> <!--"Finalizar reporte de mantenimiento. (Solo puede ver personal de mantenimiento"-->
-
                       <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('group_mant', '=', True),('user_id', '!=', False)]}" /> <!--"Enviar solicitud a Personal de Mantenimiento.(Solo puede ver Jefe de Granja)"-->
-
                       <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|',('support_rating', '!=', 0),('cancelar','=', True),('group_jefe', '=', True)]}" class="btn-primary"/> <!--"Reporte finalizado, envia la evaluacion del servicio.(Solo puede ver personal de mantenimiento"-->
                       <button type="object" name="solicitud_cancelar" string="Cancelar" attrs="{'invisible' :[('cancelar','=', True)]}"/>
-
-<!-- #BOTON PARA LA SOLICITUD DE APROBACION
+                       <!-- #BOTON PARA LA SOLICITUD DE APROBACION
                       <button type="object" name="request_approval" string="Solicitar Aprobacion"/>  -->
-
                       <field name="state" widget="statusbar"/>
                   </header>
       	          <sheet>
@@ -80,12 +74,12 @@
                         <field name="enviado" attrs="{'invisible':[('enviado', '=', False)]}" readonly="1"/>
                       </group>
                     </group>
-<!-- Personal de Matenimiento -->                    
+                    <!-- Personal de Matenimiento -->
                       <notebook>
                         <page string="Departamento de Mantenimiento" attrs="{'invisible' :[('enviado', '=', False)]}">
                           <group>
                             <group>
-                              <field name="user_id" attrs="{'readonly':['|', ('group_jefe', '=', True), ('cancelar','=', True)]}"/>           
+                              <field name="user_id" attrs="{'readonly':['|', ('group_jefe', '=', True), ('cancelar','=', True)]}"/>
                             </group>
                             <group>
                               <field name="asignar" attrs="{'readonly':['|', ('group_jefe', '=', True), ('cancelar','=', True)], 'invisible':[('user_id', '=', False)]}"/>                              
@@ -93,8 +87,8 @@
                             </group>
                           </group>                          
                           <group col= "4" string="Terminación" attrs="{'invisible' :[('user_id', '=', False)]}">
-                            <field name="fecha_reporte" readonly="1"/>                            
-                            <field name="fecha_incio_real" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>
+                            <field name="fecha_reporte" readonly="1"/>
+                            <field name="fecha_incio_real" readonly="1" attrs="{'invisible' :[('close_time', '=', False)]}"/>
                             <field name="fecha_estimada" attrs="{'invisible':[('user_id', '=', False)], 'readonly':[('cancelar','=', True)]}"/>
                             <field name="close_time" attrs="{'invisible' :[('close_time', '=', False)]}" readonly="1"/>                      
                             <field name="time_to_close_est" readonly="1"/>
@@ -280,14 +274,14 @@
 
       <record id="website_support_ticket_action" model="ir.actions.act_window">
           <field name="name">Solicitudes de Mantenimiento</field>
-	  <field name="res_model">website.support.ticket</field>
-	  <field name="view_mode">tree,kanban,form,graph</field>
-	  <field name="context">{"search_default_unattended_tickets":1, 'auto_refresh': 1, 'default_create_user_id': uid}</field>
-	  <field name="help" type="html">
-	      <p>
-	          No se encontro ninguna solicitud
-	      </p>
-          </field>
+          <field name="res_model">website.support.ticket</field>
+          <field name="view_mode">tree,kanban,form,graph</field>
+          <field name="context">{"search_default_unattended_tickets":1, 'auto_refresh': 1, 'default_create_user_id': uid,'readonly_by_pass': True}</field>
+          <field name="help" type="html">
+              <p>
+                  No se encontro ninguna solicitud
+              </p>
+              </field>
       </record>
 
 <!-- Campo Reporte de Mantenimiento en la Compra -->
@@ -304,4 +298,4 @@
     </record>
  
     </data>
-</openerp>
+</odoo>
