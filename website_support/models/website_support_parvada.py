@@ -51,15 +51,15 @@ class WebsiteSupportParvadaTareas(models.Model):
                               ('rejected', 'Rechazado')],
                              default='draft', string="Estado", track_visibility='onchange')
     fecha_tarea = fields.Datetime(string="Fecha inicio", track_visibility='onchange')
-    fecha_tarea_final = fields.Datetime(string="Fecha terminacion", track_visibility='onchange', compute="_compute_real")
+    fecha_tarea_final = fields.Datetime(string="Fecha terminacion", track_visibility='onchange')
     responsable = fields.Many2one('website.support.mantenimiento', string="Responsable", track_visibility='onchange')
 
     @api.multi
     @api.onchange('state')
     def _compute_real(self):
-        for r in self:
-            if r.state == 'finish':
-                r.fecha_tarea_final = datetime.datetime.now()
+        for o in self:
+            if o.state == 'finish':
+                o.fecha_tarea_final = datetime.datetime.now()
 
 
 class WebsiteSupportMantenimiento(models.Model):
