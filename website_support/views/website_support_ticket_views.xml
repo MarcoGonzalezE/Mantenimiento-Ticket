@@ -11,8 +11,10 @@
                       <!-- <field name="group_name" invisible="1"/> -->
                       <button type="object" name="open_close_ticket_wizard" string="Terminar Reporte" class="btn-primary" attrs="{'invisible' :['|',('close_time', '!=', False),('group_jefe', '=', True)]}"/> <!--"Finalizar reporte de mantenimiento. (Solo puede ver personal de mantenimiento"-->
                       <button type="object" name="send_mantenimiento" string="Enviar a Mantenimiento" class="btn-primary" attrs="{'invisible' :['|',('group_mant', '=', True),('user_id', '!=', False)]}" /> <!--"Enviar solicitud a Personal de Mantenimiento.(Solo puede ver Jefe de Granja)"-->
-                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|',('support_rating', '!=', 0),('cancelar','=', True),('group_jefe', '=', True)]}" class="btn-primary"/> <!--"Reporte finalizado, envia la evaluacion del servicio.(Solo puede ver personal de mantenimiento"-->
+                      <button type="object" name="send_survey" string="Enviar Evaluacion" attrs="{'invisible' :['|',('support_rating', '!=', 0),('cancelar','=', True),('group_jefe', '!=', False)]}" class="btn-primary"/> <!--"Reporte finalizado, envia la evaluacion del servicio.(Solo puede ver personal de mantenimiento"-->
                       <button type="object" name="solicitud_cancelar" string="Cancelar" attrs="{'invisible' :[('cancelar','=', True)]}"/>
+                      <button type="object" name="reabrir" string="Re-Abrir" attrs="{'invisible' :['|',('group_mant', '=', True),('cancelar','=', False)]}"/>
+                      <!-- <button type="object" name="reabrir" string="Re-Abrir" attrs="{'invisible' :['|',('group_mant', '=', True),('close_time','=', False)]}"/> -->
                        <!-- #BOTON PARA LA SOLICITUD DE APROBACION
                       <button type="object" name="request_approval" string="Solicitar Aprobacion"/>  -->
                       <field name="state" widget="statusbar"/>
@@ -60,7 +62,7 @@
                           </tree>
                         </field>                        
                       </group>
-                      <group>                        
+                      <group>
                         <!-- <field name="create_user_id" invisible="True"/> -->
                         <!-- <field name="ticket_number"/> -->
                         <field name="fecha_solicitud" readonly="1"/>
@@ -69,9 +71,13 @@
                         <!--  <field name="supervisor" readonly="1"/> -->
                         <!-- <field name="email"/> -->
                         <!-- <field name="sub_category_id" domain="[('parent_category_id','=',category)]"/> -->
-                        <!-- <field name="state"/> -->                        
+                        <!-- <field name="state"/> -->
                         <field name="approval_id" attrs="{'readonly':['|', ('group_mant', '=', True), ('cancelar','=', True)]}"/>
                         <field name="enviado" attrs="{'invisible':[('enviado', '=', False)]}" readonly="1"/>
+                      </group>
+                      <group string="Solicitud Abierta" attrs="{'invisible' :[('reopen_date', '=', False)]}">
+                        <field name="reopen_date" readonly="1"/>
+                        <field name="reopen_note" widget="text" attrs="{'readonly':[('group_mant', '=', True)]}"/>
                       </group>
                     </group>
                     <!-- Personal de Matenimiento -->

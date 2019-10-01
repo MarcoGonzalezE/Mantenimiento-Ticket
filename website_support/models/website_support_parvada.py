@@ -13,6 +13,7 @@ _logger = logging.getLogger(__name__)
 class WebsiteSupportParvada(models.Model):
     _name = "website.support.parvada"
     _description = "Cierre de Parvada"
+    _inherit = ['mail.thread']
 
     name = fields.Char(string="Cierre Parvada", compute="_compute_cp_number_display")
     cp_number = fields.Integer()

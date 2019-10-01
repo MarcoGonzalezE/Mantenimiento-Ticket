@@ -104,6 +104,8 @@ class WebsiteSupportTicket(models.Model):
     fecha_incio_real = fields.Datetime(string="Inicio real", default=None)
     current_user = fields.Many2one('res.users','Current User', default=lambda self: self.env.user)
     compras_ids = fields.One2many('purchase.order', 'reporte', string='Compra(s)')
+    reopen_date = fields.Datetime(string="Fecha", track_visibility='onchange')
+    reopen_note = fields.Char("Nota", track_visibility='onchange')
 
 #Campos de Personal de Mantenimiento
     user_id = fields.Many2one('res.partner', string="Responsable", track_visibility='onchange')
@@ -467,6 +469,37 @@ class WebsiteSupportTicket(models.Model):
     def solicitud_cancelar(self):
         self.state = self.env['website.support.ticket.states'].search([('name','=','Cancelado')])
         self.cancelar = True
+        support_ticket_menu = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_menu')
+        support_ticket_action = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_action')
+        for my_user in self.category.cat_user_ids:
+            notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_cancel')
+            email_values = notification_mant.generate_email(self.id)
+            email_values['model'] = "website.support.ticket"
+            email_values['res_id'] = self.id            
+            email_values['email_to'] = my_user.partner_id.email
+            email_values['body_html'] = email_values['body_html'].replace("_ticket_url_", "web#id=" + str(self.id) + "&view_type=form&model=website.support.ticket&menu_id=" + str(support_ticket_menu.id) + "&action=" + str(support_ticket_action.id) ).replace("_user_name_",  my_user.partner_id.name)
+            email_values['body'] = email_values['body'].replace("_user_name_", my_user.partner_id.name)
+            send_mail = self.env['mail.mail'].create(email_values)
+            send_mail.send()
+
+    def reabrir(self):
+        self.state = self.env['website.support.ticket.states'].search([('name','=','Aceptado')])
+        self.cancelar = False
+        self.reopen_date = datetime.datetime.now()
+        self.close_time = False
+        support_ticket_menu = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_menu')
+        support_ticket_action = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_action')
+        if self.user_id != True:
+            self.state = self.env['website.support.ticket.states'].search([('name','=','En Proceso')])
+            notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_reopen')
+            email_values = notification_mant.generate_email(self.id)
+            email_values['model'] = "website.support.ticket"
+            email_values['res_id'] = self.id
+            email_values['email_to'] = self.user_id.email
+            email_values['body_html'] = email_values['body_html'].replace("_ticket_url_", "web#id=" + str(self.id) + "&view_type=form&model=website.support.ticket&menu_id=" + str(support_ticket_menu.id) + "&action=" + str(support_ticket_action.id) ).replace("_user_name_",  self.user_id.name)
+            email_values['body'] = email_values['body'].replace("_user_name_", self.user_id.name)
+            send_mail = self.env['mail.mail'].create(email_values)
+            send_mail.send()
 
 class WebsiteSupportTicketApproval(models.Model):
 
