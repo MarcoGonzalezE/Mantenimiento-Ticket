@@ -489,7 +489,7 @@ class WebsiteSupportTicket(models.Model):
         self.close_time = False
         support_ticket_menu = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_menu')
         support_ticket_action = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_action')
-        if self.user_id != True:
+        if self.user_id != False:
             self.state = self.env['website.support.ticket.states'].search([('name','=','En Proceso')])
             notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_reopen')
             email_values = notification_mant.generate_email(self.id)
