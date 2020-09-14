@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from openerp import api, fields, models
+from odoo import api, fields, models
 
 class WebsiteSupportDepartment(models.Model):
 

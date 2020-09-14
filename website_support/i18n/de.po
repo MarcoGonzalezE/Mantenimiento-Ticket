@@ -837,7 +837,7 @@ msgid "Group"
 msgstr "Gruppe"
 
 #. module: website_support
-#. openerp-web
+#. odoo-web
 #: code:addons/website_support/static/src/js/website_support.editor.js:46
 #: model:ir.model.fields,field_description:website_support.field_website_support_help_groups_name
 #, python-format
@@ -1030,7 +1030,7 @@ msgid "New Event"
 msgstr "Neuer Anlass"
 
 #. module: website_support
-#. openerp-web
+#. odoo-web
 #: code:addons/website_support/static/src/js/website_support.editor.js:45
 #: model:ir.ui.view,arch_db:website_support.content_new_help
 #, python-format
@@ -1038,7 +1038,7 @@ msgid "New Help Group"
 msgstr "Neue Hilfeseite Gruppe"
 
 #. module: website_support
-#. openerp-web
+#. odoo-web
 #: code:addons/website_support/static/src/js/website_support.editor.js:16
 #: model:ir.ui.view,arch_db:website_support.content_new_help
 #, python-format

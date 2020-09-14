@@ -8,10 +8,10 @@ import os
 import logging
 _logger = logging.getLogger(__name__)
 
-import openerp.http as http
-from openerp.http import request
+import odoo.http as http
+from odoo.http import request
 
-from openerp.addons.website.models.website import slug
+from odoo.addons.website.models.website import slug
 
 class SupportTicketController(http.Controller):
 

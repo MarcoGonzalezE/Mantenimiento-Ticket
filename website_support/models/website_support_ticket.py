@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from openerp import api, fields, models
-from openerp import tools
+from odoo import api, fields, models
+from odoo import tools
 from HTMLParser import HTMLParser
 from random import randint
 import datetime
@@ -485,8 +485,8 @@ class WebsiteSupportTicketCategories(models.Model):
     
     sequence = fields.Integer(string="Sequence")
     name = fields.Char(required=True, translate=True, string='Area')
-    cat_user_ids = fields.Many2many('res.users', string="Jefe de Area")
-    encargados_ids = fields.Many2many('res.partner', string="Encargados de Area")
+    cat_user_ids = fields.Many2many('res.users', string="Gerencia")
+    encargados_ids = fields.Many2many('res.partner', string="Jefe de Area")
 
     @api.model
     def create(self, values):

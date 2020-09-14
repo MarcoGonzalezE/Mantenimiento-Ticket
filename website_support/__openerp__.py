@@ -1,5 +1,5 @@
 {
-    'name': "Mantenimiento Ticket",
+    'name': "Mantenimiento Support",
     'version': "1.0.1",
     'author': "Marco Gonzalez",
     'category': "Tools",
@@ -17,6 +17,7 @@
         'views/website_support_ticket_categories_views.xml',
         'views/website_support_ticket_subcategory_views.xml',
         'views/website_support_ticket_states_views.xml',
+        'views/website_support_ticket_inventory_views.xml',
         'views/reporte_mantenimiento.xml',
         'views/res_partner_views.xml',
         'views/res_users_views.xml',

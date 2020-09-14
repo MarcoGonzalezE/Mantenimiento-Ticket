@@ -2,10 +2,10 @@
 import logging
 _logger = logging.getLogger(__name__)
 import requests
-from openerp.http import request
+from odoo.http import request
 import odoo
 
-from openerp import api, fields, models
+from odoo import api, fields, models
 
 class WebsiteSupportSettings(models.Model):
 
