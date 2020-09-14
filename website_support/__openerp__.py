@@ -1,5 +1,5 @@
 {
-    'name': "Maintenance Support",
+    'name': "Mantenimiento Ticket",
     'version': "1.0.1",
     'author': "Marco Gonzalez",
     'category': "Tools",
@@ -23,9 +23,7 @@
         'views/website_support_help_groups_views.xml',
         'views/website_support_help_page_views.xml',
         'views/website_support_ticket_priority_views.xml',
-        'views/website_support_parvada_views.xml',
         'views/website_support_warehouse_views.xml',
-        'views/acerca_de_views.xml',
         'views/mantenimiento_tipo_views.xml',
         'views/res_company_views.xml',
         'views/website_support_settings_views.xml',
@@ -43,7 +41,7 @@
     ],
     'demo': [],
     'depends': ['mail','web', 'website',
-        'purchase', 'contacts','web_readonly_bypass'],
+        'purchase', 'contacts'],
     #'images':[
     #    'static/description/3.jpg',
     #    'static/description/1.jpg',

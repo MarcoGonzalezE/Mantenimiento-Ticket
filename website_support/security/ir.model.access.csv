@@ -35,20 +35,12 @@ access_website_support_ticket_field_mant,support mant access website.support.tic
 access_ir_rule,support manager access ir.rule,base.model_ir_rule,support_manager,1,0,0,0
 access_ir_config_parameter,support manager access ir.config_parameter,base.model_ir_config_parameter,support_manager,1,0,0,0
 access_res_users,support manager access res.users,base.model_res_users,support_manager,1,0,1,0
-access_website_support_ticket_tipo_mantenimiento_mant,Tipo de mantenimiento.Mante,model_mantenimiento_tipo,support_mant,1,1,1,0
-access_website_support_ticket_tipo_mantenimiento_jefe,Tipo de mantenimiento.Jefe,model_mantenimiento_tipo,support_staff,1,1,1,0
-access_website_support_ticket_personal_mantenimiento_ger,Personal de mantenimineto.Admin,model_personal_mantenimiento,support_manager,1,1,1,1
-access_website_support_ticket_personal_mantenimiento_mant,Personal de mantenimineto.Mante,model_personal_mantenimiento,support_mant,1,1,1,1
-access_res_users_mant,support manager access res.users,base.model_res_users,support_mant,1,0,1,0
-access_res_users_jefe,support manager access res.users,base.model_res_users,support_staff,1,0,1,0
+access_website_support_ticket_tipo_mantenimiento,Tipo de mantenimiento.Mante,model_mantenimiento_tipo,support_mant,1,1,1,0
+access_website_support_ticket_tipo_mantenimiento,Tipo de mantenimiento.Jefe,model_mantenimiento_tipo,support_staff,1,1,1,0
+access_website_support_ticket_tipo_mantenimiento,Tipo de mantenimiento.Mante,model_mantenimiento_tipo,support_mant,1,1,1,0
+access_website_support_ticket_personal_mantenimiento,Personal de mantenimineto.Admin,model_personal_mantenimiento,support_manager,1,1,1,1
+access_website_support_ticket_personal_mantenimiento,Personal de mantenimineto.Mante,model_personal_mantenimiento,support_mant,1,1,1,1
+access_res_users,support manager access res.users,base.model_res_users,support_mant,1,0,1,0
+access_res_users,support manager access res.users,base.model_res_users,support_staff,1,0,1,0
 access_res_partner,support manager access res.partner,base.model_res_partner,support_staff,1,0,1,0
 access_website_support_ticket_approval,access website.support.ticket.approval,model_website_support_ticket_approval,support_mant,1,0,0,0
-access_website_support_parvada,Parvada.Admin,model_website_support_parvada,support_manager,1,1,1,1
-access_website_support_parvada,Parvada.Jefe,model_website_support_parvada,support_staff,1,1,1,0
-access_website_support_parvada,Parvada.Mante,model_website_support_parvada,support_mant,1,1,1,0
-access_website_support_parvada_tareas_jefe,Tareas Parvada.Jefe,model_website_support_parvada_tareas,support_staff,1,1,1,1
-access_website_support_parvada_tareas_mante,Tareas Parvada.Mante,model_website_support_parvada_tareas,support_mant,1,1,1,0
-access_website_support_parvada_tareas_ger,Tareas Parvada.Gerente,model_website_support_parvada_tareas,support_manager,1,1,1,1
-access_acerca_de_jefe,Acerca De,model_acerca_de,support_staff,1,0,0,0
-access_acerca_de_mant,Acerca De,model_acerca_de,support_mant,1,0,0,0
-access_acerca_de_ger,Acerca De,model_acerca_de,support_manager,1,1,1,1

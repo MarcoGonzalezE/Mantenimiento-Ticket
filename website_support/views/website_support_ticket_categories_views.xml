@@ -28,7 +28,7 @@
       </record>
 
       <record id="website_support_ticket_categories_action" model="ir.actions.act_window">
-          <field name="name">Granjas</field>
+          <field name="name">Areas</field>
       	  <field name="res_model">website.support.ticket.categories</field>
       	  <field name="view_type">form</field>
       	  <field name="view_mode">tree,form</field>

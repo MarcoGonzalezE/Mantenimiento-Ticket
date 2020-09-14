@@ -187,7 +187,7 @@
                                                         <span t-field="compra.partner_id.name"/>
                                                     </td>
                                                     <td>
-                                                        <span t-field="lineas.name"/>
+                                                        <span t-field="lineas.product_id.name"/>
                                                     </td>
                                                     <td>
                                                         <span t-field="lineas.product_qty"/>

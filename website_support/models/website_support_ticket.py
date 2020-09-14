@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
-from odoo import tools
+from openerp import api, fields, models
+from openerp import tools
 from HTMLParser import HTMLParser
 from random import randint
 import datetime
@@ -62,16 +62,19 @@ class WebsiteSupportTicket(models.Model):
         try:
             return self.env['ir.model.data'].get_object('website_support', 'awaiting_approval')
         except ValueError:
-            return
+            return False
+
 
 
 #Campos de Jefe de Granja
     approval_id = fields.Many2one('website.support.ticket.approval', default=_default_approval_id, string="Estado de aprobación", track_visibility='onchange')
         #TODO: Autocompletar este campo al cambiar la categoria
-    partner_id = fields.Many2one('res.partner', string="Jefe de Granja", compute="_compute_partner", store=True)
+    partner_id = fields.Many2one('res.partner', string="Jefe de Area", compute="_compute_partner", store=True)
     priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad", track_visibility='onchange')
         #TODO: onchage event
-    category = fields.Many2one('website.support.ticket.categories', string="Granja", track_visibility='onchange')
+    category = fields.Many2one('website.support.ticket.categories', string="Area", track_visibility='onchange')
+    
+
 
 #Campos de Ticket o Encargado de Granja
     create_user_id = fields.Many2one('res.users', "Creado por")
@@ -97,15 +100,13 @@ class WebsiteSupportTicket(models.Model):
     close_date = fields.Date(string="Close Date")
     closed_by_id = fields.Many2one('res.users', string="Closed By")
     time_to_close = fields.Integer(string="Tiempo de terminacion real (Dias)")
-    time_to_close_est = fields.Integer(string="Tiempo de terminacion estimado (Dias)", compute="_compute_tiempo_est")
+    time_to_close_est = fields.Integer(string="Tiempo de terminacion estimado (Dias)")
     extra_field_ids = fields.One2many('website.support.ticket.field', 'wst_id', string="Extra Details")
     approve_url = fields.Char(compute="_compute_approve_url", string="Approve URL")
     disapprove_url = fields.Char(compute="_compute_disapprove_url", string="Disapprove URL")
-    fecha_incio_real = fields.Datetime(string="Inicio real", default=None)
+    fecha_incio_real = fields.Datetime(string="Inicio real", default=_default_fecha)
     current_user = fields.Many2one('res.users','Current User', default=lambda self: self.env.user)
     compras_ids = fields.One2many('purchase.order', 'reporte', string='Compra(s)')
-    reopen_date = fields.Datetime(string="Fecha", track_visibility='onchange')
-    reopen_note = fields.Char("Nota", track_visibility='onchange')
 
 #Campos de Personal de Mantenimiento
     user_id = fields.Many2one('res.partner', string="Responsable", track_visibility='onchange')
@@ -122,11 +123,12 @@ class WebsiteSupportTicket(models.Model):
     support_email = fields.Char(string="Support Email")
     #sub_category_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")    
     #valor_state = fields.Char(related='state.name')
-    #Indicadores
+#Indicadores
     group_mant = fields.Boolean(string="Grupo de Mantenimieto", compute="_get_mant")
-    group_jefe = fields.Boolean(string="Grupo Jefe de Granja", compute="_get_jefe")
+    group_jefe = fields.Boolean(string="Grupo Jefe de Area", compute="_get_jefe")
     enviado = fields.Boolean(string="Solicitud enviada a Mantenimiento")
     cancelar = fields.Boolean(string="Cancelacion de solicitud")
+
     #@Author: Ivan Porras
     @api.multi
     @api.depends('category')
@@ -138,17 +140,6 @@ class WebsiteSupportTicket(models.Model):
     @api.multi
     @api.depends('tipo_mant_id')
     def _compute_mant_person(self):
-        for r in self:
-            r.user_id = None
-            personal=[]
-            mant_person = self.env['mantenimiento.tipo'].search([('id','=',r.tipo_mant_id.id)])
-            for x in mant_person.mant_user_ids:
-                personal.append(int(x.partner_id.id))
-            r.user_id =[(6,0, personal)]
-
-    @api.multi
-    @api.onchange('tipo_mant_id')
-    def _onchange_mant_person(self):
         for r in self:
             r.user_id = None
             personal=[]
@@ -184,7 +175,7 @@ class WebsiteSupportTicket(models.Model):
             self.group_mant = False
 
     @api.multi
-    @api.depends('fecha_estimada')
+    @api.onchange('fecha_estimada')
     def _compute_tiempo_est(self):
         if self.fecha_estimada != False:
             d1= datetime.datetime.strptime(str(self.fecha_estimada), DEFAULT_SERVER_DATETIME_FORMAT)
@@ -305,12 +296,10 @@ class WebsiteSupportTicket(models.Model):
         #staff_replied = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_staff_replied')
         #customer_closed = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_customer_closed')
         staff_closed = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_staff_closed')
-        cancelled = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_cancelled')
-        approval_rejected = self.env['ir.model.data'].get_object('website_support', 'website_ticket_state_approval_rejected')
 
         #If not closed or replied to then consider all other states to be attended to
         #if self.state != staff_replied and self.state != customer_closed and self.state != staff_closed:
-        if self.state != staff_closed and self.state != cancelled and self.state != approval_rejected:
+        if self.state != staff_closed:
             self.unattended = True
 
     #working on it
@@ -335,18 +324,16 @@ class WebsiteSupportTicket(models.Model):
     def open_close_ticket_wizard(self):
         if self.state.name == 'Rechazado':
             raise ValidationError('NO SE PUEDE TERMINAR UNA SOLICITUD RECHAZADA')
-        elif self.user_id == False:
-            raise ValidationError('NO SE PUEDE TERMINAR UNA SOLICITUD SIN RESPONSABLE ASIGNADO')
-        else:
-            return {
-                'name': "Close Support Ticket",
-                'type': 'ir.actions.act_window',
-                'view_type': 'form',
-                'view_mode': 'form',
-                'res_model': 'website.support.ticket.close',
-                'context': {'default_ticket_id': self.id},
-                'target': 'new'
-            }
+
+        return {
+            'name': "Close Support Ticket",
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'website.support.ticket.close',
+            'context': {'default_ticket_id': self.id},
+            'target': 'new'
+        }
 
     ''' Funcion eliminada por borrar el status "Cliente Respondio" @ivan.porras
     @api.model
@@ -425,27 +412,25 @@ class WebsiteSupportTicket(models.Model):
                 email_values = email_template.generate_email([r.id])[r.id]
                 email_values['model'] = "website.support.ticket"
                 email_values['res_id'] = r.id
+                print(values['user_id'])
                 assigned_user = self.env['res.partner'].browse(int(values['user_id']))
                 email_values['email_to'] = assigned_user.email
                 email_values['body_html'] = email_values['body_html'].replace("_user_name_", assigned_user.name)
                 email_values['body'] = email_values['body'].replace("_user_name_", assigned_user.name)
                 send_mail = self.env['mail.mail'].create(email_values)
                 send_mail.send()
-
             update_rec = super(WebsiteSupportTicket, r).write(values)
             return update_rec
 
     def send_survey(self):
-        if self.state.name != 'Terminado':
-            raise ValidationError('No se puede enviar la evaluacion sin TERMINAR el reporte.')
-        else:
-            notification_template = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_survey')
-            values = notification_template.generate_email(self.id)
-            surevey_url = "support/survey/" + str(self.portal_access_key)
-            values['body_html'] = values['body_html'].replace("_survey_url_",surevey_url)
-            values['email_to'] = self.partner_id.email
-            send_mail = self.env['mail.mail'].create(values)
-            send_mail.send(True)
+
+        notification_template = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_survey')
+        values = notification_template.generate_email(self.id)
+        surevey_url = "support/survey/" + str(self.portal_access_key)
+        values['body_html'] = values['body_html'].replace("_survey_url_",surevey_url)
+        values['email_to'] = self.partner_id.email
+        send_mail = self.env['mail.mail'].create(values)
+        send_mail.send(True)
 
    
     def send_mantenimiento(self):        
@@ -469,37 +454,6 @@ class WebsiteSupportTicket(models.Model):
     def solicitud_cancelar(self):
         self.state = self.env['website.support.ticket.states'].search([('name','=','Cancelado')])
         self.cancelar = True
-        support_ticket_menu = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_menu')
-        support_ticket_action = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_action')
-        for my_user in self.category.cat_user_ids:
-            notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_cancel')
-            email_values = notification_mant.generate_email(self.id)
-            email_values['model'] = "website.support.ticket"
-            email_values['res_id'] = self.id            
-            email_values['email_to'] = my_user.partner_id.email
-            email_values['body_html'] = email_values['body_html'].replace("_ticket_url_", "web#id=" + str(self.id) + "&view_type=form&model=website.support.ticket&menu_id=" + str(support_ticket_menu.id) + "&action=" + str(support_ticket_action.id) ).replace("_user_name_",  my_user.partner_id.name)
-            email_values['body'] = email_values['body'].replace("_user_name_", my_user.partner_id.name)
-            send_mail = self.env['mail.mail'].create(email_values)
-            send_mail.send()
-
-    def reabrir(self):
-        self.state = self.env['website.support.ticket.states'].search([('name','=','Aceptado')])
-        self.cancelar = False
-        self.reopen_date = datetime.datetime.now()
-        self.close_time = False
-        support_ticket_menu = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_menu')
-        support_ticket_action = self.env['ir.model.data'].sudo().get_object('website_support', 'website_support_ticket_action')
-        if self.user_id != False:
-            self.state = self.env['website.support.ticket.states'].search([('name','=','En Proceso')])
-            notification_mant = self.env['ir.model.data'].sudo().get_object('website_support', 'support_ticket_reopen')
-            email_values = notification_mant.generate_email(self.id)
-            email_values['model'] = "website.support.ticket"
-            email_values['res_id'] = self.id
-            email_values['email_to'] = self.user_id.email
-            email_values['body_html'] = email_values['body_html'].replace("_ticket_url_", "web#id=" + str(self.id) + "&view_type=form&model=website.support.ticket&menu_id=" + str(support_ticket_menu.id) + "&action=" + str(support_ticket_action.id) ).replace("_user_name_",  self.user_id.name)
-            email_values['body'] = email_values['body'].replace("_user_name_", self.user_id.name)
-            send_mail = self.env['mail.mail'].create(email_values)
-            send_mail.send()
 
 class WebsiteSupportTicketApproval(models.Model):
 
@@ -530,9 +484,9 @@ class WebsiteSupportTicketCategories(models.Model):
     _order = "sequence asc"
     
     sequence = fields.Integer(string="Sequence")
-    name = fields.Char(required=True, translate=True, string='Granja')
-    cat_user_ids = fields.Many2many('res.users', string="Jefe de Granja")
-    encargados_ids = fields.Many2many('res.partner', string="Encargados de Granja")
+    name = fields.Char(required=True, translate=True, string='Area')
+    cat_user_ids = fields.Many2many('res.users', string="Jefe de Area")
+    encargados_ids = fields.Many2many('res.partner', string="Encargados de Area")
 
     @api.model
     def create(self, values):
@@ -591,7 +545,7 @@ class WebsiteSupportTicketUsers(models.Model):
 
     _inherit = "res.users"
     
-    cat_user_ids = fields.Many2many('website.support.ticket.categories', string="Jefe de Granjas")
+    cat_user_ids = fields.Many2many('website.support.ticket.categories', string="Jefe de Areas")
 
 class WebsiteSupportTicketEncargados(models.Model):
     _inherit = "res.partner"
@@ -649,7 +603,7 @@ class WebsiteSupportTicketCompose(models.Model):
     approval = fields.Boolean(string="Approval")
     partner_id = fields.Many2one('res.partner', string="Partner", readonly="True")
     email = fields.Char(string="Email", readonly="True")
-    warehouse = fields.Many2one('website.support.warehouse', string="Granja")
+    warehouse = fields.Many2one('website.support.warehouse', string="Area")
     subject = fields.Char(string="Asunto", readonly="True")
     body = fields.Text(string="Message Body")
     template_id = fields.Many2one('mail.template', string="Mail Template", domain="[('model_id','=','website.support.ticket'), ('built_in','=',False)]")
@@ -703,7 +657,7 @@ class WebsiteSupportWarehouse(models.Model):
 
     _name="website.support.warehouse"
 
-    warehouse = fields.Char(requiered=True, string="Granja")
+    warehouse = fields.Char(requiered=True, string="Area")
     sequence = fields.Integer(string="Sequence")
     
     @api.model
@@ -774,8 +728,3 @@ class MantenimientoCategoria(models.Model):
 class orden_servicio(models.Model):
     _inherit = "purchase.order"
     reporte = fields.Many2one('website.support.ticket',  string='Reporte de Mantenimiento')
-
-class AcercaDe(models.Model):
-    _name = "acerca.de"
-
-    name = fields.Binary('Description')

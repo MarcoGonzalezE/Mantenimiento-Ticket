@@ -8,8 +8,7 @@
             <field name="inherit_id" ref="base.view_company_form"/>
             <field name="arch" type="xml">
                 <field name="company_registry" position="after">
-                    <field name="next_support_ticket_number"/>
-                    <field name="next_support_cp_number"/> 
+                    <field name="next_support_ticket_number"/> 
                 </field>
             </field>
        </record>
