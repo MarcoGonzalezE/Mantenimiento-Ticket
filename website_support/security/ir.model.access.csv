@@ -44,5 +44,11 @@ access_res_users,support manager access res.users,base.model_res_users,support_m
 access_res_users,support manager access res.users,base.model_res_users,support_staff,1,0,1,0
 access_res_partner,support manager access res.partner,base.model_res_partner,support_staff,1,0,1,0
 access_website_support_ticket_approval,access website.support.ticket.approval,model_website_support_ticket_approval,support_mant,1,0,0,0
-acces_website_support_inventory,website.support.inventory jefe,mode_website_support_inventory,support_staff,1,1,1,1
-acces_website_support_inventory,website.support.inventory gere,mode_website_support_inventory,support_manager,1,1,1,1
+acces_website_support_inventory,website.support.inventory jefe,model_website_support_inventory,support_staff,1,1,1,1
+acces_website_support_inventory,website.support.inventory gere,model_website_support_inventory,support_manager,1,1,1,1
+acces_website_support_equipment,website.support.equipment jefe,model_website_support_equipment,support_staff,1,1,1,1
+acces_website_support_equipment,website.support.equipment gere,model_website_support_equipment,support_manager,1,1,1,1
+acces_website_support_complement,website.support.complement jefe,model_website_support_complement,support_staff,1,1,1,1
+acces_website_support_complement,website.support.complement gere,model_website_support_complement,support_manager,1,1,1,1
+acces_website_support_ticket_product,website.support.ticket.product Mante,model_website_support_ticket_product,support_mant,1,1,1,1
+acces_website_support_ticket_product,website.support.ticket.product Jefe,model_website_support_ticket_product,support_staff,1,0,0,0

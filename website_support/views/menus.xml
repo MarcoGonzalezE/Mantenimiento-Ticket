@@ -19,7 +19,9 @@
         <menuitem id="mantenimiento_tipo_menu" name="Tipo de Matenimiento" parent="departamento_mantenimiento" action="mantenimiento_tipo_action" groups="support_manager,support_mant" sequence="10"/>
         <menuitem id="personal_mant_menu" name="Personal" parent="departamento_mantenimiento" action="personal_mantenimiento_action" groups="support_manager,support_mant" sequence="20"/>
 <!-- Inventario -->
-        <menuitem id="inventario_mantenimiento" name="Inventario" parent="website_support_parent_menu" sequence="30" action="website_support_inventory_action"/>
+        <menuitem id="inventario_mantenimiento" name="Inventario" parent="website_support_parent_menu" sequence="30"/>
+        <menuitem id="inventario_refacciones" name="Refacciones" parent="inventario_mantenimiento" sequence="10" action="website_support_inventory_action"/>
+        <menuitem id="inventario_equipos" name="Equipos" parent="inventario_mantenimiento" sequence="20" action="website_support_equipment_action"/>
 
 <!-- Configuracion -->
         <menuitem id="website_support_config_parent_menu" name="Configuracion" parent="website_support_parent_menu" groups="support_manager,support_staff,support_mant" sequence="40"/>

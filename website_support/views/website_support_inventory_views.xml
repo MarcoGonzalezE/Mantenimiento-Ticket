@@ -1,20 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+<!-- REFACCIONES -->
     	<record id="website_support_inventory_view_form" model="ir.ui.view">
             <field name="name">website.support.inventory.form</field>
             <field name="model">website.support.inventory</field>
             <field name="arch" type="xml">
             	<form>
+                    <header>
+                        <button type="object" name="registar_entrada" string="Registrar Entrada" class="btn-primary"/>
+                    </header>
             		<sheet>
             			<div>
             				<field name="imagen" widget="image" class="oe_avatar"/>
             				<div class="oe_title">
             					<p>
             						<h2><field name="name" placeholder="Producto" required="1"/></h2>
+                                    <field name="no_stock" invisible="1"/>
             					</p>
-            				</div>
+                                <table style="width:50%">
+                                    <tr>
+                                        <th style="text-align: center; width:30%;">Stock Minimo</th>
+                                        <th style="text-align: center; width:30%;">Stock Faltante</th>
+                                        <th style="text-align: center; font-size: 20px;">STOCK</th>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center; width:30%;"><field name="stock_min"/></td>
+                                        <td style="text-align: center;  width:30%;"><field name="stock_diff" readonly="1"/></td>
+                                        <td style="text-align: center; width:30%;"><field name="stock"/></td>
+                                    </tr>
+                                </table>
+                            </div>
             			</div>
+                        <group>
+                            <notebook>
+                                <page string="Entradas">
+                                    <field name="input_ids" readonly="1">
+                                        <tree editable="top">
+                                            <field name="date"/>
+                                            <field name="product_id" invisible="1"/>
+                                            <field name="quantity" sum="Suma Entradas"/>
+                                            <field name="note"/>
+                                        </tree>
+                                    </field>
+                                </page>
+                                <page string="Consumos">
+                                    <field name="output_ids" readonly="1">
+                                        <tree editable="top">
+                                            <field name="report_id"/>
+                                            <field name="quantity" sum="Suma Consumos"/>
+                                            <field name="state" invisible="1"/>
+                                        </tree>
+                                    </field>
+                                </page>
+                            </notebook>
+                        </group>
                     </sheet>
                 </form>
             </field>
@@ -25,12 +65,17 @@
             <field name="model">website.support.inventory</field>
             <field name="arch" type="xml">
                 <kanban class="o_res_partner_kanban">
-                    <field name="name"/>
                     <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_global_click">
                                 <div class="o_kanban_image">
                                     <img t-att-src="kanban_image('website.support.inventory', 'imagen', record.id.value)"/>
+                                </div>
+                                <div class="oe_kanban_details">
+                                    <strong class="oe_partner_heading"><field name="name"/></strong>
+                                    <ul><strong>Stock: <field name="stock"/></strong></ul>
+                                    <ul attrs="{'invisible':[('stock_diff','=', 0)]}"><strong><font color="red">Faltante: <field name="stock_diff"/></font></strong></ul>
+                                    <ul attrs="{'invisible':[('stock_diff','>', 0)]}"><strong>Faltante: <field name="stock_diff"/></strong></ul>
                                 </div>
                             </div>
                         </t>
@@ -38,13 +83,16 @@
                 </kanban>
             </field>
         </record>
-<!--- Pedido PT Tree -->
+
         <record id="website_support_inventory_view_tree" model="ir.ui.view">
             <field name="name">website.support.inventory.tree.view</field>
             <field name="model">website.support.inventory</field>
             <field name="arch" type="xml">
-                <tree string="Inventario">
+                <tree string="Inventario" colors="red:stock_diff>0">
                     <field name="name"/>
+                    <field name="stock"/>
+                    <field name="stock_diff"/>
+                    <field name="no_stock" invisible="1"/>
                 </tree>
             </field>
         </record>
@@ -55,6 +103,131 @@
             <field name="view_mode">kanban,tree,form</field>
             <field name="help" type="html">
                 <p>No se encontro inventario</p>
+            </field>
+        </record>
+
+        <record id="website_support_inventory_action_view_search" model="ir.ui.view">
+            <field name="name">website.support.inventory.form.search</field>
+            <field name="model">website.support.inventory</field>
+            <field name="arch" type="xml">
+                <search>
+<!--                    <field name="partner_id"/>-->
+<!--                    <filter string="Sin Stock" name="out_stock" domain="[('no_stock', '=', True)]"/>-->
+<!--                    <filter string="Terminadas" name="attended_tickets" domain="[('unattended', '=', False )"/>-->
+<!--                    <filter name="group_by_category" string="Area" domain="[]" context="{'group_by':'category'}"/>-->
+<!--                    <filter name="group_by_user" string="Personal de Mantenimiento" domain="[]"-->
+<!--                            context="{'group_by':'user_id'}"/>-->
+                </search>
+            </field>
+        </record>
+
+<!-- ENVIAR A COMPRAS -->
+        <record id="website_support_inventory_purchase_view_form" model="ir.ui.view">
+            <field name="name">website.support.inventory.purchase.form</field>
+            <field name="model">website.support.inventory.purchase</field>
+            <field name="arch" type="xml">
+                <form string="Crear orden de Compra">
+                    <separator colspan="4" string="¿Crear pedido de compra con las refacciones seleccionadas?"/>
+                    <footer>
+                        <button name="create_purchase_order" string="Confirmar" type="object"/>
+                        <button class="oe_link" special="cancel" string="Cancelar"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <act_window id="action_website_support_inventory_purchase"
+                    key2="client_action_multi"
+                    name="Crear orden de compra"
+                    res_model="website.support.inventory.purchase"
+                    src_model="website.support.inventory"
+                    target="new"
+                    view_mode="form"/>
+
+<!-- EQUIPOS -->
+        <record id="website_support_equipment_view_form" model="ir.ui.view">
+            <field name="name">website.support.equipment.form</field>
+            <field name="model">website.support.equipment</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name" placeholder="Equipo" required="1"/>
+                        </group>
+                        <group>
+                            <field name="complement_ids"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id="website_support_equipment_view_tree" model="ir.ui.view">
+            <field name="name">website.support.equipment.tree.view</field>
+            <field name="model">website.support.equipment</field>
+            <field name="arch" type="xml">
+                <tree string="Equipos">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="website_support_equipment_action" model="ir.actions.act_window">
+            <field name="name">Equipos</field>
+            <field name="res_model">website.support.equipment</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="help" type="html">
+                <p>No se encontro equipos</p>
+            </field>
+        </record>
+
+<!-- COMPLEMENTO -->
+        <record id="website_support_complement_view_form" model="ir.ui.view">
+            <field name="name">website.support.complement.form</field>
+            <field name="model">website.support.complement</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="name" placeholder="Complemento" required="1"/>
+                        <field name="equipment_id" invisible="1"/>
+                        <field name="product_ids"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+<!-- REGISTRO DE ENTRADA A INVENTARIO -->
+        <record id="website_support_inventory_input_view_form" model="ir.ui.view">
+            <field name="name">website.support.inventory.input.form</field>
+            <field name="model">website.support.inventory.input</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="product_id" invisible="1"/>
+                        <field name="quantity"/>
+                        <field name="date"/>
+                        <field name="note"/>
+                    </group>
+                    <footer>
+                        <button string="Registrar" class="oe_highlight oe_edit_only" name="save" type="object"/>
+                        <button string="Cancelar" class="oe_highlight oe_edit_only" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="website_support_inventory_input_view_action" model="ir.actions.act_window">
+            <field name="name">website.support.inventory.input.action</field>
+            <field name="res_model">website.support.inventory.input</field>
+            <field name="view_mode">tree</field>
+        </record>
+        <record id="website_support_inventory_input_view_tree" model="ir.ui.view">
+            <field name="name">website.support.invetory.input.tree</field>
+            <field name="model">website.support.inventory.input</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="date"/>
+                    <field name="quantity"/>
+                    <field name="product_id" invisible="1"/>
+                    <field name="note"/>
+                </tree>
             </field>
         </record>
     </data>

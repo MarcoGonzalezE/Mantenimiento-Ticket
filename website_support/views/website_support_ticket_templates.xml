@@ -861,14 +861,40 @@ $(document).ready(function() {
 
 
             </script>
-
+            <!-- area-->
             <div t-attf-class="form-group #{error and 'category' in error and 'has-error' or ''}">
-                <label class="col-md-3 col-sm-4 control-label" for="name">GRANJA</label>
+                <label class="col-md-3 col-sm-4 control-label" for="name">AREA</label>
                 <div class="col-md-7 col-sm-8">
                     <select class="form-control" id="category" name="category">
                         <t t-foreach="categories" t-as="category">
                             <option t-attf-value="#{category.id}">
                                 <t t-esc="category.name"/>
+                            </option>
+                        </t>
+                    </select>
+                </div>
+            </div>
+            <!-- equipo -->
+            <div t-attf-class="form-group #{error and 'equipment_id' in error and 'has-error' or ''}">
+                <label class="col-md-3 col-sm-4 control-label" for="name">EQUIPO</label>
+                <div class="col-md-7 col-sm-8">
+                    <select class="form-control" id="equipment_id" name="equipment_id">
+                        <t t-foreach="equipments" t-as="equipment_id">
+                            <option t-attf-value="#{equipment_id.id}">
+                                <t t-esc="equipment_id.name"/>
+                            </option>
+                        </t>
+                    </select>
+                </div>
+            </div>
+            <!-- complemento -->
+            <div t-attf-class="form-group #{error and 'complement_id' in error and 'has-error' or ''}">
+                <label class="col-md-3 col-sm-4 control-label" for="name">COMPLEMENTO</label>
+                <div class="col-md-7 col-sm-8">
+                    <select class="form-control" id="complement_id" name="complement_id">
+                        <t t-foreach="complements" t-as="complement_id">
+                            <option t-attf-value="#{complement_id.id}">
+                                <t t-esc="complement_id.name"/>
                             </option>
                         </t>
                     </select>

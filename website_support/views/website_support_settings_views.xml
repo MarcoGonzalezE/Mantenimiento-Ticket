@@ -19,6 +19,8 @@
                     <field name="allow_user_signup"/>
                     <field name="auto_send_survey"/>
                     <field name="auto_create_contact"/>
+                    <field name="product_purchase" options="{'no_create': True}"/>
+                    <field name="partner_purchase" options="{'no_create': True}"/>
                 </group>
       	    </form>
         </field>

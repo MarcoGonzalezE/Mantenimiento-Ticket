@@ -3,17 +3,30 @@
     <data>
         
       <record id="website_support_ticket_categories_view_form" model="ir.ui.view">
-          <field name="name">website.support.ticket.categories.form.view</field>
-          <field name="model">website.support.ticket.categories</field>
-          <field name="arch" type="xml">
-      	      <form>
-      	          <group>
-      	              <field name="name"/>
-      	              <field name="cat_user_ids"/>
-                      <field name="encargados_ids"/>
-      	          </group>
-      	      </form>
-      	  </field>
+        <field name="name">website.support.ticket.categories.form.view</field>
+        <field name="model">website.support.ticket.categories</field>
+        <field name="arch" type="xml">
+          <form>
+            <sheet>
+              <div>
+                <div class="oe_title">
+                  <p>Area<h2><field name="name" placeholder="Nombre de Area"/></h2></p>
+                </div>
+              </div>
+              <group>
+                <group>
+                  <field name="cat_user_ids" widget="many2many_tags"/>
+                </group>
+                <group>
+                  <field name="encargados_ids" widget="many2many_tags"/>
+                </group>
+              </group>
+              <group>
+                <field name="equipos_ids"/>
+              </group>
+            </sheet>
+          </form>
+        </field>
       </record>
 
       <record id="website_support_ticket_categories_view_tree" model="ir.ui.view">

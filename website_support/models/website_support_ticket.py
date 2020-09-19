@@ -73,6 +73,9 @@ class WebsiteSupportTicket(models.Model):
     priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad", track_visibility='onchange')
         #TODO: onchage event
     category = fields.Many2one('website.support.ticket.categories', string="Area", track_visibility='onchange')
+    equipment_id = fields.Many2one('website.support.equipment', string="Equipo")
+    complement_id = fields.Many2one('website.support.complement', string="Complemento")
+
     
 
 
@@ -107,6 +110,7 @@ class WebsiteSupportTicket(models.Model):
     fecha_incio_real = fields.Datetime(string="Inicio real", default=_default_fecha)
     current_user = fields.Many2one('res.users','Current User', default=lambda self: self.env.user)
     compras_ids = fields.One2many('purchase.order', 'reporte', string='Compra(s)')
+    refacciones_ids = fields.One2many('website.support.ticket.product', 'report_id', string="Refacciones")
 
 #Campos de Personal de Mantenimiento
     user_id = fields.Many2one('res.partner', string="Responsable", track_visibility='onchange')
@@ -128,6 +132,16 @@ class WebsiteSupportTicket(models.Model):
     group_jefe = fields.Boolean(string="Grupo Jefe de Area", compute="_get_jefe")
     enviado = fields.Boolean(string="Solicitud enviada a Mantenimiento")
     cancelar = fields.Boolean(string="Cancelacion de solicitud")
+
+    @api.onchange('complement_id')
+    def _compute_refacciones(self):
+        ref_ids = []
+        for r in self.complement_id.product_ids:
+            inv = self.env['website.support.inventory'].search([('id','=',r.id)])
+            for i in inv:
+                ref_ids.append((0,0,{'product':i.id}))
+        self.refacciones_ids = ref_ids
+
 
     #@Author: Ivan Porras
     @api.multi
@@ -324,6 +338,9 @@ class WebsiteSupportTicket(models.Model):
     def open_close_ticket_wizard(self):
         if self.state.name == 'Rechazado':
             raise ValidationError('NO SE PUEDE TERMINAR UNA SOLICITUD RECHAZADA')
+        else:
+            for r in self.refacciones_ids:
+                r.state = 'done'
 
         return {
             'name': "Close Support Ticket",
@@ -450,6 +467,7 @@ class WebsiteSupportTicket(models.Model):
             raise ValidationError('Personal de Mantenimiento no esta asignada al tipo de Mantenimiento')
         else:
             self.enviado = True
+            self._compute_refacciones()
 
     def solicitud_cancelar(self):
         self.state = self.env['website.support.ticket.states'].search([('name','=','Cancelado')])
@@ -487,6 +505,7 @@ class WebsiteSupportTicketCategories(models.Model):
     name = fields.Char(required=True, translate=True, string='Area')
     cat_user_ids = fields.Many2many('res.users', string="Gerencia")
     encargados_ids = fields.Many2many('res.partner', string="Jefe de Area")
+    equipos_ids = fields.Many2many('website.support.equipment', string="Equipos")
 
     @api.model
     def create(self, values):

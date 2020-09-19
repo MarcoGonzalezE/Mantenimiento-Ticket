@@ -11,7 +11,16 @@ class WebsiteSupportSettings(models.Model):
 
     _name = "website.support.settings"
     _inherit = 'res.config.settings'
-            
+
+    @api.multi
+    def _default_product_purchase(self):
+        product = self.env['website.support.settings'].search([], order='id desc', limit=1)
+        return product.product_purchase
+
+    def _default_partner_purchase(self):
+        partner = self.env['website.support.settings'].search([], order='id desc', limit=1)
+        return partner.partner_purchase
+
     close_ticket_email_template_id = fields.Many2one('mail.template', domain="[('model_id','=','website.support.ticket')]", string="(OBSOLETE)Close Ticket Email Template")
     change_user_email_template_id = fields.Many2one('mail.template', domain="[('model_id','=','website.support.ticket')]", string="Change User Email Template")
     staff_reply_email_template_id = fields.Many2one('mail.template', domain="[('model_id','=','website.support.ticket.compose')]", string="Staff Reply Email Template")
@@ -21,6 +30,8 @@ class WebsiteSupportSettings(models.Model):
     allow_user_signup = fields.Boolean(string="Allow User Signup")
     auto_send_survey = fields.Boolean(string="Auto Send Survey")
     auto_create_contact = fields.Boolean(string="Auto Create Contact", help="Auto create contact if one with that email does not exist")
+    product_purchase = fields.Many2one('product.product', string="Producto para Compras", default=_default_product_purchase)
+    partner_purchase = fields.Many2one('res.partner', string="Proveedor para Compras", default=_default_partner_purchase)
 
     #-----Auto Create Contact-----
 
@@ -121,3 +132,22 @@ class WebsiteSupportSettings(models.Model):
     def set_default_max_ticket_attachment_filesize(self):
         for record in self:
             self.env['ir.values'].set_default('website.support.settings', 'max_ticket_attachment_filesize', record.max_ticket_attachment_filesize)
+
+    #-----Product Purchase -----
+
+    @api.multi
+    def get_default_product_purchase(self, fields):
+        return {'product_purchase':self.env['ir.values'].get_default('website.support.settings', 'product_purchase')}
+    #
+    # @api.multi
+    # def set_default_product_purchase(self):
+    #     for record in self:
+    #         self.env['ir.values'].set_default('website.support.settings', 'product_purchase', record.product_purchase)
+
+    # -----Partner Purchase -----
+
+    #
+    # @api.multi
+    # def set_default_partner_purchase(self):
+    #     for record in self:
+    #         self.env['ir.values'].set_default('website.support.settings', 'partner_purchase', record.partner_purchase)

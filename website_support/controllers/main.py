@@ -248,10 +248,17 @@ class SupportTicketController(http.Controller):
         if setting_max_ticket_attachment_filesize == 0:
             #Back compatablity
             setting_max_ticket_attachment_filesize = 500
+
+        #equipo = request.env['website.support.equipment'].sudo().search([])
+        # complemento = []
+        # for e in equipo:
+        #     complemento = request.env['website.support.complement'].sudo().search(['equipment_id','=', e.id])
             
         return http.request.render('website_support.support_submit_ticket', 
             {
-            'categories': http.request.env['website.support.ticket.categories'].sudo().search([]), 
+            'categories': http.request.env['website.support.ticket.categories'].sudo().search([]),
+            'equipments': http.request.env['website.support.equipment'].sudo().search([]),
+            'complements': http.request.env['website.support.complement'].sudo().search([]),
             'sub_category':http.request.env['mantenimiento.tipo'].sudo().search([]),
             'cat_mant':http.request.env['mantenimiento.categoria'].sudo().search([]),
             'person_name': person_name, 
@@ -319,7 +326,7 @@ class SupportTicketController(http.Controller):
         
         if http.request.env.user.name != "Public user":
             portal_access_key = randint(1000000000,2000000000)
-            new_ticket_id = request.env['website.support.ticket'].sudo().create({'person_name':values['person_name'],'category':values['category'], 'cat_mant_id':values['categoria_mantenimiento'], 'tipo_mant_id':values['tipo_mantenimiento'], 'email':values['email'], 'description':values['description'], 'subject':values['subject'], 'partner_id':http.request.env.user.partner_id.id, 'attachment': my_attachment, 'attachment_filename': file_name, 'portal_access_key': portal_access_key})
+            new_ticket_id = request.env['website.support.ticket'].sudo().create({'person_name':values['person_name'],'category':values['category'], 'equipment_id':values['equipment_id'], 'complement_id':values['complement_id'], 'cat_mant_id':values['categoria_mantenimiento'], 'tipo_mant_id':values['tipo_mantenimiento'], 'email':values['email'], 'description':values['description'], 'subject':values['subject'], 'partner_id':http.request.env.user.partner_id.id, 'attachment': my_attachment, 'attachment_filename': file_name, 'portal_access_key': portal_access_key})
             
             partner = http.request.env.user.partner_id
             
