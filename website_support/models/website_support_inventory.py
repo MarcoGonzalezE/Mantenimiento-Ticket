@@ -121,7 +121,17 @@ class WebsiteSupportEquipment(models.Model):
 	_description = "Equipos"
 
 	name = fields.Char(string="Equipo")
+	imagen = fields.Binary(string="Imagen", attachment=True)
 	complement_ids = fields.One2many('website.support.complement', 'equipment_id', string="Complementos")
+	category_id = fields.Many2one('website.support.ticket.categories', string="Area")
+
+	# @api.multi
+	# def default_category(self):
+	# 	rel = self.env['website.support.ticket.categories']
+	# 	for r in rel:
+	# 		for e in r.equipos_ids:
+	# 			if e.id == self.id:
+	# 				self.category_id = r.id
 
 #COMPLEMENTOS
 class WebsiteSupportComplement(models.Model):
@@ -129,6 +139,7 @@ class WebsiteSupportComplement(models.Model):
 	_description = "Complementos"
 
 	name = fields.Char(string="Complemento")
+	imagen = fields.Binary(string="Imagen", attachment=True)
 	equipment_id = fields.Many2one('website.support.equipment', string="Equipo ID")
 	product_ids = fields.Many2many('website.support.inventory', string="Refacciones")
 

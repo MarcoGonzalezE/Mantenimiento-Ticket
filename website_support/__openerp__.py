@@ -42,7 +42,7 @@
     ],
     'demo': [],
     'depends': ['mail','web', 'website',
-        'purchase', 'contacts'],
+        'purchase', 'contacts','web_readonly_bypass'],
     #'images':[
     #    'static/description/3.jpg',
     #    'static/description/1.jpg',

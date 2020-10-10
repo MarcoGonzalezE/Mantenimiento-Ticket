@@ -66,10 +66,10 @@ class WebsiteSupportTicket(models.Model):
 
 
 
-#Campos de Jefe de Granja
+    #Campos de Jefe de Granja
     approval_id = fields.Many2one('website.support.ticket.approval', default=_default_approval_id, string="Estado de aprobación", track_visibility='onchange')
         #TODO: Autocompletar este campo al cambiar la categoria
-    partner_id = fields.Many2one('res.partner', string="Jefe de Area", compute="_compute_partner", store=True)
+    partner_id = fields.Many2one('res.partner', string="Gerencia", compute="_compute_partner", store=True)
     priority_id = fields.Many2one('website.support.ticket.priority', default=_default_priority_id, string="Prioridad", track_visibility='onchange')
         #TODO: onchage event
     category = fields.Many2one('website.support.ticket.categories', string="Area", track_visibility='onchange')
@@ -79,7 +79,7 @@ class WebsiteSupportTicket(models.Model):
     
 
 
-#Campos de Ticket o Encargado de Granja
+    #Campos de Ticket o Encargado de Granja
     create_user_id = fields.Many2one('res.users', "Creado por")
     fecha_solicitud = fields.Datetime(string="Fecha de Solicitud", default=_default_fecha)
     person_name = fields.Char(string="Solicitante")
@@ -112,7 +112,7 @@ class WebsiteSupportTicket(models.Model):
     compras_ids = fields.One2many('purchase.order', 'reporte', string='Compra(s)')
     refacciones_ids = fields.One2many('website.support.ticket.product', 'report_id', string="Refacciones")
 
-#Campos de Personal de Mantenimiento
+    #Campos de Personal de Mantenimiento
     user_id = fields.Many2one('res.partner', string="Responsable", track_visibility='onchange')
     prioridad_mant = fields.Many2one('website.support.ticket.priority', string="Prioridad de Mantenimiento", track_visibility='onchange')
     asignar = fields.Many2one('personal.mantenimiento', string="Asignado a", track_visibility='onchange')
@@ -120,14 +120,15 @@ class WebsiteSupportTicket(models.Model):
     tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento", track_visibility='onchange')
     fecha_estimada = fields.Datetime(string="Fecha Estimada", track_visibility='onchange')
     fecha_reporte = fields.Datetime(string="Fecha de Reporte")
+    fecha_vencida = fields.Boolean(string="Reporte fuera de tiempo", compute="_fuera_tiempo")
 
-#TODO: Futuras Ideas    
+    #TODO: Futuras Ideas    
     #email_ger = fields.Char(string="Correo de Gerencia")
     email = fields.Char(string="Correo")
     support_email = fields.Char(string="Support Email")
     #sub_category_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento")    
     #valor_state = fields.Char(related='state.name')
-#Indicadores
+    #Indicadores
     group_mant = fields.Boolean(string="Grupo de Mantenimieto", compute="_get_mant")
     group_jefe = fields.Boolean(string="Grupo Jefe de Area", compute="_get_jefe")
     enviado = fields.Boolean(string="Solicitud enviada a Mantenimiento")
@@ -152,6 +153,12 @@ class WebsiteSupportTicket(models.Model):
             r.partner_id = self.env['res.partner'].search([('id','=',categories.cat_user_ids.partner_id.id)])
 
     @api.multi
+    @api.onchange('category')
+    def _onchange_category(self):
+        self.equipment_id = False
+        self.complement_id = False
+
+    @api.multi
     @api.depends('tipo_mant_id')
     def _compute_mant_person(self):
         for r in self:
@@ -168,7 +175,7 @@ class WebsiteSupportTicket(models.Model):
     # def _compute_is_state(self):
     #     for x in self:
     #         x.is_state = (x.state.name == self.env.ref("website.support.ticket.states").name)
-#Para identificar grupo en que pertenece el usuario logeado
+    #Para identificar grupo en que pertenece el usuario logeado
     #JEFE DE GRANJA
     @api.depends('group_jefe')
     def _get_jefe(self):
@@ -198,6 +205,20 @@ class WebsiteSupportTicket(models.Model):
         #diff_time_est = datetime.datetime.strptime(self.fecha_estimada, DEFAULT_SERVER_DATETIME_FORMAT) - datetime.datetime.strptime(self.fecha_incio_real, DEFAULT_SERVER_DATETIME_FORMAT)
         #diff_time_est= datetime.datetime.strptime(self.fecha_estimada, DEFAULT_SERVER_DATETIME_FORMAT) - datetime.datetime.strptime(self.fecha_incio_real, DEFAULT_SERVER_DATETIME_FORMAT)
             self.time_to_close_est = diff_time_est.days
+
+    @api.multi
+    @api.depends('fecha_estimada')
+    def _fuera_tiempo(self):
+        if self.fecha_estimada:
+            hoy = datetime.datetime.today()
+            d1= datetime.datetime.strptime(str(self.fecha_estimada), DEFAULT_SERVER_DATETIME_FORMAT)
+            if hoy > d1:
+                self.fecha_vencida = True
+
+        # actual = datetime.datetime.now().strftime(DEFAULT_SERVER_DATE_FORMAT)
+        # d1 = datetime.datetime.strptime(str(self.fecha_estimada), DEFAULT_SERVER_DATETIME_FORMAT)
+        # diff_time_est = abs((actual - d1))
+        # print(diff_time_est)
 
     #NUEVO
     @api.onchange('approval_id')
@@ -505,7 +526,7 @@ class WebsiteSupportTicketCategories(models.Model):
     name = fields.Char(required=True, translate=True, string='Area')
     cat_user_ids = fields.Many2many('res.users', string="Gerencia")
     encargados_ids = fields.Many2many('res.partner', string="Jefe de Area")
-    equipos_ids = fields.Many2many('website.support.equipment', string="Equipos")
+    equipos_ids = fields.One2many('website.support.equipment', 'category_id', string="Equipos")
 
     @api.model
     def create(self, values):
@@ -747,3 +768,18 @@ class MantenimientoCategoria(models.Model):
 class orden_servicio(models.Model):
     _inherit = "purchase.order"
     reporte = fields.Many2one('website.support.ticket',  string='Reporte de Mantenimiento')
+
+class ReporteMantenimiento(models.TransientModel):
+    _name = 'website.support.ticket.report'
+
+    def reportes_ticket(self):
+        return self.env['website.support.ticket'].browse(self.env.context.get('active_ids'))
+
+    fecha = fields.Date(string="Fecha de Emision")
+    codigo = fields.Char(string="Codigo")
+
+    reportes = fields.Many2many('website.support.ticket', string="Reportes", default=reportes_ticket)
+
+    @api.multi
+    def imprimir(self):
+        return self.env['report'].get_action(self, 'website_support.reporte_mantenimiento_document')

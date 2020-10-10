@@ -66,7 +66,7 @@
                                 <field name="category"
                                        attrs="{'readonly':['|', ('group_mant', '=', True),('cancelar','=', True)]}"
                                        required="1"/>
-                                <field name="equipment_id"/>
+                                <field name="equipment_id" domain="[('category_id','=', category)]"/>
                                 <field name="complement_id" domain="[('equipment_id','=', equipment_id)]"/>
                                 <field name="partner_id"/>
                                 <field name="cat_mant_id" attrs="{'readonly':[('cancelar','=', True)]}"/>
@@ -113,7 +113,7 @@
                                 <group>
                                     <group>
                                         <field name="user_id"
-                                               attrs="{'readonly':['|', ('group_jefe', '=', True), ('cancelar','=', True)]}"/>
+                                               attrs="{'readonly':['|', ('group_jefe', '=', True), ('cancelar','=', True)]}"/> <!-- domain="[('id','=',uid.partner_id)]"-->
                                     </group>
                                     <group>
                                         <field name="asignar"
@@ -133,6 +133,7 @@
                                     <field name="time_to_close_est" readonly="1"/>
                                     <field name="time_to_close" attrs="{'invisible' :[('close_time', '=', False)]}"
                                            readonly="1"/>
+                                    <field name="fecha_vencida"/>
                                     <!--<field name="closed_by_id"/>-->
                                     <!-- <table style="width:70%">
                                       <tr>
@@ -230,7 +231,7 @@
                                         <field name="product"/>
                                         <field name="quantity"/>
                                         <field name="report_id" invisible="1"/>
-                                        <field name="state"/>
+                                        <field name="state" invisible="1"/>
                                     </tree>
                                 </field>
                             </page>
@@ -345,6 +346,7 @@
         </record>
 
         <record id="website_support_ticket_action_partner" model="ir.actions.act_window">
+            <field name="context">{'readonly_by_pass': True}</field>
             <field name="name">Solicitudes de Mantenimiento</field>
             <field name="res_model">website.support.ticket</field>
             <field name="view_mode">tree,kanban,form,graph</field>
@@ -360,7 +362,7 @@
             <field name="res_model">website.support.ticket</field>
             <field name="view_mode">tree,kanban,form,graph</field>
             <field name="context">{"search_default_unattended_tickets":1, 'auto_refresh': 1, 'default_create_user_id':
-                uid}
+                uid, 'readonly_by_pass': True}
             </field>
             <field name="help" type="html">
                 <p>

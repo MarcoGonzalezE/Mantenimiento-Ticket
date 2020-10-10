@@ -111,12 +111,11 @@
             <field name="model">website.support.inventory</field>
             <field name="arch" type="xml">
                 <search>
-<!--                    <field name="partner_id"/>-->
-<!--                    <filter string="Sin Stock" name="out_stock" domain="[('no_stock', '=', True)]"/>-->
-<!--                    <filter string="Terminadas" name="attended_tickets" domain="[('unattended', '=', False )"/>-->
-<!--                    <filter name="group_by_category" string="Area" domain="[]" context="{'group_by':'category'}"/>-->
-<!--                    <filter name="group_by_user" string="Personal de Mantenimiento" domain="[]"-->
-<!--                            context="{'group_by':'user_id'}"/>-->
+                    <!--<field name="partner_id"/>-->
+                    <!--<filter string="Sin Stock" name="out_stock" domain="[('no_stock', '=', True)]"/>-->
+                    <!--<filter string="Terminadas" name="attended_tickets" domain="[('unattended', '=', False )"/>-->
+                    <!--<filter name="group_by_category" string="Area" domain="[]" context="{'group_by':'category'}"/>-->
+                    <!--<filter name="group_by_user" string="Personal de Mantenimiento" domain="[]" context="{'group_by':'user_id'}"/>-->
                 </search>
             </field>
         </record>
@@ -150,11 +149,21 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet>
-                        <group>
-                            <field name="name" placeholder="Equipo" required="1"/>
-                        </group>
-                        <group>
-                            <field name="complement_ids"/>
+                        <div>
+                            <field name="imagen" widget="image" class="oe_avatar"/>
+                            <div class="oe_title">
+                                <p>
+                                    <h2><field name="name" placeholder="Equipo" required="1"/></h2>
+                                    <br/>
+                                    <label for="category_id"/>
+                                    <field name="category_id" placeholder="Area"/>
+                                </p>
+                            </div>
+                        </div>
+                        <group string="Complementos">
+                            <div>
+                                <field name="complement_ids"/>
+                            </div>
                         </group>
                     </sheet>
                 </form>
@@ -168,6 +177,28 @@
                 <tree string="Equipos">
                     <field name="name"/>
                 </tree>
+            </field>
+        </record>
+
+        <record id="website_support_equipment_view_kandan" model="ir.ui.view">
+            <field name="name">website.support.equipment.kanban.view</field>
+            <field name="model">website.support.equipment</field>
+            <field name="arch" type="xml">
+                <kanban class="o_res_partner_kanban">
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <div class="o_kanban_image">
+                                    <img t-att-src="kanban_image('website.support.equipment', 'imagen', record.id.value)"/>
+                                </div>
+                                <div class="oe_kanban_details">
+                                    <strong class="oe_partner_heading"><field name="name"/></strong>
+                                    <ul><strong>Area: <field name="category_id"/></strong></ul>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
             </field>
         </record>
 
@@ -186,12 +217,67 @@
             <field name="model">website.support.complement</field>
             <field name="arch" type="xml">
                 <form>
-                    <group>
-                        <field name="name" placeholder="Complemento" required="1"/>
-                        <field name="equipment_id" invisible="1"/>
-                        <field name="product_ids"/>
-                    </group>
+                    <sheet>
+                        <div>
+                            <field name="imagen" widget="image" class="oe_avatar"/>
+                            <div class="oe_title">
+                                <p>
+                                    <h2><field name="name" placeholder="Complemento" required="1"/></h2>
+                                    <br/>
+                                    <label for="equipment_id"/>
+                                    <field name="equipment_id"/>
+                                </p>
+                            </div>
+                        </div>
+                        <group string="Refacciones">
+                            <div>
+                                <field name="product_ids"/>
+                            </div>
+                        </group>
+                    </sheet>
                 </form>
+            </field>
+        </record>
+
+        <record id="website_support_complement_view_tree" model="ir.ui.view">
+            <field name="name">website.support.complement.tree</field>
+            <field name="model">website.support.complement</field>
+            <field name="arch" type="xml">
+                <tree string="Complementos">
+                    <field name="name"/>
+                    <field name="equipment_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="website_support_complement_view_kandan" model="ir.ui.view">
+            <field name="name">website.support.complement.kanban.view</field>
+            <field name="model">website.support.complement</field>
+            <field name="arch" type="xml">
+                <kanban class="o_res_partner_kanban">
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <div class="o_kanban_image">
+                                    <img t-att-src="kanban_image('website.support.complement', 'imagen', record.id.value)"/>
+                                </div>
+                                <div class="oe_kanban_details">
+                                    <strong class="oe_partner_heading"><field name="name"/></strong>
+                                    <ul><strong>Equipo: <field name="equipment_id"/></strong></ul>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="website_support_complement_action" model="ir.actions.act_window">
+            <field name="name">Complementos</field>
+            <field name="res_model">website.support.complement</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="help" type="html">
+                <p>No se encontro equipos</p>
             </field>
         </record>
 <!-- REGISTRO DE ENTRADA A INVENTARIO -->
