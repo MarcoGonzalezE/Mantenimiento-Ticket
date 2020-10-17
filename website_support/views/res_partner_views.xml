@@ -18,6 +18,7 @@
                 <notebook position="inside">
                     <page string="Mantenimiento">
                         <group>
+                            <field name="es_mantenimiento"/>
                             <field name="stp_ids"/>                            
                             <field name="encargados_ids"/>
                         </group>

@@ -23,13 +23,19 @@
         <menuitem id="inventario_refacciones" name="Refacciones" parent="inventario_mantenimiento" sequence="10" action="website_support_inventory_action"/>
         <menuitem id="inventario_equipos" name="Equipos" parent="inventario_mantenimiento" sequence="20" action="website_support_equipment_action"/>
         <menuitem id="inventario_complementos" name="Complementos" parent="inventario_mantenimiento" sequence="30" action="website_support_complement_action"/>
+        <menuitem id="inventario_extintores" name="Extintores" parent="inventario_mantenimiento" sequence="40" action="website_support_extinguisher_action"/>
+
+<!-- Informes -->
+        <menuitem id="informes_mantenimiento" name="Informes" parent="website_support_parent_menu" sequence="40"/>
+        <menuitem id="bitacora_mantenimiento" name="Bitacoras Mantenimiento" parent="informes_mantenimiento" action="reporte_bitacora_mantenimientos_action" sequence="10"/>
+        <menuitem id="bitacora_mantenimiento_area" name="Bitacoras Mantenimiento por Area" parent="informes_mantenimiento" action="reporte_bitacora_mantenimientos_area_action" sequence="20"/>
 
 <!-- Configuracion -->
-        <menuitem id="website_support_config_parent_menu" name="Configuracion" parent="website_support_parent_menu" groups="support_manager,support_staff,support_mant" sequence="40"/>
+        <menuitem id="website_support_config_parent_menu" name="Configuracion" parent="website_support_parent_menu" groups="support_manager,support_staff,support_mant" sequence="50"/>
         <menuitem id="website_support_ticket_categories_menu" name="Area" parent="website_support_config_parent_menu" action="website_support_ticket_categories_action" groups="support_manager,support_staff" sequence="10"/>
        <!--<menuitem id="website_support_ticket_subcategory_menu" name="Tipo de Matenimiento" parent="website_support_config_parent_menu" action="website_support_ticket_subcategory_action" groups="support_manager" sequence="20"/> -->
         <menuitem id="website_support_ticket_states_menu" name="Estados" parent="website_support_config_parent_menu" action="website_support_ticket_states_action" groups="support_manager" sequence="30"/>
-        <menuitem id="website_support_ticket_priority_menu" name="Prioridades" parent="website_support_config_parent_menu" action="website_support_ticket_priority_action" groups="support_manager" sequence="50"/>
+        <menuitem id="website_support_ticket_priority_menu" name="Prioridades" parent="website_support_config_parent_menu" action="website_support_ticket_priority_action" groups="support_manager" sequence="60"/>
        <!-- <menuitem id="website_support_department_menu" name="Departments" parent="website_support_config_parent_menu" action="website_support_department_action" groups="support_manager" sequence="60"/> -->
        <!-- <menuitem id="website_support_help_groups_menu" name="Help Groups" parent="website_support_config_parent_menu" action="website_support_help_groups_action" groups="support_manager" sequence="80"/> -->
        <!-- <menuitem id="website_support_help_page_menu" name="Help Pages" parent="website_support_config_parent_menu" action="website_support_help_page_action" groups="support_manager" sequence="90"/> -->

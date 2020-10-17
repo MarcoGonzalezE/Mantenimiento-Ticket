@@ -113,7 +113,7 @@
                                 <group>
                                     <group>
                                         <field name="user_id"
-                                               attrs="{'readonly':['|', ('group_jefe', '=', True), ('cancelar','=', True)]}"/> <!-- domain="[('id','=',uid.partner_id)]"-->
+                                               attrs="{'readonly':['|', ('group_jefe', '=', True), ('cancelar','=', True)]}" domain="[('es_mantenimiento', '=', True )]"/> <!-- domain="[('id','=',uid.partner_id)]"-->
                                     </group>
                                     <group>
                                         <field name="asignar"
@@ -163,6 +163,7 @@
                                 <group>
                                     <field name="close_comment"
                                            attrs="{'readonly':['|', ('group_jefe', '=', True), ('cancelar','=', True)], 'invisible' :[('close_time', '=', False)]}"/>
+                                    <field name="limpieza" readonly="1" attrs="{'invisible' :[('close_time', '=', False)]}"/>
                                 </group>
                                 <group string="Evaluación" attrs="{'invisible' :[('close_time', '=', False)]}">
                                     <table style="width:70%">

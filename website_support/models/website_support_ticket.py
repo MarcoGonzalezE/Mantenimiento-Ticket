@@ -64,8 +64,6 @@ class WebsiteSupportTicket(models.Model):
         except ValueError:
             return False
 
-
-
     #Campos de Jefe de Granja
     approval_id = fields.Many2one('website.support.ticket.approval', default=_default_approval_id, string="Estado de aprobación", track_visibility='onchange')
         #TODO: Autocompletar este campo al cambiar la categoria
@@ -75,9 +73,7 @@ class WebsiteSupportTicket(models.Model):
     category = fields.Many2one('website.support.ticket.categories', string="Area", track_visibility='onchange')
     equipment_id = fields.Many2one('website.support.equipment', string="Equipo")
     complement_id = fields.Many2one('website.support.complement', string="Complemento")
-
-    
-
+    limpieza =  fields.Boolean(string="Limpieza")
 
     #Campos de Ticket o Encargado de Granja
     create_user_id = fields.Many2one('res.users', "Creado por")
@@ -118,7 +114,7 @@ class WebsiteSupportTicket(models.Model):
     asignar = fields.Many2one('personal.mantenimiento', string="Asignado a", track_visibility='onchange')
     cat_mant_id = fields.Many2one('mantenimiento.categoria', string="Categoria", track_visibility='onchange')
     tipo_mant_id = fields.Many2one('mantenimiento.tipo', string="Tipo de Matenimiento", track_visibility='onchange')
-    fecha_estimada = fields.Datetime(string="Fecha Estimada", track_visibility='onchange')
+    fecha_estimada = fields.Date(string="Fecha Estimada", track_visibility='onchange')
     fecha_reporte = fields.Datetime(string="Fecha de Reporte")
     fecha_vencida = fields.Boolean(string="Reporte fuera de tiempo", compute="_fuera_tiempo")
 
@@ -158,7 +154,7 @@ class WebsiteSupportTicket(models.Model):
         self.equipment_id = False
         self.complement_id = False
 
-    @api.multi
+    @api.model
     @api.depends('tipo_mant_id')
     def _compute_mant_person(self):
         for r in self:
@@ -199,8 +195,10 @@ class WebsiteSupportTicket(models.Model):
     @api.onchange('fecha_estimada')
     def _compute_tiempo_est(self):
         if self.fecha_estimada != False:
-            d1= datetime.datetime.strptime(str(self.fecha_estimada), DEFAULT_SERVER_DATETIME_FORMAT)
-            d2= datetime.datetime.strptime(str(self.fecha_reporte), DEFAULT_SERVER_DATETIME_FORMAT)
+            di= datetime.datetime.strptime(str(self.fecha_estimada), "%Y-%m-%d")
+            dd= datetime.datetime.strptime(str(self.fecha_reporte), DEFAULT_SERVER_DATETIME_FORMAT)
+            d1= di.date()
+            d2= dd.date()
             diff_time_est = abs((d1-d2))
         #diff_time_est = datetime.datetime.strptime(self.fecha_estimada, DEFAULT_SERVER_DATETIME_FORMAT) - datetime.datetime.strptime(self.fecha_incio_real, DEFAULT_SERVER_DATETIME_FORMAT)
         #diff_time_est= datetime.datetime.strptime(self.fecha_estimada, DEFAULT_SERVER_DATETIME_FORMAT) - datetime.datetime.strptime(self.fecha_incio_real, DEFAULT_SERVER_DATETIME_FORMAT)
@@ -209,11 +207,15 @@ class WebsiteSupportTicket(models.Model):
     @api.multi
     @api.depends('fecha_estimada')
     def _fuera_tiempo(self):
-        if self.fecha_estimada:
-            hoy = datetime.datetime.today()
-            d1= datetime.datetime.strptime(str(self.fecha_estimada), DEFAULT_SERVER_DATETIME_FORMAT)
-            if hoy > d1:
-                self.fecha_vencida = True
+        if self.state.name == 'En Proceso':
+            if self.fecha_estimada:
+                hoy = datetime.date.today()
+                d1 = datetime.datetime.strptime(str(self.fecha_estimada), "%Y-%m-%d")
+                d2 = datetime.datetime.strptime(str(hoy),"%Y-%m-%d")
+                #fecha = self.fecha_estimada.strftime(DEFAULT_SERVER_DATE_FORMAT)
+                #d1= datetime.datetime.strptime(str(self.fecha_estimada), DEFAULT_SERVER_DATE_FORMAT)
+                if d2 > d1:
+                    self.fecha_vencida = True
 
         # actual = datetime.datetime.now().strftime(DEFAULT_SERVER_DATE_FORMAT)
         # d1 = datetime.datetime.strptime(str(self.fecha_estimada), DEFAULT_SERVER_DATETIME_FORMAT)
@@ -240,10 +242,14 @@ class WebsiteSupportTicket(models.Model):
         #self.person_name = self.partner_id.name
         self.email = self.partner_id.email
 
-    @api.onchange('asignar')
-    def _inicio_real(self):                   
-        self.fecha_incio_real = datetime.datetime.now()
-        self.state = self.env['website.support.ticket.states'].search([('name','=','En Proceso')])
+    @api.onchange('user_id')
+    def _inicio_real(self):
+        if self.user_id:
+            self.fecha_incio_real = datetime.datetime.now()
+            self.state = self.env['website.support.ticket.states'].search([('name','=','En Proceso')])
+        else:
+            self.fecha_incio_real = False
+            self.state = self.env['website.support.ticket.states'].search([('name','=','Aceptado')])
 
     @api.multi
     @api.depends('compras_ids')
@@ -591,6 +597,7 @@ class WebsiteSupportTicketEncargados(models.Model):
     _inherit = "res.partner"
 
     encargados_ids = fields.Many2many('website.support.ticket.categories', string="Encargado")
+    es_mantenimiento = fields.Boolean(string="Personal de Mantenimiento")
 
 class WebsiteSupportTicketCompose(models.Model):
 
@@ -598,6 +605,7 @@ class WebsiteSupportTicketCompose(models.Model):
 
     ticket_id = fields.Many2one('website.support.ticket', string="Ticket ID")
     message = fields.Text(string="Notas:")
+    limpieza = fields.Boolean(string="Limpieza")
 
     def close_ticket(self):
 
@@ -620,6 +628,7 @@ class WebsiteSupportTicketCompose(models.Model):
         self.ticket_id.close_comment = self.message
         self.ticket_id.closed_by_id = self.env.user.id
         self.ticket_id.state = closed_state.id
+        self.ticket_id.limpieza = self.limpieza
 
         #Auto send out survey
             #setting_auto_send_survey = self.env['ir.values'].get_default('website.support.settings', 'auto_send_survey')
@@ -769,17 +778,3 @@ class orden_servicio(models.Model):
     _inherit = "purchase.order"
     reporte = fields.Many2one('website.support.ticket',  string='Reporte de Mantenimiento')
 
-class ReporteMantenimiento(models.TransientModel):
-    _name = 'website.support.ticket.report'
-
-    def reportes_ticket(self):
-        return self.env['website.support.ticket'].browse(self.env.context.get('active_ids'))
-
-    fecha = fields.Date(string="Fecha de Emision")
-    codigo = fields.Char(string="Codigo")
-
-    reportes = fields.Many2many('website.support.ticket', string="Reportes", default=reportes_ticket)
-
-    @api.multi
-    def imprimir(self):
-        return self.env['report'].get_action(self, 'website_support.reporte_mantenimiento_document')

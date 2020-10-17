@@ -1,7 +1,7 @@
 from odoo import api, fields, models,_
 from datetime import datetime, timedelta
 
-#INVENTARIO
+#INVENTARIO REFACCIONES
 class WebsiteSupportInventory(models.Model):
 	_name = 'website.support.inventory'
 	_description = "Inventario de Mantenimiento"
@@ -14,6 +14,7 @@ class WebsiteSupportInventory(models.Model):
 	stock = fields.Integer(string="Stock", compute="_stock")
 	input_ids = fields.One2many('website.support.inventory.input', 'product_id', string="Entradas a Inventario")
 	output_ids = fields.One2many('website.support.ticket.product', 'product', string="Consumos de Inventario")
+	transfer_ids = fields.One2many('website.support.inventory.transfer','product_id', string="Transferencias de Inventario")
 
 	#Stock Faltante
 	@api.depends('stock_min','stock')
@@ -31,17 +32,20 @@ class WebsiteSupportInventory(models.Model):
 		for rec in self:
 			stock_total = 0
 			stock_out = 0
-			input = self.env['website.support.inventory.input'].search([('product_id','=', rec.id)])
+			stock_transfer = 0
+			input = self.env['website.support.inventory.input'].search([('product_id','=', rec.id)])			
 			if input is not None:
 				for i in input:
 					stock_total += i.quantity
+			transfer = self.env['website.support.inventory.transfer'].search([('product_id','=', rec.id)])
+			if transfer is not None:
+				for t in transfer:
+					stock_transfer += t.quantity
 			output = self.env['website.support.ticket.product'].search([('product','=', rec.id)])
 			if output is not None:
 				for o in output:
 					stock_out += o.quantity
-			rec.stock = stock_total - stock_out
-
-
+			rec.stock = stock_total - stock_out - stock_transfer
 
 	#Registrar Entrada
 	@api.multi
@@ -53,6 +57,20 @@ class WebsiteSupportInventory(models.Model):
             'view_mode': 'form',
             'view_name': 'form',
             'res_model': 'website.support.inventory.input',
+            'context': {'default_product_id': self.id},
+            'target': 'new'
+		}
+
+	#Registrar Salida
+	@api.multi
+	def registar_salida(self):
+		return{
+			'name': "Registar Salida",
+			'type': 'ir.actions.act_window',
+			'view_type': 'form',
+            'view_mode': 'form',
+            'view_name': 'form',
+            'res_model': 'website.support.inventory.transfer',
             'context': {'default_product_id': self.id},
             'target': 'new'
 		}
@@ -71,6 +89,26 @@ class WebsiteSupportInventoryInput(models.Model):
 	@api.model
 	def create(self, values):
 		return super(WebsiteSupportInventoryInput, self).create(values)
+
+	@api.multi
+	def save(self):
+		return True
+
+#SALIDAS DE INVENTARIO
+class WebsiteSupportInventoryTransfer(models.Model):
+	_name = 'website.support.inventory.transfer'
+	_description = "Transferencias de Inventario"
+
+	product_id = fields.Many2one('website.support.inventory', string="Producto ID")
+	quantity = fields.Integer(string="Cantidad")
+	date = fields.Date(string="Fecha de Salida")
+	transfer_id = fields.Many2one('stock.picking', string="Transferencia")
+	folio = fields.Char(string="Folio")
+	note = fields.Text(string="Nota")
+
+	@api.model
+	def create(self, values):
+		return super(WebsiteSupportInventoryTransfer, self).create(values)
 
 	@api.multi
 	def save(self):
@@ -152,3 +190,12 @@ class WebsiteSupportParts(models.Model):
 	quantity = fields.Integer(string="Cantidad")
 	report_id = fields.Many2one('website.support.ticket', string="Reporte ID")
 	state = fields.Selection([('draft', 'Reservado'), ('done', 'Consumido')], string="Estado", default='draft')
+
+#EXTINTORES
+class WebsiteSupportExtinguisher(models.Model):
+	_name = 'website.support.extinguisher'
+	_description = "Inventario de Extintores"
+
+	name = fields.Char(string="Numero de Extintor")
+	location = fields.Char(string="Ubicacion")
+	capacity = fields.Char(string="Capacidad (KG)")

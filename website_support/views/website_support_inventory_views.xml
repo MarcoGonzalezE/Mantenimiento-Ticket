@@ -9,6 +9,7 @@
             	<form>
                     <header>
                         <button type="object" name="registar_entrada" string="Registrar Entrada" class="btn-primary"/>
+                        <button type="object" name="registar_salida" string="Registrar Salida" class="btn-primary"/>
                     </header>
             		<sheet>
             			<div>
@@ -50,6 +51,17 @@
                                             <field name="report_id"/>
                                             <field name="quantity" sum="Suma Consumos"/>
                                             <field name="state" invisible="1"/>
+                                        </tree>
+                                    </field>
+                                </page>
+                                <page string="Salidas">
+                                    <field name="transfer_ids" readonly="1">
+                                        <tree editable="top">
+                                            <field name="date"/>
+                                            <field name="quantity" sum="Suma Transferencias"/>
+                                            <field name="folio"/>
+                                            <field name="transfer_id"/>
+                                            <field name="note"/>
                                         </tree>
                                     </field>
                                 </page>
@@ -98,7 +110,7 @@
         </record>
 
         <record id="website_support_inventory_action" model="ir.actions.act_window">
-            <field name="name">Inventario</field>
+            <field name="name">Refacciones</field>
             <field name="res_model">website.support.inventory</field>
             <field name="view_mode">kanban,tree,form</field>
             <field name="help" type="html">
@@ -106,19 +118,19 @@
             </field>
         </record>
 
-        <record id="website_support_inventory_action_view_search" model="ir.ui.view">
+       <!--  <record id="website_support_inventory_action_view_search" model="ir.ui.view">
             <field name="name">website.support.inventory.form.search</field>
             <field name="model">website.support.inventory</field>
             <field name="arch" type="xml">
-                <search>
+                <search> -->
                     <!--<field name="partner_id"/>-->
                     <!--<filter string="Sin Stock" name="out_stock" domain="[('no_stock', '=', True)]"/>-->
                     <!--<filter string="Terminadas" name="attended_tickets" domain="[('unattended', '=', False )"/>-->
                     <!--<filter name="group_by_category" string="Area" domain="[]" context="{'group_by':'category'}"/>-->
                     <!--<filter name="group_by_user" string="Personal de Mantenimiento" domain="[]" context="{'group_by':'user_id'}"/>-->
-                </search>
+                <!-- </search>
             </field>
-        </record>
+        </record> -->
 
 <!-- ENVIAR A COMPRAS -->
         <record id="website_support_inventory_purchase_view_form" model="ir.ui.view">
@@ -316,5 +328,94 @@
                 </tree>
             </field>
         </record>
+
+<!-- REGISTRO TRANSFERENCIAS DE INVENTARIO -->
+        <record id="website_support_inventory_transfer_view_form" model="ir.ui.view">
+            <field name="name">website.support.inventory.transfer.form</field>
+            <field name="model">website.support.inventory.transfer</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="product_id" invisible="1"/>
+                        <field name="transfer_id"/>
+                        <field name="quantity"/>
+                        <field name="folio"/>
+                        <field name="date"/>
+                        <field name="note"/>
+                    </group>
+                    <footer>
+                        <button string="Registrar" class="oe_highlight oe_edit_only" name="save" type="object"/>
+                        <button string="Cancelar" class="oe_highlight oe_edit_only" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="website_support_inventory_transfer_view_action" model="ir.actions.act_window">
+            <field name="name">website.support.inventory.transfer.action</field>
+            <field name="res_model">website.support.inventory.transfer</field>
+            <field name="view_mode">tree</field>
+        </record>
+        <record id="website_support_inventory_input_view_tree" model="ir.ui.view">
+            <field name="name">website.support.invetory.transfer.tree</field>
+            <field name="model">website.support.inventory.transfer</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="date"/>
+                    <field name="quantity"/>
+                    <field name="product_id" invisible="1"/>
+                    <field name="note"/>
+                </tree>
+            </field>
+        </record>
+
+<!-- EXTINTORES -->
+        <!-- <record id="website_support_extinguisher_view_form" model="ir.ui.view">
+            <field name="name">website.support.extinguisher.form</field>
+            <field name="model">website.support.extinguisher</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div>
+                            <field name="imagen" widget="image" class="oe_avatar"/>
+                            <div class="oe_title">
+                                <p>
+                                    <h2><field name="name" placeholder="Equipo" required="1"/></h2>
+                                    <br/>
+                                    <label for="category_id"/>
+                                    <field name="category_id" placeholder="Area"/>
+                                </p>
+                            </div>
+                        </div>
+                        <group string="Complementos">
+                            <div>
+                                <field name="complement_ids"/>
+                            </div>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record> -->
+        
+        <record id="website_support_extinguisher_view_tree" model="ir.ui.view">
+            <field name="name">website.support.extinguisher.tree.view</field>
+            <field name="model">website.support.extinguisher</field>
+            <field name="arch" type="xml">
+                <tree string="Extintores" editable="buttom">
+                    <field name="name"/>
+                    <field name="location"/>
+                    <field name="capacity"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="website_support_extinguisher_action" model="ir.actions.act_window">
+            <field name="name">Extintores</field>
+            <field name="res_model">website.support.extinguisher</field>
+            <field name="view_mode">tree</field>
+            <field name="help" type="html">
+                <p>No se encontro extintor</p>
+            </field>
+        </record>
+
     </data>
 </odoo>
