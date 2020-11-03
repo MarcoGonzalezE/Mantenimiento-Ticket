@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data noupdate="1">
+		<record id="secuencia_preventiva_extintores" model="ir.sequence">
+			<field name="name">preventiva_extintores_secuencias</field>
+			<field name="code">website.support.ticket.extinguisher</field>
+			<field name="prefix">MPE</field>
+			<field name="padding">4</field>
+			<field name="company_id" eval="False"/>
+		</record>
+	</data>
+</odoo>

@@ -21,6 +21,7 @@
                     <field name="auto_create_contact"/>
                     <field name="product_purchase" options="{'no_create': True}"/>
                     <field name="partner_purchase" options="{'no_create': True}"/>
+                    <field name="personal_shopping" options="{'no_create': True}"/>
                 </group>
       	    </form>
         </field>

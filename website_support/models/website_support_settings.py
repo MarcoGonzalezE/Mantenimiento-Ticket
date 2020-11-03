@@ -12,14 +12,17 @@ class WebsiteSupportSettings(models.Model):
     _name = "website.support.settings"
     _inherit = 'res.config.settings'
 
-    @api.multi
     def _default_product_purchase(self):
         product = self.env['website.support.settings'].search([], order='id desc', limit=1)
-        return product.product_purchase
+        return product.product_purchase.id
 
     def _default_partner_purchase(self):
         partner = self.env['website.support.settings'].search([], order='id desc', limit=1)
         return partner.partner_purchase
+
+    def _default_personal_shopping(self):
+        personal = self.env['website.support.settings'].search([], order='id desc', limit=1)
+        return  personal.personal_shopping
 
     close_ticket_email_template_id = fields.Many2one('mail.template', domain="[('model_id','=','website.support.ticket')]", string="(OBSOLETE)Close Ticket Email Template")
     change_user_email_template_id = fields.Many2one('mail.template', domain="[('model_id','=','website.support.ticket')]", string="Change User Email Template")
@@ -32,6 +35,7 @@ class WebsiteSupportSettings(models.Model):
     auto_create_contact = fields.Boolean(string="Auto Create Contact", help="Auto create contact if one with that email does not exist")
     product_purchase = fields.Many2one('product.product', string="Producto para Compras", default=_default_product_purchase)
     partner_purchase = fields.Many2one('res.partner', string="Proveedor para Compras", default=_default_partner_purchase)
+    personal_shopping = fields.Many2one('res.users', string="Personal de Compras", default=_default_personal_shopping)
 
     #-----Auto Create Contact-----
 

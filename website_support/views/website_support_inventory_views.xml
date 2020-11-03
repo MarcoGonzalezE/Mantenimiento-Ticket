@@ -417,5 +417,130 @@
             </field>
         </record>
 
+<!-- HERRAMIENTAS -->
+        <record id="website_support_tools_view_form" model="ir.ui.view">
+            <field name="name">website.support.tools.form</field>
+            <field name="model">website.support.tools</field>
+            <field name="arch" type="xml">
+            	<form>
+                    <header>
+                        <button type="object" name="asignar" string="Asignacion" class="btn-primary" attrs="{'invisible':[('estado','=','en_uso')]}"/>
+                        <button type="object" name="devolucion" string="Devolucion" class="btn-primary" attrs="{'invisible':[('estado','=','disponible')]}"/>
+                        <field name="estado" widget="statusbar"/>
+                    </header>
+            		<sheet>
+            			<div>
+            				<field name="imagen" widget="image" class="oe_avatar"/>
+            				<div class="oe_title">
+            					<p>
+            						<h2><field name="name" placeholder="Producto" required="1"/></h2>
+            					</p>
+                                <field name="asignacion_id" invisible="1"/>
+                            </div>
+            			</div>
+                        <group>
+                            <notebook>
+                                <page string="Historial">
+                                    <field name="asignaciones_ids" readonly="1">
+                                        <tree editable="top">
+                                            <field name="herramienta_id" invisible="1"/>
+                                            <field name="asignado"/>
+                                            <field name="area"/>
+                                            <field name="fecha_asignacion"/>
+                                            <field name="fecha_devolucion"/>
+                                            <field name="nota"/>
+                                        </tree>
+                                    </field>
+                                </page>
+                            </notebook>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="website_support_tools_view_kandan" model="ir.ui.view">
+            <field name="name">website.support.tools.kanban.view</field>
+            <field name="model">website.support.tools</field>
+            <field name="arch" type="xml">
+                <kanban class="o_res_partner_kanban">
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <div class="o_kanban_image">
+                                    <img t-att-src="kanban_image('website.support.tools', 'imagen', record.id.value)"/>
+                                </div>
+                                <div>
+                                    <h3><field name="name"/></h3>
+                                    <ul attrs="{'invisible':[('estado','=', 'disponible')]}"><strong><font color="red"><field name="estado"/></font></strong></ul>
+                                    <ul attrs="{'invisible':[('estado','=', 'en_uso')]}"><strong><font color="green"><field name="estado"/></font></strong></ul>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="website_support_tools_view_tree" model="ir.ui.view">
+            <field name="name">website.support.tools.tree.view</field>
+            <field name="model">website.support.tools</field>
+            <field name="arch" type="xml">
+                <tree string="Herramientas">
+                    <field name="name"/>
+                    <field name="estado"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="website_support_tools_action" model="ir.actions.act_window">
+            <field name="name">Herramientas</field>
+            <field name="res_model">website.support.tools</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="help" type="html">
+                <p>No se encontro herramientas</p>
+            </field>
+        </record>
+<!-- ASIGNAR HERRAMIENTA -->
+        <record id="website_support_tools_assign_view_form" model="ir.ui.view">
+            <field name="name">website.support.tools.assign.form</field>
+            <field name="model">website.support.tools.assign</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="herramienta_id" readonly="1"/>
+                        <field name="asignado" options="{'no_create': True, 'no_create_edit':True}"/>
+                        <field name="area"/>
+                        <field name="fecha_asignacion"/>
+                        <field name="nota"/>
+                    </group>
+                    <footer>
+						<button name="asignar" type="object" class="btn-primary" string="Asignar"/>
+                        <button name="cancelar" type="object" class="btn-primary" string="Cancelar"/>
+					</footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="website_support_tools_return_view_form" model="ir.ui.view">
+            <field name="name">website.support.tools.return.form</field>
+            <field name="model">website.support.tools.assign</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="herramienta_id" readonly="1"/>
+                        <field name="asignado" readonly="1"/>
+                        <field name="area" readonly="1"/>
+                        <field name="fecha_asignacion" readonly="1"/>
+                        <field name="fecha_devolucion"/>
+                        <field name="nota"/>
+                    </group>
+                    <footer>
+						<button name="save" type="object" class="btn-primary" string="Devolver"/>
+                        <button name="cancelar" type="object" class="btn-primary" string="Cancelar"/>
+					</footer>
+                </form>
+            </field>
+        </record>
     </data>
 </odoo>

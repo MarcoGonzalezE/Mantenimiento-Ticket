@@ -129,7 +129,6 @@ class WebsiteSupportInventoryPurchase(models.TransientModel):
 	def create_purchase_order(self):
 		products = self.env['website.support.inventory'].browse(self._context.get('active_ids'))
 		config_purchase = self.env['website.support.settings'].search([], order='id desc', limit=1)
-		print(config_purchase.product_purchase)
 		purchase = self.env['purchase.order'].create({
 			'partner_id':config_purchase[0].partner_purchase.id,
 		})
@@ -199,3 +198,69 @@ class WebsiteSupportExtinguisher(models.Model):
 	name = fields.Char(string="Numero de Extintor")
 	location = fields.Char(string="Ubicacion")
 	capacity = fields.Char(string="Capacidad (KG)")
+
+#HERRAMIENTAS
+class WebsiteSupportTools(models.Model):
+	_name = 'website.support.tools'
+	_description = "Herramientas"
+
+	name = fields.Char(string="Herramienta")
+	imagen = fields.Binary(string="Imagen", attachment=True)
+	asignaciones_ids = fields.One2many('website.support.tools.assign', 'herramienta_id', string="Asignaciones")
+	estado = fields.Selection([('disponible','Disponible'),('en_uso','En Uso')], string="Estado", default='disponible')
+	asignacion_id = fields.Many2one('website.support.tools.assign', string="Ultima Asignacion")
+
+	@api.multi
+	def asignar(self):
+		form_id = self.env.ref('website_support.website_support_tools_assign_view_form')
+		self.estado = 'en_uso'
+		return {
+			'name': "Asignacion de Herramienta",
+			'type': 'ir.actions.act_window',
+			'view_type': 'form',
+			'view_mode': 'form',
+			'res_model': 'website.support.tools.assign',
+			'view_id': form_id.id,
+			'context': {'default_herramienta_id': self.id},
+			'target': 'new'
+		}
+
+	@api.multi
+	def devolucion(self):
+		form_id = self.env.ref('website_support.website_support_tools_return_view_form')
+		self.estado = 'disponible'
+		return {
+			'name': "Devolucion de Herramienta",
+			'type': 'ir.actions.act_window',
+			'view_type': 'form',
+			'view_mode': 'form',
+			'res_model': 'website.support.tools.assign',
+			'view_id': form_id.id,
+			'res_id': self.asignacion_id.id,
+			'target': 'new'
+		}
+
+class WebsiteSupportToolsAssign(models.Model):
+	_name = 'website.support.tools.assign'
+	_description = "Asignaciones de Herramientas"
+
+	herramienta_id = fields.Many2one('website.support.tools', string="Herramienta")
+	asignado = fields.Many2one('personal.mantenimiento', string="Asignado")
+	area = fields.Many2one('website.support.ticket.categories', string="Area")
+	fecha_asignacion = fields.Date(string="Fecha de Asignacion")
+	fecha_devolucion = fields.Date(string="Fecha de Devolucion")
+	nota = fields.Text(string="Notas")
+
+	def asignar(self):
+		assignments = self.env['website.support.tools.assign'].search([], order='id desc')[0]
+		self.herramienta_id.asignacion_id = assignments.id
+
+	@api.multi
+	def save(self):
+		return True
+
+	def cancelar(self):
+		if self.herramienta_id.estado == 'en_uso':
+			self.herramienta_id.estado = 'disponible'
+		else:
+			self.herramienta_id.estado = 'en_uso'

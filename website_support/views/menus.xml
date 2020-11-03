@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <odoo>
     <data>
-
         <menuitem id="website_support_parent_menu" name="Matenimiento" groups="support_staff,support_mant" sequence="40" web_icon="website_support,static/description/icon2.png"/>
+<!--- Solicitudes de Mantenimiento -->
         <menuitem id="website_support_ticket_menu" name="Solicitudes de Matenimiento" parent="website_support_parent_menu" action="website_support_ticket_action" groups="support_staff,support_mant" sequence="10"/>
         <!--  Departamento de Mantenimiento
                     > Tipo de Mantenimiento
@@ -14,24 +14,28 @@
                     > Prioridades
                     > Ajustes
         -->
+<!--- Preventiva -->
+        <menuitem id="mantenimiento_preventivo" name="Preventiva" parent="website_support_parent_menu" groups="support_manager,support_mant" sequence="20"/>
+        <menuitem id="mantenimiento_extintores" name="Extintores" parent="mantenimiento_preventivo" groups="support_manager,support_mant" action="action_website_support_ticket_preventive_extinguisher" sequence="10"/>
 <!--- Departamento de Mantenimiento-->
-        <menuitem id="departamento_mantenimiento" name="Departamento de Mantenimiento" parent="website_support_parent_menu" groups="support_manager,support_mant" sequence="20"/>        
+        <menuitem id="departamento_mantenimiento" name="Departamento de Mantenimiento" parent="website_support_parent_menu" groups="support_manager,support_mant" sequence="30"/>        
         <menuitem id="mantenimiento_tipo_menu" name="Tipo de Matenimiento" parent="departamento_mantenimiento" action="mantenimiento_tipo_action" groups="support_manager,support_mant" sequence="10"/>
         <menuitem id="personal_mant_menu" name="Personal" parent="departamento_mantenimiento" action="personal_mantenimiento_action" groups="support_manager,support_mant" sequence="20"/>
 <!-- Inventario -->
-        <menuitem id="inventario_mantenimiento" name="Inventario" parent="website_support_parent_menu" sequence="30"/>
+        <menuitem id="inventario_mantenimiento" name="Inventario" parent="website_support_parent_menu" sequence="40"/>
         <menuitem id="inventario_refacciones" name="Refacciones" parent="inventario_mantenimiento" sequence="10" action="website_support_inventory_action"/>
-        <menuitem id="inventario_equipos" name="Equipos" parent="inventario_mantenimiento" sequence="20" action="website_support_equipment_action"/>
-        <menuitem id="inventario_complementos" name="Complementos" parent="inventario_mantenimiento" sequence="30" action="website_support_complement_action"/>
-        <menuitem id="inventario_extintores" name="Extintores" parent="inventario_mantenimiento" sequence="40" action="website_support_extinguisher_action"/>
+        <menuitem id="inventario_herramientas" name="Herramientas" parent="inventario_mantenimiento" sequence="20" action="website_support_tools_action"/>
+        <menuitem id="inventario_equipos" name="Equipos" parent="inventario_mantenimiento" sequence="30" action="website_support_equipment_action"/>
+        <menuitem id="inventario_complementos" name="Complementos" parent="inventario_mantenimiento" sequence="40" action="website_support_complement_action"/>
+        <menuitem id="inventario_extintores" name="Extintores" parent="inventario_mantenimiento" sequence="50" action="website_support_extinguisher_action"/>
 
 <!-- Informes -->
-        <menuitem id="informes_mantenimiento" name="Informes" parent="website_support_parent_menu" sequence="40"/>
+        <menuitem id="informes_mantenimiento" name="Informes" parent="website_support_parent_menu" sequence="50"/>
         <menuitem id="bitacora_mantenimiento" name="Bitacoras Mantenimiento" parent="informes_mantenimiento" action="reporte_bitacora_mantenimientos_action" sequence="10"/>
         <menuitem id="bitacora_mantenimiento_area" name="Bitacoras Mantenimiento por Area" parent="informes_mantenimiento" action="reporte_bitacora_mantenimientos_area_action" sequence="20"/>
 
 <!-- Configuracion -->
-        <menuitem id="website_support_config_parent_menu" name="Configuracion" parent="website_support_parent_menu" groups="support_manager,support_staff,support_mant" sequence="50"/>
+        <menuitem id="website_support_config_parent_menu" name="Configuracion" parent="website_support_parent_menu" groups="support_manager,support_staff,support_mant" sequence="60"/>
         <menuitem id="website_support_ticket_categories_menu" name="Area" parent="website_support_config_parent_menu" action="website_support_ticket_categories_action" groups="support_manager,support_staff" sequence="10"/>
        <!--<menuitem id="website_support_ticket_subcategory_menu" name="Tipo de Matenimiento" parent="website_support_config_parent_menu" action="website_support_ticket_subcategory_action" groups="support_manager" sequence="20"/> -->
         <menuitem id="website_support_ticket_states_menu" name="Estados" parent="website_support_config_parent_menu" action="website_support_ticket_states_action" groups="support_manager" sequence="30"/>

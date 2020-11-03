@@ -328,7 +328,7 @@
             <field name="margin_left">3</field>
             <field name="margin_right">3</field>
             <field name="header_line" eval="False"/>
-            <field name="header_spacing">3</field>
+            <field name="header_spacing">10</field>
             <field name="dpi">80</field>
         </record>
         <report id="reporte_mantenimiento" string="Bitacora de Mantenimientos" model="website.support.ticket.report" report_type="qweb-pdf" name="website_support.reporte_mantenimiento_document" paperformat="website_support.paperformat_report"/>

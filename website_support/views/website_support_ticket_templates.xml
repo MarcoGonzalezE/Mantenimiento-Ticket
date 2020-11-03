@@ -62,6 +62,42 @@
             ]]>
             </field>
         </record>
+
+        <record id="mantenimiento_extintores_notificacion" model="mail.template">
+            <field name="name">Nuevo mantenimiento preventivo de extintores - Programado</field>
+            <field name="model_id" ref="model_website_support_ticket_extinguisher"></field>
+            <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>
+            <field name="subject">Nuevo mantenimiento preventivo de extintores - Programado</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="built_in" eval="True"/>
+            <field name="body_html"><![CDATA[
+                <p>_user_name_, Se ha programado un nuevo Mantenimiento Preventido de Extintores</p>
+                <p>Reporte: ${object.name}</P>
+                <p>Fecha: ${object.fecha}</p>
+                <p>Codigo: ${object.codigo}</p>
+                <p>Vigencia: ${object.vigencia}</p>
+                <p>Estado: Programado</p>
+                <p>Click <a href="_ticket_url_">aqui</a> para la ver el reporte.</p>
+            ]]>
+            </field>
+        </record>
+
+        <record id="mantenimiento_extintores_compras_notificacion" model="mail.template">
+            <field name="name">Extintores para Recarga</field>
+            <field name="model_id" ref="model_website_support_ticket_extinguisher"></field>
+            <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>
+            <field name="subject">Extintores para Recarga</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="built_in" eval="True"/>
+            <field name="body_html"><![CDATA[
+                <p>_user_name_, Se le notifica que los siguientes extintores requieren Recarga:</p>
+                <p>Extintores:</p>
+                for (let x in object.extintores_ids){
+                    <p>${object.extintores_ids[x].extintor_id}</p>
+                }
+            ]]>
+            </field>
+        </record>
         
         <record id="new_support_ticket_category" model="mail.template">
             <field name="name">Nueva solicitud de mantenimiento (Granja)</field>

@@ -531,6 +531,7 @@ class WebsiteSupportTicketCategories(models.Model):
     sequence = fields.Integer(string="Sequence")
     name = fields.Char(required=True, translate=True, string='Area')
     cat_user_ids = fields.Many2many('res.users', string="Gerencia")
+    imagen = fields.Binary(string="Imagen", attachment=True)
     encargados_ids = fields.Many2many('res.partner', string="Jefe de Area")
     equipos_ids = fields.One2many('website.support.equipment', 'category_id', string="Equipos")
 

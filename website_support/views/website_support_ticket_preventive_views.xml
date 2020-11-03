@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="website_support_ticket_preventive_extinguisher_view_form" model="ir.ui.view">
+            <field name="name">website.support.ticket.extinguisher.form.view</field>
+            <field name="model">website.support.ticket.extinguisher</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button type="object" name="programar" string="Programar/Notificar"
+                                class="btn-primary" attrs="{'invisible' :['|',('programado', '=', False),('responsables', '=', False)]}"/>
+                        <button type="object" name="imprimir" string="Imprimir" class="btn-primary"/>
+                        <!--<button type="object" name="notificar_compras" string="Notificar Compras"
+                                class="btn-primary"/>-->
+                    </header>
+                	<sheet>
+                        <div>
+                            <table width="100%">
+                                <tr>
+                                    <td rowspan="4" align="center" width="20%">
+                                        <strong>BITACORA MANTENIMIENTO EXTINTORES</strong><br/>
+                                        <field name="name" readonly="1"/>
+                                    </td>
+                                    <td align="center"><strong>FECHA DE EMISION</strong></td>
+                                    <td align="center"><strong>CODIGO</strong></td>
+                                    <td align="center"><strong>VIGENCIA</strong></td>
+                                </tr>
+                                <tr>
+                                    <td align="center"><field name="fecha"/></td>
+                                    <td align="center"><field name="codigo"/></td>
+                                    <td align="center"><field name="vigencia"/></td>
+                                </tr>
+                                <tr>
+                                    <td align="center"><strong>PROPIETARIO</strong></td>
+                                    <td align="center"><strong>VERSION</strong></td>
+                                    <td align="center"><strong>REVISION</strong></td>
+                                </tr>
+                                <tr>
+                                    <td align="center"><field name="propietario"/></td>
+                                    <td align="center"><field name="version"/></td>
+                                    <td align="center"><field name="revision"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <group string="Programacion">
+                            <group>
+                                <field name="programado"/>
+                                <field name="notificado" readonly="1" attrs="{'invisible':[('notificado','=', False)]}"/>
+                            </group>
+                            <group>
+                                <field name="responsables" widget="many2many_tags"/>
+                                <field name="notificado_compras" readonly="1" attrs="{'invisible':[('notificado_compras','=', False)]}"/>
+                            </group>
+                        </group>
+                        <br/>
+                        <div>
+                            <field name="extintores_ids">
+                                <tree editable="bottom">
+                                    <field name="extintor_id"/>
+                                    <field name="ubicacion" readonly="1"/>
+                                    <field name="capacidad" readonly="1"/>
+                                    <field name="manometro"/>
+                                    <field name="manilla_accion"/>
+                                    <field name="manilla_soporte"/>
+                                    <field name="pasador"/>
+                                    <field name="manguera"/>
+                                    <field name="boquilla"/>
+                                    <field name="cilindro"/>
+                                    <field name="etiquetado"/>
+                                    <field name="base"/>
+                                    <field name="senaletica"/>
+                                    <field name="recarga" widget="radio"/>
+<!--                                    <field name="otro"/>-->
+                                    <field name="observaciones"/>
+                                </tree>
+                            </field>
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="website_support_ticket_preventive_extinguisher_view_tree" model="ir.ui.view">
+        	<field name="name">website.support.ticket.extinguisher.form.view</field>
+            <field name="model">website.support.ticket.extinguisher</field>
+            <field name="arch" type="xml">
+            	<tree string="Mantenimiento Extintores">
+            		<field name="name"/>
+            		<field name="fecha"/>
+            		<field name="propietario"/>
+            		<field name="codigo"/>
+            	</tree>
+            </field>
+        </record>
+
+        <record id="action_website_support_ticket_preventive_extinguisher" model="ir.actions.act_window">
+        	<field name="name">Mantenimiento Extintores</field>
+        	<field name="res_model">website.support.ticket.extinguisher</field>
+        	<field name="view_mode">tree,form</field>
+        	<field name="help" type="html">
+        		<p>
+        			Mantenimientos Preventivos de Extintores no encontrados.
+        		</p>
+        	</field>
+        </record>
+<!-- BITACORA MANTENIMIENTO EXTINTORES -->
+        <report id="reporte_bitacora_extintores" string="Bitacora Mantenimiento Extintores" model="website.support.ticket.extinguisher"
+                report_type="qweb-pdf" name="website_support.reporte_bitacora_extintores_document" paperformat="website_support.paperformat_report"/>
+        <template id="reporte_bitacora_extintores_document">
+            <t t-call="report.html_container">
+                <style>
+                    @media print {
+                      thead span.page-number:after {
+                        counter-increment: page;
+                        content: "Page " counter(page) " of ?";
+                      }
+                    }
+                </style>
+                <div class="page">
+                    <div style="padding-top:15mm;">
+                        <t t-foreach="docs" t-as="o">
+                            <!-- <div class="header">
+                                <table style="width:100%;">
+                                    <tr style="border: 1px solid black;">
+                                        <th class="text-center" style="border: 1px solid black;" rowspan="2">
+                                            <p>BITACORA MANTENIMIENTO EXTINTORES</p>
+                                        </th>
+                                        <th class="text-center" style="border: 1px solid black;">FECHA DE EMISION</th>
+                                        <th class="text-center" style="border: 1px solid black;">CODIGO</th>
+                                        <th class="text-center" style="border: 1px solid black;">VIGENCIA</th>
+                                        <td class="text-center" rowspan="4"><img src="/website_support/static/description/altaconversion.png" style="width:100; height:100;"/></td>
+                                    </tr>
+                                    <tr style="border: 1px solid black;">
+                                        <td align="center" style="border: 1px solid black;"><span t-esc="o.fecha"/></td>
+                                        <td align="center" style="border: 1px solid black;">
+                                            <span t-field="o.codigo"/>
+                                        </td>
+                                        <td align="center" style="border: 1px solid black;"><span t-field="o.vigencia"/></td>
+                                    </tr>
+                                    <tr style="border: 1px solid black;">
+                                        <th class="text-center" style="border: 1px solid black;">PROPIETARIO</th>
+                                        <th class="text-center" style="border: 1px solid black;">PAGINAS</th>
+                                        <th class="text-center" style="border: 1px solid black;">VERSION</th>
+                                        <th class="text-center" style="border: 1px solid black;">REVISION</th>
+                                    </tr>
+                                    <tr style="border: 1px solid black;">
+                                        <td align="center" style="border: 1px solid black;">
+                                            <span t-field="o.propietario"/>
+                                        </td>
+                                        <td align="center" style="border: 1px solid black;"></td>
+                                        <td align="center" style="border: 1px solid black;"><span t-field="o.version"/></td>
+                                        <td align="center" style="border: 1px solid black;"><span t-field="o.revision"/></td>
+                                    </tr>
+                                </table>
+                            </div> -->
+                            <table style="width:100%;" class="header_table">
+                                <thead>
+                                    <tr>
+                                        <td colspan="16">
+                                            <table style="width:100%;">
+                                                <tr style="border: 1px solid black;">
+                                                    <th class="text-center" style="border: 1px solid black;" rowspan="2">
+                                                        <p>BITACORA MANTENIMIENTO EXTINTORES</p>
+                                                    </th>
+                                                    <th class="text-center" style="border: 1px solid black;">FECHA DE EMISION</th>
+                                                    <th class="text-center" style="border: 1px solid black;">CODIGO</th>
+                                                    <th class="text-center" style="border: 1px solid black;">VIGENCIA</th>
+                                                    <td class="text-center" rowspan="4"><img src="/website_support/static/description/altaconversion.png" style="width:70; height:70;"/></td>
+                                                </tr>
+                                                <tr style="border: 1px solid black;">
+                                                    <td align="center" style="border: 1px solid black;"><span t-esc="o.fecha"/></td>
+                                                    <td align="center" style="border: 1px solid black;">
+                                                        <span t-field="o.codigo"/>
+                                                    </td>
+                                                    <td align="center" style="border: 1px solid black;"><span t-field="o.vigencia"/></td>
+                                                </tr>
+                                                <tr style="border: 1px solid black;">
+                                                    <th class="text-center" style="border: 1px solid black;">PROPIETARIO</th>
+                                                    <th class="text-center" style="border: 1px solid black;">PAGINAS</th>
+                                                    <th class="text-center" style="border: 1px solid black;">VERSION</th>
+                                                    <th class="text-center" style="border: 1px solid black;">REVISION</th>
+                                                </tr>
+                                                <tr style="border: 1px solid black;">
+                                                    <td align="center" style="border: 1px solid black;">
+                                                        <span t-field="o.propietario"/>
+                                                    </td>
+                                                    <td align="center" style="border: 1px solid black;"><span class="page-number"></span></td>
+                                                    <td align="center" style="border: 1px solid black;"><span t-field="o.version"/></td>
+                                                    <td align="center" style="border: 1px solid black;"><span t-field="o.revision"/></td>
+                                                </tr>
+                                            </table>
+                                            <br/>
+                                        </td>
+                                    </tr>
+                                    <tr style="border: 1px solid black;">
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>N° Extintor</small></th>
+                                        <th style="border: 1px solid black; width:20%" class="text-center"><small>Ubicacion</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Capacidad (KG)</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Manometro</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Manilla Accion</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Manilla Soporte</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Pasador Seguridad</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Manguera</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Boquilla</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Cilindro o Contenedor</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Etiquedado</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Gancho o Base</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Señaletica</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Recarga</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Otro</small></th>
+                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Observaciones</small></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.extintores_ids" t-as="line">
+                                        <tr style="border: 1px solid black;">
+                                            <td style="border: 1px solid black; width:5%; height:5%;" align="center"><span t-field="line.extintor_id.name"/></td>
+                                            <td style="border: 1px solid black; width:20%;" align="center"><span t-field="line.ubicacion"/></td>
+                                            <td style="border: 1px solid black; width:5%; height:5%;" align="center"><span t-field="line.capacidad"/></td>
+                                            <td style="border: 1px solid black; width:5%; height:5%;" align="center">
+                                                <t t-if="line.manometro != False">
+                                                    <i class="fa fa-check"/>
+                                                </t>
+                                            </td>
+                                            <td style="border: 1px solid black; width:5%; height:5%;" align="center">
+                                                <t t-if="line.manilla_accion != False">
+                                                    <i class="fa fa-check"/>
+                                                </t>
+                                            </td>
+                                            <td style="border: 1px solid black; width:5%; height:5%;" align="center">
+                                                <t t-if="line.manilla_soporte != False">
+                                                    <i class="fa fa-check"/>
+                                                </t>
+                                            </td>
+                                            <td style="border: 1px solid black; width:5%; height:5%;" align="center">
+                                                <t t-if="line.pasador != False">
+                                                    <i class="fa fa-check"/>
+                                                </t>
+                                            </td>
+                                            <td style="border: 1px solid black; width:5%; height:5%;" align="center">
+                                                <t t-if="line.manguera != False">
+                                                    <i class="fa fa-check"/>
+                                                </t>
+                                            </td>
+                                            <td style="border: 1px solid black; width:5%; height:5%;" align="center">
+                                                <t t-if="line.boquilla != False">
+                                                    <i class="fa fa-check"/>
+                                                </t>
+                                            </td>
+                                            <td style="border: 1px solid black; width:5%; height:5%;" align="center">
+                                                <t t-if="line.cilindro != False">
+                                                    <i class="fa fa-check"/>
+                                                </t>
+                                            </td>
+                                            <td style="border: 1px solid black; width:5%; height:5%;" align="center">
+                                                <t t-if="line.etiquetado != False">
+                                                    <i class="fa fa-check"/>
+                                                </t>
+                                            </td>
+                                            <td style="border: 1px solid black; width:5%; height:5%;" align="center">
+                                                <t t-if="line.base != False">
+                                                    <i class="fa fa-check"/>
+                                                </t>
+                                            </td>
+                                            <td style="border: 1px solid black; width:5%; height:5%;" align="center">
+                                                <t t-if="line.senaletica != False">
+                                                    <i class="fa fa-check"/>
+                                                </t>
+                                            </td>
+                                            <td style="border: 1px solid black; width:5%;" align="center"><span t-field="line.recarga"/></td>
+                                            <td style="border: 1px solid black;" align="center"><span t-field="line.otro"/></td>
+                                            <td style="border: 1px solid black;" align="center"><span t-field="line.observaciones"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>
