@@ -1,6 +1,7 @@
 from odoo import api, fields, models,_
 from datetime import datetime, timedelta
 from datetime import date
+from odoo.exceptions import UserError, ValidationError
 
 # class WebsiteSupportTicketPreventive(models.Model):
 # 	_name = 'website.support.ticket.preventive'
@@ -51,6 +52,8 @@ class WebsiteSupportTicketExtinguisher(models.Model):
 			email_values['model'] = "website.support.ticket.extinguisher"
 			email_values['res_id'] = self.id
 			email_values['email_to'] = my_user.partner_id.email
+			#email_values['scheduled_date'] = (datetime.datetime.now() - datetime.timedelta(days=7) ).strftime("%Y-%m-%d %H:%M:%S")
+			#email_values['scheduled_date'] = (self.fecha.timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
 			email_values['body_html'] = email_values['body_html'].replace("_ticket_url_", "web#id=" + str(
 				self.id) + "&view_type=form&model=website.support.ticket.extinguisher&menu_id=" + str(
 				support_ticket_menu.id) + "&action=" + str(support_ticket_action.id)).replace("_user_name_",
@@ -63,17 +66,25 @@ class WebsiteSupportTicketExtinguisher(models.Model):
 	#TODO: TRABAJANDO
 	def notificar_compras(self):
 		config_personal = self.env['website.support.settings'].search([], order='id desc', limit=1)
-		if config_personal.personal_shopping:
-			notification = self.env['ir.model.data'].sudo().get_object('website_support', 'mantenimiento_extintores_compras_notificacion')
-			email_values = notification.generate_email(self.id)
-			email_values['model'] = "website.support.ticket.extinguisher"
-			email_values['res_id'] = self.id
-			email_values['email_to'] = config_personal.personal_shopping.login
-			email_values['body_html'] = email_values['body_html'].replace("_user_name_", config_personal.personal_shopping.name)
-			email_values['body'] = email_values['body'].replace("_user_name_", config_personal.personal_shopping.name)
-			send_mail = self.env['mail.mail'].create(email_values)
-			send_mail.send()
-			self.notificado_compras = True
+		if config_personal:
+			extintores_recarga = self.env['website.support.ticket.extinguisher.line'].search([('recarga','=','si'),('reporte_id','=',self.id)])
+			extintores = ""
+			for e in extintores_recarga:
+				extintores += e.ubicacion + " (" + e.capacidad + "), "
+			if config_personal.personal_shopping:
+				notification = self.env['ir.model.data'].sudo().get_object('website_support', 'mantenimiento_extintores_compras_notificacion')
+				email_values = notification.generate_email(self.id)
+				email_values['model'] = "website.support.ticket.extinguisher"
+				email_values['res_id'] = self.id
+				email_values['email_to'] = config_personal.personal_shopping.login
+				email_values['body_html'] = email_values['body_html'].replace("_user_name_", config_personal.personal_shopping.name).replace("_extintores_ids_",extintores)
+				email_values['body'] = email_values['body'].replace("_user_name_", config_personal.personal_shopping.name)
+				send_mail = self.env['mail.mail'].create(email_values)
+				send_mail.send()
+				self.notificado_compras = True
+		else:
+			raise ValidationError(
+                _('No se ha configurado el usuario para Notificaiones de Compras (Menu Ajustes)'))
 
 	@api.multi
 	def imprimir(self):

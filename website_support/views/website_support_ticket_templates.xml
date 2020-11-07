@@ -92,9 +92,7 @@
             <field name="body_html"><![CDATA[
                 <p>_user_name_, Se le notifica que los siguientes extintores requieren Recarga:</p>
                 <p>Extintores:</p>
-                for (let x in object.extintores_ids){
-                    <p>${object.extintores_ids[x].extintor_id}</p>
-                }
+                <p>_extintores_ids_</p>
             ]]>
             </field>
         </record>

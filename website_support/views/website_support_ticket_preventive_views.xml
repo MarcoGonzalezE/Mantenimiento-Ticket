@@ -10,8 +10,8 @@
                         <button type="object" name="programar" string="Programar/Notificar"
                                 class="btn-primary" attrs="{'invisible' :['|',('programado', '=', False),('responsables', '=', False)]}"/>
                         <button type="object" name="imprimir" string="Imprimir" class="btn-primary"/>
-                        <!--<button type="object" name="notificar_compras" string="Notificar Compras"
-                                class="btn-primary"/>-->
+                        <button type="object" name="notificar_compras" string="Notificar Compras"
+                                class="btn-primary"/>
                     </header>
                 	<sheet>
                         <div>
