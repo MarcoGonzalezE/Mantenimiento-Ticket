@@ -425,7 +425,7 @@
             	<form>
                     <header>
                         <button type="object" name="asignar" string="Asignacion" class="btn-primary" attrs="{'invisible':[('estado','=','en_uso')]}"/>
-                        <button type="object" name="devolucion" string="Devolucion" class="btn-primary" attrs="{'invisible':[('estado','=','disponible')]}"/>
+                        <!-- <button type="object" name="devolucion" string="Devolucion" class="btn-primary" attrs="{'invisible':[('estado','=','disponible')]}"/> -->
                         <field name="estado" widget="statusbar"/>
                     </header>
             		<sheet>
@@ -435,20 +435,32 @@
             					<p>
             						<h2><field name="name" placeholder="Producto" required="1"/></h2>
             					</p>
-                                <field name="asignacion_id" invisible="1"/>
+                                <!-- <field name="asignacion_id" invisible="1"/> -->
+                                <field name="indicador" invisible="1"/>
+                                <table style="width:50%">
+                                    <tr>
+                                        <th style="text-align: center; width:30%;">Cantidad</th>
+                                        <th style="text-align: center; font-size: 20px;">DISPONIBLE</th>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center; width:30%;"><field name="cantidad"/></td>
+                                        <td style="text-align: center;  width:30%;"><field name="disponible"/></td>
+                                    </tr>
+                                </table>
                             </div>
             			</div>
                         <group>
                             <notebook>
                                 <page string="Historial">
                                     <field name="asignaciones_ids" readonly="1">
-                                        <tree editable="top">
+                                        <tree editable="top" default_order='fecha_asignacion desc'>
                                             <field name="herramienta_id" invisible="1"/>
                                             <field name="asignado"/>
                                             <field name="area"/>
                                             <field name="fecha_asignacion"/>
                                             <field name="fecha_devolucion"/>
                                             <field name="nota"/>
+                                            <button name="devolucion" string="Devolucion" type="object" class="oe_highlight" attrs="{'invisible':[('fecha_devolucion','!=', False)]}"/>
                                         </tree>
                                     </field>
                                 </page>
@@ -473,7 +485,7 @@
                                 <div>
                                     <h3><field name="name"/></h3>
                                     <ul attrs="{'invisible':[('estado','=', 'disponible')]}"><strong><font color="red"><field name="estado"/></font></strong></ul>
-                                    <ul attrs="{'invisible':[('estado','=', 'en_uso')]}"><strong><font color="green"><field name="estado"/></font></strong></ul>
+                                    <ul attrs="{'invisible':[('estado','=', 'en_uso')]}"><strong><font color="green"><field name="estado"/> : <field name="disponible"/></font></strong></ul>
                                 </div>
                             </div>
                         </t>

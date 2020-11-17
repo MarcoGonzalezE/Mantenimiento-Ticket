@@ -2,6 +2,7 @@ from odoo import api, fields, models,_
 from datetime import datetime, timedelta
 from datetime import date
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT
 
 # class WebsiteSupportTicketPreventive(models.Model):
 # 	_name = 'website.support.ticket.preventive'
@@ -46,6 +47,8 @@ class WebsiteSupportTicketExtinguisher(models.Model):
 	def programar(self):
 		support_ticket_menu = self.env['ir.model.data'].sudo().get_object('website_support', 'mantenimiento_extintores')
 		support_ticket_action = self.env['ir.model.data'].sudo().get_object('website_support', 'action_website_support_ticket_preventive_extinguisher')
+		#fechas = [datetime.combine(datetime.strptime(str(self.programado), "%Y-%m-%d"), datetime.min.time()) - timedelta(days=7),datetime.combine(datetime.strptime(str(self.programado), "%Y-%m-%d"), datetime.min.time()) - timedelta(days=7)]
+		print(datetime.combine(datetime.strptime(str(self.programado), "%Y-%m-%d"), datetime.min.time()) - timedelta(days=7))
 		for my_user in self.responsables:
 			notification = self.env['ir.model.data'].sudo().get_object('website_support', 'mantenimiento_extintores_notificacion')
 			email_values = notification.generate_email(self.id)

@@ -207,13 +207,16 @@ class WebsiteSupportTools(models.Model):
 	name = fields.Char(string="Herramienta")
 	imagen = fields.Binary(string="Imagen", attachment=True)
 	asignaciones_ids = fields.One2many('website.support.tools.assign', 'herramienta_id', string="Asignaciones")
-	estado = fields.Selection([('disponible','Disponible'),('en_uso','En Uso')], string="Estado", default='disponible')
-	asignacion_id = fields.Many2one('website.support.tools.assign', string="Ultima Asignacion")
+	estado = fields.Selection([('disponible','Disponible'),('en_uso','En Uso')], string="Estado", compute="_estado")
+	#asignacion_id = fields.Many2one('website.support.tools.assign', string="Ultima Asignacion")
+	cantidad = fields.Integer(string="Cantidad")
+	disponible = fields.Integer(string="Disponible", compute="disponibilidad")
+	indicador = fields.Integer(string="Indicador Cantidad/Disponible")
 
 	@api.multi
 	def asignar(self):
 		form_id = self.env.ref('website_support.website_support_tools_assign_view_form')
-		self.estado = 'en_uso'
+		self.indicador += 1
 		return {
 			'name': "Asignacion de Herramienta",
 			'type': 'ir.actions.act_window',
@@ -225,20 +228,33 @@ class WebsiteSupportTools(models.Model):
 			'target': 'new'
 		}
 
-	@api.multi
-	def devolucion(self):
-		form_id = self.env.ref('website_support.website_support_tools_return_view_form')
-		self.estado = 'disponible'
-		return {
-			'name': "Devolucion de Herramienta",
-			'type': 'ir.actions.act_window',
-			'view_type': 'form',
-			'view_mode': 'form',
-			'res_model': 'website.support.tools.assign',
-			'view_id': form_id.id,
-			'res_id': self.asignacion_id.id,
-			'target': 'new'
-		}
+	# @api.multi
+	# def devolucion(self):
+	# 	form_id = self.env.ref('website_support.website_support_tools_return_view_form')
+	# 	self.indicador -= 1
+	# 	return {
+	# 		'name': "Devolucion de Herramienta",
+	# 		'type': 'ir.actions.act_window',
+	# 		'view_type': 'form',
+	# 		'view_mode': 'form',
+	# 		'res_model': 'website.support.tools.assign',
+	# 		'view_id': form_id.id,
+	# 		'res_id': self.asignacion_id.id,
+	# 		'target': 'new'
+	# 	}
+
+	def disponibilidad(self):
+		for r in self:
+			r.disponible = r.cantidad - r.indicador
+
+	@api.depends('disponible')
+	def _estado(self):
+		for r in self:
+			if r.disponible == 0:
+				r.estado = 'en_uso'
+			else:
+				r.estado = 'disponible'
+
 
 class WebsiteSupportToolsAssign(models.Model):
 	_name = 'website.support.tools.assign'
@@ -262,5 +278,22 @@ class WebsiteSupportToolsAssign(models.Model):
 	def cancelar(self):
 		if self.herramienta_id.estado == 'en_uso':
 			self.herramienta_id.estado = 'disponible'
+			self.herramienta_id.indicador -= 1
 		else:
 			self.herramienta_id.estado = 'en_uso'
+			self.herramienta_id.indicador += 1
+
+	@api.multi
+	def devolucion(self):
+		form_id = self.env.ref('website_support.website_support_tools_return_view_form')
+		self.herramienta_id.indicador -= 1
+		return {
+			'name': "Devolucion de Herramienta",
+			'type': 'ir.actions.act_window',
+			'view_type': 'form',
+			'view_mode': 'form',
+			'res_model': 'website.support.tools.assign',
+			'view_id': form_id.id,
+			'res_id': self.id,
+			'target': 'new'
+		}

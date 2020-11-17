@@ -1,2 +1,11 @@
-import website_support_ticket, res_partner, website_support_help, res_company, website_support_settings, mail_template, website_support_department
-import website_support_inventory, website_support_report,website_support_ticket_preventive
+import website_support_ticket
+import res_partner
+import website_support_help
+import res_company
+import website_support_settings
+import mail_template
+import website_support_department
+import website_support_inventory
+import website_support_report
+import website_support_ticket_preventive
+import website_support_ticket_service_order

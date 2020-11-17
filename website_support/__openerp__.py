@@ -19,6 +19,7 @@
         'views/website_support_ticket_states_views.xml',
         'views/website_support_inventory_views.xml',
         'views/reporte_mantenimiento.xml',
+        'views/website_support_ticket_service_order_views.xml',
         'views/res_partner_views.xml',
         'views/res_users_views.xml',
         'views/website_support_help_groups_views.xml',

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+<!-- ORDENES DE SERVICIO -->
+    	<record id="website_support_ticket_service_order_view_form" model="ir.ui.view">
+            <field name="name">website.support.ticket.service.order.form.view</field>
+            <field name="model">website.support.ticket.service.order</field>
+            <field name="arch" type="xml">
+                <form>
+                	<sheet>
+                		<div>
+	                        <h3>
+	                        	<field name="name" readonly="1"/>
+	                        </h3>
+	                    </div>
+	                	<group>
+	                		<group>
+	                			<field name="fecha"/>
+	                			<field name="vehiculo_id"/>
+	                			<field name="placa_vehiculo"/>
+	                			<field name="numero_vehiculo"/>
+	                		</group>
+	                		<group>
+	                			<field name="taller"/>
+	                			<field name="conductor_id"/>
+	                			<field name="cargo_conductor"/>
+	                		</group>
+	                	</group>
+	                	<field name="tipo_mantenimiento"/>
+	                	<group>
+	                		<group string="Detalles">
+	                			<field name="detalles" widget="many2many_checkboxes" nolabel="1" style="display: block;" />
+	                		</group>
+	                	</group>
+	                </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="website_support_ticket_service_order_view_tree" model="ir.ui.view">
+        	<field name="name">website.support.ticket.service.order.form.view</field>
+            <field name="model">website.support.ticket.service.order</field>
+            <field name="arch" type="xml">
+            	<tree string="Ordenes de Servicio Tecnico">
+            		<field name="name"/>
+            	</tree>
+            </field>
+        </record>
+
+        <record id="action_website_support_ticket_service_order" model="ir.actions.act_window">
+        	<field name="name">Ordenes de Servicio</field>
+        	<field name="res_model">website.support.ticket.service.order</field>
+        	<field name="view_mode">tree,form</field>
+        	<field name="help" type="html">
+        		<p>
+        			Ordenes de Servicio no encontrados.
+        		</p>
+        	</field>
+        </record>
+
+<!-- DETALLES ORDEN DE SERVICIO -->
+		<record id="service_order_details_view_form" model="ir.ui.view">
+            <field name="name">service.order.details.form.view</field>
+            <field name="model">service.order.details</field>
+            <field name="arch" type="xml">
+                <form>
+                	<sheet>
+	                	<group>
+	                		<group>
+	                			<field name="name"/>
+	                		</group>
+	                		<group>
+	                			<field name="tipo_mantenimiento"/>
+	                		</group>
+	                	</group>
+	                </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="service_order_details_view_tree" model="ir.ui.view">
+        	<field name="name">service.order.details.form.view</field>
+            <field name="model">service.order.details</field>
+            <field name="arch" type="xml">
+            	<tree string="Detalles de Ordenes de Servicio">
+            		<field name="name"/>
+            		<field name="tipo_mantenimiento"/>
+            	</tree>
+            </field>
+        </record>
+
+        <record id="action_service_order_details" model="ir.actions.act_window">
+        	<field name="name">Detalles Ordenes de Servicio</field>
+        	<field name="res_model">service.order.details</field>
+        	<field name="view_mode">tree,form</field>
+        	<field name="help" type="html">
+        		<p>
+        			Detalles de Ordenes de Servicio no encontrados.
+        		</p>
+        	</field>
+        </record>
+    </data>
+</odoo>
