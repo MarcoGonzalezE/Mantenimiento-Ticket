@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<data>
-
+    <data>
         <template id="support_front_assert" inherit_id="website.assets_frontend" name="Website Support Front Asserts">
             <xpath expr="/t" position="inside">
                 <link rel="stylesheet" href="/website_support/static/src/css/support.css"/>
@@ -45,7 +44,7 @@
             <field name="name">Nueva solicitud para mantenimiento</field>
             <field name="model_id" ref="model_website_support_ticket"></field>
             <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>
-            <field name="subject">Nueva Solicitud para Mantenimiento para la granja</field>
+            <field name="subject">Nueva Solicitud para Mantenimiento de Area</field>
             <field name="auto_delete" eval="False"/>
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
@@ -98,10 +97,10 @@
         </record>
         
         <record id="new_support_ticket_category" model="mail.template">
-            <field name="name">Nueva solicitud de mantenimiento (Granja)</field>
+            <field name="name">Nueva solicitud de mantenimiento (Area)</field>
             <field name="model_id" ref="model_website_support_ticket"></field>
             <field name="email_from"><![CDATA[${object.company_id.name} <${object.company_id.email}>]]></field>
-            <field name="subject">Nueva Solicitud de Mantenimiento para la granja</field>
+            <field name="subject">Nueva Solicitud de Mantenimiento de Area</field>
             <field name="auto_delete" eval="False"/>
             <field name="built_in" eval="True"/>
             <field name="body_html"><![CDATA[
@@ -214,7 +213,7 @@
                 <hr/>
                 <b>Ver solicitud:</b> <a href="/support/portal/ticket/view/${object.portal_access_key}">aqui</a><br/>
                 <b>Numero:</b> ${object.ticket_number or object.id}<br/>
-                <b>Granja:</b> 
+                <b>Area:</b> 
                 % if object.category.name :
                     ${object.category.name}
                 % endif
@@ -247,449 +246,460 @@
                 ${object.ticket_id.description|safe}
             ]]>
             </field>
-        </record>        
-        
-<template id="support_ticket_survey_page" name="Evaluación del Servicio" page="True">
-    <t t-call="website.layout">
-        <div class="container">
+        </record>
 
-            <div class="mt16 mb16">
-                <h1 class="text-center">Tu Evaluación</h1>
-            </div>
-
-            <p>Por favor evalúa el servicio de mantenimiento</p>
-            <blockquote><t t-raw="support_ticket.description"/></blockquote>
-
-            <form method="POST" t-attf-action="/support/survey/process/#{support_ticket.portal_access_key}">
-                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-
-<style>
-label > input{ /* HIDE RADIO */
-  visibility: hidden; /* Makes input not-clickable */
-  position: absolute; /* Remove input from document flow */
-}
-
-label > input + img{ /* IMAGE STYLES */
-  cursor:pointer;
-  border:2px solid transparent;
-}
-
-label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
-  border:2px solid #f00;
-}
-</style>
-                <label>
-                    <input type="radio" name="rating2" value="5"/>
-                    <img src="/website_support/static/src/img/5-star.jpg"/>
-                </label>
-
-                <label>
-                    <input type="radio" name="rating2" value="4"/>
-                    <img src="/website_support/static/src/img/4-star.jpg"/>
-                </label>
-
-                <label>
-                    <input type="radio" name="rating2" value="3"/>
-                    <img src="/website_support/static/src/img/3-star.jpg"/>
-                </label>
-
-                <label>
-                    <input type="radio" name="rating2" value="2"/>
-                    <img src="/website_support/static/src/img/2-star.jpg"/>
-                </label>
-
-                <label>
-                    <input type="radio" name="rating2" value="1"/>
-                    <img src="/website_support/static/src/img/1-star.jpg"/>
-                </label>
-                
-                <div class="form-group">
-                     <label for="comentario">Comentarios</label>
-                    <textarea class="form-control" rows="5" name="comentario"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <button class="btn btn-primary btn-lg">Enviar</button>
-                </div>
-
-            </form>
-            
-        </div>
-    </t>
-</template>
-
-<template id="account_create" name="Create Support Account" page="True">
-    <t t-call="web.login_layout">
-        <form class="oe_signup_form" role="form" action="/support/account/create/process" method="POST">
-            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-
-            <div class="form-group field-login">
-                <label for="login" class="control-label">Your Email</label>
-                <input type="text" name="login" t-att-value="login" id="login" class="form-control" autofocus="autofocus" autocapitalize="off" required="required" t-att-readonly="'readonly' if only_passwords else None"/>
-            </div>
-
-            <div class="form-group field-name">
-                <label for="name" class="control-label">Your Name</label>
-                <input type="text" name="name" t-att-value="name" id="name" class="form-control" placeholder="e.g. John Doe" required="required" t-att-readonly="'readonly' if only_passwords else None" t-att-autofocus="'autofocus' if login and not only_passwords else None"/>
-            </div>
-
-            <div class="form-group field-password">
-                <label for="password" class="control-label">Password</label>
-                <input type="password" name="password" id="password" class="form-control" required="required" t-att-autofocus="'autofocus' if only_passwords else None"/>
-            </div>
-
-            <div class="form-group field-confirm_password">
-                <label for="confirm_password" class="control-label">Confirm Password</label>
-                <input type="password" name="confirm_password" id="confirm_password" class="form-control" required="required"/>
-            </div>
-            
-            <div class="clearfix oe_login_buttons">
-                <a t-attf-href="/web/login" class="btn btn-link pull-right">Back to Login</a>
-                <button type="submit" class="btn btn-primary pull-left">Sign up</button>
-            </div>
-
-        </form>
-    </t>
-</template>
-
-<template id="support_ticket_view_list" name="Mis solicitudes de Mantenimiento" page="True">
-    <t t-call="website.layout">
-        <div class="container">
-          <div style="align:center">
-            <div class="mt16 mb16">
-                <h1 class="text-center">Mis solicitudes</h1>
-            </div>
-        
-            <div class="col-md-3"></div>
-            <div class="col-md-6" style="align:center;">
-                <t t-if="ticket_count > 0"> 
-                    <table class="table table-striped table-hover table-condensed">
-                        <tr>
-                            <th>Solicitante</th>
-                            <th>Numero</th>
-                            <th>Asunto</th>
-                            <th>Granja</th>
-                            <th>Jefe de Granja</th>
-                            <th>Mantenimiento</th>
-                            <th>Creado</th>
-                            <th>Estado</th>
-                            <th>Evaluacion</th>
-                        </tr>
-                        <t t-foreach="support_tickets" t-as="support_ticket">
-                            <tr>
-                                <td><t t-esc="support_ticket.person_name"/></td>
-                                <td><t t-esc="support_ticket.ticket_number"/></td>
-                                <td><a t-attf-href="/support/ticket/view/#{support_ticket.id}">
-                                    <t t-esc="support_ticket.subject"/></a></td>
-                                <td><t t-esc="support_ticket.category.name"/></td>
-                                <td><t t-esc="support_ticket.partner_id.name"/></td>
-                                <td><t t-esc="support_ticket.tipo_mant_id.name"/></td>
-                                <td><t t-esc="support_ticket.fecha_solicitud"/></td>
-                                <td><t t-esc="support_ticket.state.name"/></td>                            
-                                <!--td>
-                                    <t t-if="support_ticket.approval_id.name == 'Sin solicitud de aprobación'"> 
-                                        <button>Solicitar aprobación</button>
-                                    </t>
-                                    <t t-if="support_ticket.approval_id.name != 'Sin solicitud de aprobación'">
-                                        <t t-esc="support_ticket.approval_id.name"/>
-                                    </t>
-                                </td-->
-                                
-                                <td>
-                                    <t t-if="support_ticket.support_rating == 5">
-                                        <label>
-                                            <img src="/website_support/static/src/img/5-star-eval.png" width="167" height="50"/>
-                                        </label>
-                                    </t>
-                                    <t t-if="support_ticket.support_rating == 4">
-                                        <label>
-                                            <img src="/website_support/static/src/img/4-star-eval.png" width="167" height="50"/>
-                                        </label>
-                                    </t>
-                                    <t t-if="support_ticket.support_rating == 3">
-                                        <label>
-                                            <img src="/website_support/static/src/img/3-star-eval.png" width="167" height="50"/>
-                                        </label>
-                                    </t>
-                                    <t t-if="support_ticket.support_rating == 2">
-                                        <label>
-                                            <img src="/website_support/static/src/img/2-star-eval.png" width="167" height="50"/>
-                                        </label>
-                                    </t>
-                                    <t t-if="support_ticket.support_rating == 1">
-                                        <label>
-                                            <img src="/website_support/static/src/img/1-star-eval.png" width="167" height="50"/>
-                                        </label>
-                                    </t>
-                                </td>
-                            </tr>
-                        </t>
-                </table>
-                </t>
-                <t t-if="ticket_count == 0">
+        <template id="support_ticket_survey_page" name="Evaluación del Servicio" page="True">
+            <t t-call="website.layout">
+                <div class="container">
                     <div class="mt16 mb16">
-		        <h2 class="text-center">No tienes solicitudes</h2>
+                        <h1 class="text-center">Tu Evaluación</h1>
                     </div>
-                </t>
-            </div>
-            <div class="col-md-3"></div>
-          </div>
-        </div>
-        
-    </t>
-</template>
+                    <p>Por favor evalúa el servicio de mantenimiento</p>
+                    <blockquote><t t-raw="support_ticket.description"/></blockquote>
+                    <form method="POST" t-attf-action="/support/survey/process/#{support_ticket.portal_access_key}">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <style>
+                            label > input{ /* HIDE RADIO */
+                            visibility: hidden; /* Makes input not-clickable */
+                            position: absolute; /* Remove input from document flow */
+                            }
+                            label > input + img{ /* IMAGE STYLES */
+                            cursor:pointer;
+                            border:2px solid transparent;
+                            }
+                            label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
+                            border:2px solid #f00;
+                            }
+                        </style>
+                        <label>
+                            <input type="radio" name="rating2" value="5"/>
+                            <img src="/website_support/static/src/img/5-star.jpg"/>
+                        </label>
+                        <label>
+                            <input type="radio" name="rating2" value="4"/>
+                            <img src="/website_support/static/src/img/4-star.jpg"/>
+                        </label>
+                        <label>
+                            <input type="radio" name="rating2" value="3"/>
+                            <img src="/website_support/static/src/img/3-star.jpg"/>
+                        </label>
+                        <label>
+                            <input type="radio" name="rating2" value="2"/>
+                            <img src="/website_support/static/src/img/2-star.jpg"/>
+                        </label>
+                        <label>
+                            <input type="radio" name="rating2" value="1"/>
+                            <img src="/website_support/static/src/img/1-star.jpg"/>
+                        </label>
+                        <div class="form-group">
+                            <label for="comentario">Comentarios</label>
+                            <textarea class="form-control" rows="5" name="comentario"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary btn-lg">Enviar</button>
+                        </div>
+                    </form>
+                </div>
+            </t>
+        </template>
 
-<template id="help_page" name="Help Page" page="True">
-    <t t-call="website.layout">
-        <div class="container">
-            <div class="mt16 mb16">
-	        <h1 class="text-center" t-field="help_page.name"/>
-		<div id="wrap" class="oe_structure oe_empty" t-field="help_page.content" style="min-height:200px;"/>
-                
-                <!-- Submit Feedback -->
-                <form method="GET" t-attf-action="/support/feedback/process/#{help_page.id}">
-                
-                    <div t-attf-class="form-group #{error and 'rating' in error and 'has-error' or ''}">
-                        <label class="control-label" for="rating">Rating</label><br/>                  
-                        <input type="radio" name="rating" value="1"/> 1 Star
-                        <input type="radio" name="rating" value="2"/> 2 Star
-                        <input type="radio" name="rating" value="3"/> 3 Star
-                        <input type="radio" name="rating" value="4"/> 4 Star
-                        <input type="radio" name="rating" value="5"/> 5 Star
+        <template id="account_create" name="Create Support Account" page="True">
+            <t t-call="web.login_layout">
+                <form class="oe_signup_form" role="form" action="/support/account/create/process" method="POST">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <div class="form-group field-login">
+                        <label for="login" class="control-label">Your Email</label>
+                        <input type="text" name="login" t-att-value="login" id="login" class="form-control" autofocus="autofocus" autocapitalize="off" required="required" t-att-readonly="'readonly' if only_passwords else None"/>
                     </div>
-                
-                    <div t-attf-class="form-group mt16 mb16 #{error and 'feedback' in error and 'has-error' or ''}">
-                        <label class="control-label" for="feedback">Feedback</label>
-                        <textarea class="form-control" name="feedback" style="min-height: 120px" required="True"></textarea>
+                    <div class="form-group field-name">
+                        <label for="name" class="control-label">Your Name</label>
+                        <input type="text" name="name" t-att-value="name" id="name" class="form-control" placeholder="e.g. John Doe" required="required" t-att-readonly="'readonly' if only_passwords else None" t-att-autofocus="'autofocus' if login and not only_passwords else None"/>
                     </div>
-                
-                    <div class="form-group">
-                        <button class="btn btn-primary btn-lg">Submit Feedback</button>
+                    <div class="form-group field-password">
+                        <label for="password" class="control-label">Password</label>
+                        <input type="password" name="password" id="password" class="form-control" required="required" t-att-autofocus="'autofocus' if only_passwords else None"/>
+                    </div>
+                    <div class="form-group field-confirm_password">
+                        <label for="confirm_password" class="control-label">Confirm Password</label>
+                        <input type="password" name="confirm_password" id="confirm_password" class="form-control" required="required"/>
+                    </div>
+                    <div class="clearfix oe_login_buttons">
+                        <a t-attf-href="/web/login" class="btn btn-link pull-right">Back to Login</a>
+                        <button type="submit" class="btn btn-primary pull-left">Sign up</button>
                     </div>
                 </form>
-                
-            </div>
-        </div>
-    </t>
-</template>
+            </t>
+        </template>
 
-<template id="assets_editor" inherit_id="website.assets_editor" name="Website Support Editor">
-    <xpath expr="." position="inside">
-        <script type="text/javascript" src="/website_support/static/src/js/website_support.editor.js"></script>
-    </xpath>
-</template>
-
-<template id="assets_backend" inherit_id="web.assets_backend" name="website support ticket backend assets">
-    <xpath expr="." position="inside">
-        <script type="text/javascript" src="/website_support/static/src/js/website_support.backend.js"></script>
-    </xpath>
-</template>
-
-<template id="support_ticket_view" name="Support Ticket" page="True">
-    <t t-call="website.layout">
-        <div class="container mt16 mb16">
-
-            <style>
-            
-            /* Worlds laziest way of striping replies... */
-            .moz-cite-prefix, blockquote {
-             display :none
-            }
-            
-            </style>
-
-            <div class="mt16 mb16">
-                <h1 class="text-center"><t t-esc="support_ticket.subject"/></h1>
-            </div>
-        
-            <div class="col-md-3"></div>
-            <div class="col-md-6">
-                <h2 align="center"><b>Solicitud #</b><t t-esc="support_ticket.ticket_number_display"/><br/></h2>
-                <b>Area:</b> <t t-esc="support_ticket.category.name"/><br/>
-                <b>Categoria:</b> <t t-esc="support_ticket.cat_mant_id.name"/><br/>
-                <b>Tipo de Mantenimiento:</b> <t t-esc="support_ticket.tipo_mant_id.name"/><br/>
-                <b>Descripcion:</b><br/><t t-raw="support_ticket.description"/><br/>
-                <br/>                
-                <b>Prioridad:</b> <t t-esc="support_ticket.priority_id.name"/><br/>
-                <b>Aprobacion:</b> <t t-esc="support_ticket.approval_id.name"/><br/>
-                <br/>
-                <b>Estado</b> <t t-esc="support_ticket.state.name"/><br/>
-                <b>Realizada por:</b> <t t-esc="support_ticket.user_id.name"/><br/>
-                
-                <!-- <b>Historial de mensajes</b><br/>
-                <table class="table table-striped table-bordered table-hover table-condensed">
-                    <tr><th>De</th><th>Mensaje</th></tr>
-                    <t t-foreach="support_ticket.conversation_history" t-as="chat">
-                        <tr><td>
-                            <t t-if="chat.by == ''">
-                                <t t-esc="chat.create_uid.name"/>                            
+        <template id="support_ticket_view_list" name="Mis solicitudes de Mantenimiento" page="True">
+            <t t-call="website.layout">
+                <div class="container">
+                    <div style="align:center">
+                        <div class="mt16 mb16">
+                            <h1 class="text-center">Mis solicitudes</h1>
+                        </div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-6" style="align:center;">
+                            <t t-if="ticket_count > 0">
+                                <table class="table table-striped table-hover table-condensed">
+                                    <tr>
+                                        <th>Solicitante</th>
+                                        <th>Numero</th>
+                                        <th>Asunto</th>
+                                        <th>Area</th>
+                                        <th>Jefe de Area</th>
+                                        <th>Mantenimiento</th>
+                                        <th>Creado</th>
+                                        <th>Estado</th>
+                                        <th>Evaluacion</th>
+                                    </tr>
+                                    <t t-foreach="support_tickets" t-as="support_ticket">
+                                        <tr>
+                                            <td><t t-esc="support_ticket.person_name"/></td>
+                                            <td><t t-esc="support_ticket.ticket_number"/></td>
+                                            <td><a t-attf-href="/support/ticket/view/#{support_ticket.id}">
+                                                <t t-esc="support_ticket.subject"/></a></td>
+                                            <td><t t-esc="support_ticket.category.name"/></td>
+                                            <td><t t-esc="support_ticket.partner_id.name"/></td>
+                                            <td><t t-esc="support_ticket.tipo_mant_id.name"/></td>
+                                            <td><t t-esc="support_ticket.fecha_solicitud"/></td>
+                                            <td><t t-esc="support_ticket.state.name"/></td>
+<!--                                            <td>-->
+<!--                                                <t t-if="support_ticket.approval_id.name == 'Sin solicitud de aprobación'"> -->
+<!--                                                    <button>Solicitar aprobación</button>-->
+<!--                                                </t>-->
+<!--                                                <t t-if="support_ticket.approval_id.name != 'Sin solicitud de aprobación'">-->
+<!--                                                    <t t-esc="support_ticket.approval_id.name"/>-->
+<!--                                                </t>-->
+<!--                                            </td>-->
+                                            <td>
+                                                <t t-if="support_ticket.support_rating == 5">
+                                                    <label>
+                                                        <img src="/website_support/static/src/img/5-star-eval.png" width="167" height="50"/>
+                                                    </label>
+                                                </t>
+                                                <t t-if="support_ticket.support_rating == 4">
+                                                    <label>
+                                                        <img src="/website_support/static/src/img/4-star-eval.png" width="167" height="50"/>
+                                                    </label>
+                                                </t>
+                                                <t t-if="support_ticket.support_rating == 3">
+                                                    <label>
+                                                        <img src="/website_support/static/src/img/3-star-eval.png" width="167" height="50"/>
+                                                    </label>
+                                                </t>
+                                                <t t-if="support_ticket.support_rating == 2">
+                                                    <label>
+                                                        <img src="/website_support/static/src/img/2-star-eval.png" width="167" height="50"/>
+                                                    </label>
+                                                </t>
+                                                <t t-if="support_ticket.support_rating == 1">
+                                                    <label>
+                                                        <img src="/website_support/static/src/img/1-star-eval.png" width="167" height="50"/>
+                                                    </label>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </table>
                             </t>
-                            <t t-if="chat.by == 'staff'">                            
-                                <t t-esc="chat.create_uid.name"/>
+                            <t t-if="ticket_count == 0">
+                                <div class="mt16 mb16">
+                                    <h2 class="text-center">No tienes solicitudes</h2>
+                                </div>
                             </t>
-                            <t t-if="chat.by == 'customer'">
-                                <t t-if="chat.ticket_id.person_name">
-                                    <t t-esc="chat.ticket_id.person_name"/>                                
-                                </t>
-                                <t t-if="not chat.ticket_id.person_name">
-                                    <t t-esc="chat.ticket_id.email"/>                                
-                                </t>
-                            </t>
-                            
-                        </td>
-                        <td><t t-raw="chat.content"/></td></tr>
-                    </t>
-                </table>
-                <t t-if="portal_access_key">
-                    <form method="GET" t-attf-action="/support/portal/ticket/comment">
-                        <b>Agregar Mensaje</b><br/>
-                        <textarea  class="form-control" name="comment" style="min-height: 120px" required="True"></textarea>
-                        <br/>
-                    
-                        <input type="hidden" name="portal_access_key" t-attf-value="#{portal_access_key}"/>
-                        <button class="btn btn-primary btn-lg">Enviar</button>
-		    </form>
-		</t>
-                <t t-if="not portal_access_key">
-                    <form method="GET" t-attf-action="/support/ticket/comment">
-                        <b>Agregar Mensaje</b><br/>
-                        <textarea  class="form-control" name="comment" style="min-height: 120px" required="True"></textarea>
-                        <br/>
-                    
-                        <input type="hidden" name="ticket_id" t-attf-value="#{support_ticket.id}"/>
-                        <button class="btn btn-primary btn-lg">Enviar</button>
-		   </form>
-                
-                </t> -->
-            </div>
-            <div class="col-md-3"></div>
-        </div>
-        
-    </t>
-</template>
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+                </div>
+            </t>
+        </template>
 
-<template id="support_help_pages" name="Mantenimiento Solicitudes" page="True">
-    <t t-call="website.layout">
-        <div class="container">
-            <div align="center">
-                <div class="col-md-12 mt16 mb16">
-                    <t t-if="request.env.user.partner_id.name == 'Public user'">
-                        <t t-if="setting_allow_user_signup">
-                            <a href="/support/account/create">Create Account</a> |
-                        </t>
-                    </t>
+        <template id="help_page" name="Help Page" page="True">
+            <t t-call="website.layout">
+                <div class="container">
+                    <div class="mt16 mb16">
+                        <h1 class="text-center" t-field="help_page.name"/>
+                        <div id="wrap" class="oe_structure oe_empty" t-field="help_page.content"
+                             style="min-height:200px;"/>
+
+                        <!-- Submit Feedback -->
+                        <form method="GET" t-attf-action="/support/feedback/process/#{help_page.id}">
+
+                            <div t-attf-class="form-group #{error and 'rating' in error and 'has-error' or ''}">
+                                <label class="control-label" for="rating">Rating</label>
+                                <br/>
+                                <input type="radio" name="rating" value="1"/>
+                                1 Star
+                                <input type="radio" name="rating" value="2"/>
+                                2 Star
+                                <input type="radio" name="rating" value="3"/>
+                                3 Star
+                                <input type="radio" name="rating" value="4"/>
+                                4 Star
+                                <input type="radio" name="rating" value="5"/>
+                                5 Star
+                            </div>
+
+                            <div t-attf-class="form-group mt16 mb16 #{error and 'feedback' in error and 'has-error' or ''}">
+                                <label class="control-label" for="feedback">Feedback</label>
+                                <textarea class="form-control" name="feedback" style="min-height: 120px"
+                                          required="True"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-lg">Submit Feedback</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <template id="assets_editor" inherit_id="website.assets_editor" name="Website Support Editor">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/website_support/static/src/js/website_support.editor.js"></script>
+            </xpath>
+        </template>
+
+        <template id="assets_backend" inherit_id="web.assets_backend" name="website support ticket backend assets">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/website_support/static/src/js/website_support.backend.js"></script>
+            </xpath>
+        </template>
+
+        <template id="support_ticket_view" name="Support Ticket" page="True">
+            <t t-call="website.layout">
+                <div class="container mt16 mb16">
                     <style>
-                        .myButton {
-                        -moz-box-shadow: 0px 10px 14px -7px #3e7327;
-                        -webkit-box-shadow: 0px 10px 14px -7px #3e7327;
-                        box-shadow: 0px 10px 14px -7px #3e7327;
-                        background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #77b55a), color-stop(1, #72b352));
-                        background:-moz-linear-gradient(top, #77b55a 5%, #72b352 100%);
-                        background:-webkit-linear-gradient(top, #77b55a 5%, #72b352 100%);
-                        background:-o-linear-gradient(top, #77b55a 5%, #72b352 100%);
-                        background:-ms-linear-gradient(top, #77b55a 5%, #72b352 100%);
-                        background:linear-gradient(to bottom, #77b55a 5%, #72b352 100%);
-                        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#77b55a', endColorstr='#72b352',GradientType=0);
-                        background-color:#77b55a;
-                        -moz-border-radius:4px;
-                        -webkit-border-radius:4px;
-                        border-radius:4px;
-                        border:1px solid #4b8f29;
-                        display:inline-block;
-                        cursor:pointer;
-                        color:#ffffff;
-                        font-family:Arial;
-                        font-size:28px;
-                        font-weight:bold;
-                        padding:8px 38px;
-                        text-decoration:none;
-                        text-shadow:0px 1px 0px #5b8a3c;
+                        /* Worlds laziest way of striping replies... */
+                        .moz-cite-prefix, blockquote {
+                            display :none
                         }
-                        .myButton:hover {
-                        background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #72b352), color-stop(1, #77b55a));
-                        background:-moz-linear-gradient(top, #72b352 5%, #77b55a 100%);
-                        background:-webkit-linear-gradient(top, #72b352 5%, #77b55a 100%);
-                        background:-o-linear-gradient(top, #72b352 5%, #77b55a 100%);
-                        background:-ms-linear-gradient(top, #72b352 5%, #77b55a 100%);
-                        background:linear-gradient(to bottom, #72b352 5%, #77b55a 100%);
-                        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#72b352', endColorstr='#77b55a',GradientType=0);
-                        background-color:#72b352;
-                        }
-                        .myButton:active {
-                        position:relative;
-                        top:1px;
-                        }
-
                     </style>
-                    <body background="/website_support/static/src/img/granja.jpg"
-                        style="background-repeat: no-repeat;
+                    <div class="mt16 mb16">
+                        <h1 class="text-center">
+                            <t t-esc="support_ticket.subject"/>
+                        </h1>
+                    </div>
+
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6">
+                        <h2 align="center">
+                            <b>Solicitud #</b>
+                            <t t-esc="support_ticket.ticket_number_display"/>
+                            <br/>
+                        </h2>
+                        <b>Area:</b>
+                        <t t-esc="support_ticket.category.name"/>
+                        <br/>
+                        <b>Categoria:</b>
+                        <t t-esc="support_ticket.cat_mant_id.name"/>
+                        <br/>
+                        <b>Tipo de Mantenimiento:</b>
+                        <t t-esc="support_ticket.tipo_mant_id.name"/>
+                        <br/>
+                        <b>Descripcion:</b>
+                        <br/>
+                        <t t-raw="support_ticket.description"/>
+                        <br/>
+                        <br/>
+                        <b>Prioridad:</b>
+                        <t t-esc="support_ticket.priority_id.name"/>
+                        <br/>
+                        <b>Aprobacion:</b>
+                        <t t-esc="support_ticket.approval_id.name"/>
+                        <br/>
+                        <br/>
+                        <b>Estado</b>
+                        <t t-esc="support_ticket.state.name"/>
+                        <br/>
+                        <b>Realizada por:</b>
+                        <t t-esc="support_ticket.user_id.name"/>
+                        <br/>
+
+                        <!-- <b>Historial de mensajes</b><br/>
+                        <table class="table table-striped table-bordered table-hover table-condensed">
+                            <tr><th>De</th><th>Mensaje</th></tr>
+                            <t t-foreach="support_ticket.conversation_history" t-as="chat">
+                                <tr><td>
+                                    <t t-if="chat.by == ''">
+                                        <t t-esc="chat.create_uid.name"/>
+                                    </t>
+                                    <t t-if="chat.by == 'staff'">
+                                        <t t-esc="chat.create_uid.name"/>
+                                    </t>
+                                    <t t-if="chat.by == 'customer'">
+                                        <t t-if="chat.ticket_id.person_name">
+                                            <t t-esc="chat.ticket_id.person_name"/>
+                                        </t>
+                                        <t t-if="not chat.ticket_id.person_name">
+                                            <t t-esc="chat.ticket_id.email"/>
+                                        </t>
+                                    </t>
+
+                                </td>
+                                <td><t t-raw="chat.content"/></td></tr>
+                            </t>
+                        </table>
+                        <t t-if="portal_access_key">
+                            <form method="GET" t-attf-action="/support/portal/ticket/comment">
+                                <b>Agregar Mensaje</b><br/>
+                                <textarea  class="form-control" name="comment" style="min-height: 120px" required="True"></textarea>
+                                <br/>
+
+                                <input type="hidden" name="portal_access_key" t-attf-value="#{portal_access_key}"/>
+                                <button class="btn btn-primary btn-lg">Enviar</button>
+                    </form>
+                </t>
+                        <t t-if="not portal_access_key">
+                            <form method="GET" t-attf-action="/support/ticket/comment">
+                                <b>Agregar Mensaje</b><br/>
+                                <textarea  class="form-control" name="comment" style="min-height: 120px" required="True"></textarea>
+                                <br/>
+
+                                <input type="hidden" name="ticket_id" t-attf-value="#{support_ticket.id}"/>
+                                <button class="btn btn-primary btn-lg">Enviar</button>
+                   </form>
+
+                        </t> -->
+                    </div>
+                    <div class="col-md-3"></div>
+                </div>
+
+            </t>
+        </template>
+
+        <template id="support_help_pages" name="Mantenimiento Solicitudes" page="True">
+            <t t-call="website.layout">
+                <div class="container">
+                    <div align="center">
+                        <div class="col-md-12 mt16 mb16">
+                            <t t-if="request.env.user.partner_id.name == 'Public user'">
+                                <t t-if="setting_allow_user_signup">
+                                    <a href="/support/account/create">Create Account</a>
+                                    |
+                                </t>
+                            </t>
+                            <style>
+                                .myButton {
+                                -moz-box-shadow: 0px 10px 14px -7px #3e7327;
+                                -webkit-box-shadow: 0px 10px 14px -7px #3e7327;
+                                box-shadow: 0px 10px 14px -7px #3e7327;
+                                background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #77b55a),
+                                color-stop(1, #72b352));
+                                background:-moz-linear-gradient(top, #77b55a 5%, #72b352 100%);
+                                background:-webkit-linear-gradient(top, #77b55a 5%, #72b352 100%);
+                                background:-o-linear-gradient(top, #77b55a 5%, #72b352 100%);
+                                background:-ms-linear-gradient(top, #77b55a 5%, #72b352 100%);
+                                background:linear-gradient(to bottom, #77b55a 5%, #72b352 100%);
+                                filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#77b55a',
+                                endColorstr='#72b352',GradientType=0);
+                                background-color:#77b55a;
+                                -moz-border-radius:4px;
+                                -webkit-border-radius:4px;
+                                border-radius:4px;
+                                border:1px solid #4b8f29;
+                                display:inline-block;
+                                cursor:pointer;
+                                color:#ffffff;
+                                font-family:Arial;
+                                font-size:28px;
+                                font-weight:bold;
+                                padding:8px 38px;
+                                text-decoration:none;
+                                text-shadow:0px 1px 0px #5b8a3c;
+                                }
+                                .myButton:hover {
+                                background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #72b352),
+                                color-stop(1, #77b55a));
+                                background:-moz-linear-gradient(top, #72b352 5%, #77b55a 100%);
+                                background:-webkit-linear-gradient(top, #72b352 5%, #77b55a 100%);
+                                background:-o-linear-gradient(top, #72b352 5%, #77b55a 100%);
+                                background:-ms-linear-gradient(top, #72b352 5%, #77b55a 100%);
+                                background:linear-gradient(to bottom, #72b352 5%, #77b55a 100%);
+                                filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#72b352',
+                                endColorstr='#77b55a',GradientType=0);
+                                background-color:#72b352;
+                                }
+                                .myButton:active {
+                                position:relative;
+                                top:1px;
+                                }
+
+                            </style>
+                            <body background="/website_support/static/src/img/granja.jpg"
+                                  style="background-repeat: no-repeat;
                                 background-attachment: scroll;
                                 background-position: center;
                                 background-size: cover;">
-                    <button class="myButton">
-                        <a href="/support/ticket/submit" style="color:white">Enviar solicitud</a>
-                    </button>
-                    <t t-if="request.env.user.partner_id.name != 'Public user'">
-                        <br/><br/>
-                        <button class="myButton">
-                            <a href="/support/ticket/view" style="color:white">Mis Solicitudes</a>
-                        </button>
-                    </t>
-                    <t t-if="manager">
-                        | <a href="/support/ticket/reporting">Reporting</a>
-                    </t>
-                    </body>
-               </div>
-            </div>
-        </div>
-
-<script>
-
-$(document).ready(function() {
-    $("#search_help_pages").autocomplete({
-        source: '/support/help/auto-complete',
-        minLength: 1,
-        select: function( event, ui ) {
-            window.location.href = ui.item.value;
-        }
-        }).data("ui-autocomplete")._renderItem = function (ul, item) {
-            return $("<li></li>")
-                .data("item.autocomplete", item)
-                .append("<a>" + item.label + "</a>")
-                .appendTo(ul);
-    };
-});
-
-</script>
-
-          <!--  <div class="mt16 mb16">
-                <h1 class="text-center support-main-title">Help Pages</h1>
-                
-                <div name="search_from_container" t-attf-class="form-group">
-                    <div class="col-md-3"></div>
-                    <div class="col-md-6">
-                        <input type="search" class="form-control" id="search_help_pages" name="search" placeholder="Search"/>
+                                <button class="myButton">
+                                    <a href="/support/ticket/submit" style="color:white">Enviar solicitud</a>
+                                </button>
+                                <t t-if="request.env.user.partner_id.name != 'Public user'">
+                                    <br/>
+                                    <br/>
+                                    <button class="myButton">
+                                        <a href="/support/ticket/view" style="color:white">Mis Solicitudes</a>
+                                    </button>
+                                </t>
+                                <t t-if="manager">
+                                    |
+                                    <a href="/support/ticket/reporting">Reporting</a>
+                                </t>
+                            </body>
+                        </div>
                     </div>
-                    <div class="col-md-3"></div>
                 </div>
-                
-            </div>
-            
-            <div class="mt16 mb16 col-md-12">
-                <t t-foreach="help_groups" t-as="help_group">
-                    <div class="col-md-4">
-                        <h2 class="support-help-group" t-field="help_group.name"></h2>
-                        <t t-foreach="help_group.page_ids" t-as="help_page">
-                            <t t-if="help_page.website_published">
-                                <h3 class="mt8 mb8 support-help-page"><a t-attf-href="#{help_page.url_generated}" t-field="help_page.name"></a></h3>
-                            </t>
-                        </t>
-                    </div>
-                </t>
-            </div> -->
-          
-    </t>
-</template>
+
+                <script>
+
+                    $(document).ready(function() {
+                    $("#search_help_pages").autocomplete({
+                    source: '/support/help/auto-complete',
+                    minLength: 1,
+                    select: function( event, ui ) {
+                    window.location.href = ui.item.value;
+                    }
+                    }).data("ui-autocomplete")._renderItem = function (ul, item) {
+                    return $("<li></li>")
+                    .data("item.autocomplete", item)
+                    .append("<a>" + item.label + "</a>")
+                    .appendTo(ul);
+                    };
+                    });
+
+                </script>
+
+                <!--  <div class="mt16 mb16">
+                      <h1 class="text-center support-main-title">Help Pages</h1>
+
+                      <div name="search_from_container" t-attf-class="form-group">
+                          <div class="col-md-3"></div>
+                          <div class="col-md-6">
+                              <input type="search" class="form-control" id="search_help_pages" name="search" placeholder="Search"/>
+                          </div>
+                          <div class="col-md-3"></div>
+                      </div>
+
+                  </div>
+
+                  <div class="mt16 mb16 col-md-12">
+                      <t t-foreach="help_groups" t-as="help_group">
+                          <div class="col-md-4">
+                              <h2 class="support-help-group" t-field="help_group.name"></h2>
+                              <t t-foreach="help_group.page_ids" t-as="help_page">
+                                  <t t-if="help_page.website_published">
+                                      <h3 class="mt8 mb8 support-help-page"><a t-attf-href="#{help_page.url_generated}" t-field="help_page.name"></a></h3>
+                                  </t>
+                              </t>
+                          </div>
+                      </t>
+                  </div> -->
+
+            </t>
+        </template>
 
 <!--<template id="footer_mantenimiento" name="Footer Mantenimiento">
     <t t-call ="website.layout">
@@ -709,292 +719,351 @@ $(document).ready(function() {
 -->
 
 
-<template id="content_new_help" inherit_id="website.user_navbar">
-    <xpath expr="//div[@id='o_website_add_page_modal']//ul" position="inside">
-        <li groups="event.group_event_manager"><a href="#" data-action="new_event"><i class="fa fa-glass"/><p>New Event</p></a></li>
+        <template id="content_new_help" inherit_id="website.user_navbar">
+            <xpath expr="//div[@id='o_website_add_page_modal']//ul" position="inside">
+                <li groups="event.group_event_manager">
+                    <a href="#" data-action="new_event">
+                        <i class="fa fa-glass"/>
+                        <p>New Event</p>
+                    </a>
+                </li>
 
-         <li><a href="#" data-action="new_help_group"><i class="fa fa-question-circle"/><p>New Help Group</p></a></li>
-         <li><a href="#" data-action="new_help_page"><i class="fa fa-info-circle"/><p>New Help Page</p></a></li>
+                <li>
+                    <a href="#" data-action="new_help_group">
+                        <i class="fa fa-question-circle"/>
+                        <p>New Help Group</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-action="new_help_page">
+                        <i class="fa fa-info-circle"/>
+                        <p>New Help Page</p>
+                    </a>
+                </li>
 
-    </xpath>
-</template>
+            </xpath>
+        </template>
 
-<template id="support_ticket_reporting" name="Support Ticket Reporting" page="True">
-    <t t-call="website.layout">
-        <div class="container">
-            <h1 class="text-center">Report</h1>
-            Total Support Tickets: <t t-esc="support_ticket_count"/><br/>
-            <hr/>
-            <div class="col-md-6">
-                <h3>Sub Category Usage (Top 5)</h3>
-                <b>All Time</b>
-                <ul>
-                    <t t-foreach="department.sub_category_ids" t-as="sub_category">
-                        <li><t t-esc="sub_category.subcategory_id.name"/> - <t t-esc="sub_category.count"/> </li>
-                    </t>
-                </ul>
-                <b>Last 30 Days</b><br/>                
-                <ul>
-                    <t t-foreach="department.sub_category_month_ids" t-as="sub_category">
-                        <li><t t-esc="sub_category.subcategory_id.name"/> - <t t-esc="sub_category.count"/> </li>
-                    </t>
-                </ul>
-                <b>Last 7 Days</b><br/>
-                <ul>
-                    <t t-foreach="department.sub_category_week_ids" t-as="sub_category">
-                        <li><t t-esc="sub_category.subcategory_id.name"/> - <t t-esc="sub_category.count"/> </li>
-                    </t>
-                </ul>                
-            </div>
-            <div class="col-md-6">
-                <h3>Contact Submitted Tickets (Top 5)</h3>
-                <b>All Time</b>
-                <ul>
-                    <t t-foreach="department.submit_ticket_contact_ids" t-as="contact">
-                        <li><t t-esc="contact.partner_id.name"/> - <t t-esc="contact.count"/> </li>
-                    </t>
-                </ul>
-                <b>Last 30 Days</b><br/>
-                <ul>
-                    <t t-foreach="department.submit_ticket_contact_month_ids" t-as="contact">
-                        <li><t t-esc="contact.partner_id.name"/> - <t t-esc="contact.count"/> </li>
-                    </t>
-                </ul>
-                <b>Last 7 Days</b><br/>
-                <ul>
-                    <t t-foreach="department.submit_ticket_contact_week_ids" t-as="contact">
-                        <li><t t-esc="contact.partner_id.name"/> - <t t-esc="contact.count"/> </li>
-                    </t>
-                </ul>
-            </div>
-
-        </div>
-    </t>
-</template>
-
-<template id="support_survey_thank_you" name="Support Ticket Survey Thank You" page="True">
-    <t t-call="website.layout">
-        <div id="wrap" class="oe_structure oe_empty">
-            <section>
+        <template id="support_ticket_reporting" name="Support Ticket Reporting" page="True">
+            <t t-call="website.layout">
                 <div class="container">
-                    <div class="row">
-                        <div align="center">
-                            <img src="/website_support/static/src/img/evalua_env.png"/>
-                        </div>
-                        <div class="col-md-12" style="align:center;">  
-                            <h1 class="text-center">Evaluacion enviada</h1>
-                            <h3 class="text-muted text-center">Gracias por tus comentarios</h3>
-                        </div>
+                    <h1 class="text-center">Report</h1>
+                    Total Support Tickets:
+                    <t t-esc="support_ticket_count"/>
+                    <br/>
+                    <hr/>
+                    <div class="col-md-6">
+                        <h3>Sub Category Usage (Top 5)</h3>
+                        <b>All Time</b>
+                        <ul>
+                            <t t-foreach="department.sub_category_ids" t-as="sub_category">
+                                <li>
+                                    <t t-esc="sub_category.subcategory_id.name"/>
+                                    -
+                                    <t t-esc="sub_category.count"/>
+                                </li>
+                            </t>
+                        </ul>
+                        <b>Last 30 Days</b>
+                        <br/>
+                        <ul>
+                            <t t-foreach="department.sub_category_month_ids" t-as="sub_category">
+                                <li>
+                                    <t t-esc="sub_category.subcategory_id.name"/>
+                                    -
+                                    <t t-esc="sub_category.count"/>
+                                </li>
+                            </t>
+                        </ul>
+                        <b>Last 7 Days</b>
+                        <br/>
+                        <ul>
+                            <t t-foreach="department.sub_category_week_ids" t-as="sub_category">
+                                <li>
+                                    <t t-esc="sub_category.subcategory_id.name"/>
+                                    -
+                                    <t t-esc="sub_category.count"/>
+                                </li>
+                            </t>
+                        </ul>
                     </div>
-                </div>
-            </section>
-        </div>
-    </t>
-</template>
-
-<template id="support_thank_you" name="Solicitud enviada" page="True">
-    <t t-call="website.layout">
-        <div id="wrap" class="oe_structure oe_empty">
-            <section>
-                <div class="container">
-                    <div class="row">
-                        <div align="center">
-                            <img src="/website_support/static/src/img/solicitud_env.png"/>
-                        </div>
-                        <div class="col-md-12" style="align:center;">                            
-                            <h1 class="text-center">Solicitud enviada</h1>
-                            <h3 class="text-muted text-center">Nueva solicitud de mantenimiento enviada a jefe de area.</h3>
-                        </div>
+                    <div class="col-md-6">
+                        <h3>Contact Submitted Tickets (Top 5)</h3>
+                        <b>All Time</b>
+                        <ul>
+                            <t t-foreach="department.submit_ticket_contact_ids" t-as="contact">
+                                <li>
+                                    <t t-esc="contact.partner_id.name"/>
+                                    -
+                                    <t t-esc="contact.count"/>
+                                </li>
+                            </t>
+                        </ul>
+                        <b>Last 30 Days</b>
+                        <br/>
+                        <ul>
+                            <t t-foreach="department.submit_ticket_contact_month_ids" t-as="contact">
+                                <li>
+                                    <t t-esc="contact.partner_id.name"/>
+                                    -
+                                    <t t-esc="contact.count"/>
+                                </li>
+                            </t>
+                        </ul>
+                        <b>Last 7 Days</b>
+                        <br/>
+                        <ul>
+                            <t t-foreach="department.submit_ticket_contact_week_ids" t-as="contact">
+                                <li>
+                                    <t t-esc="contact.partner_id.name"/>
+                                    -
+                                    <t t-esc="contact.count"/>
+                                </li>
+                            </t>
+                        </ul>
                     </div>
+
                 </div>
-            </section>
-        </div>
-    </t>
-</template>
+            </t>
+        </template>
 
-<template id="support_submit_ticket" name="Crear solicitud de mantenimiento" page="True">
-    <t t-call="website.layout">     
-
-      <div id="wrap" class="oe_structure oe_empty">
-      <section>
-        <div class="container">
-          <div class="row">
-            <div align="center">
-                <img src="/website_support/static/description/icon.png" width="225" height="225"/>
-            </div>            
-            <div class="col-md-12">
-                <h1 class="text-center">Solicitud de Mantenimiento</h1>
-            </div>
-          </div>
-        </div>
-      </section>
-
-        <form action="/support/ticket/process" method="POST" class="form-horizontal mt32" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-	    <input style="display:none;" name="my_gold" value="256"/>
-            
-            <div name="email_from_container" t-attf-class="form-group #{error and 'email' in error and 'has-error' or ''}" style="visibility:collapse">
-                <label class="col-md-3 col-sm-4 control-label" for="email">CORREO</label>
-                <div class="col-md-7 col-sm-8">
-                    <input type="email" class="form-control" name="email" required="False" readonly="True"/>
-                    <!--t-attf-value="#{email or ''}" t-att-readonly="'readonly' if email else None"/> -->
+        <template id="support_survey_thank_you" name="Support Ticket Survey Thank You" page="True">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure oe_empty">
+                    <section>
+                        <div class="container">
+                            <div class="row">
+                                <div align="center">
+                                    <img src="/website_support/static/src/img/evalua_env.png"/>
+                                </div>
+                                <div class="col-md-12" style="align:center;">
+                                    <h1 class="text-center">Evaluacion enviada</h1>
+                                    <h3 class="text-muted text-center">Gracias por tus comentarios</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-            </div>
-            <div t-attf-class="form-group #{error and 'person_name' in error and 'has-error' or ''}">
-                <label class="col-md-3 col-sm-4 control-label" for="person_name">NOMBRE</label>
-                <div class="col-md-7 col-sm-8">
-                    <input type="text" class="form-control" name="person_name" required="True" t-attf-value="#{person_name or ''}"/>
+            </t>
+        </template>
+
+        <template id="support_thank_you" name="Solicitud enviada" page="True">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure oe_empty">
+                    <section>
+                        <div class="container">
+                            <div class="row">
+                                <div align="center">
+                                    <img src="/website_support/static/src/img/solicitud_env.png"/>
+                                </div>
+                                <div class="col-md-12" style="align:center;">
+                                    <h1 class="text-center">Solicitud enviada</h1>
+                                    <h3 class="text-muted text-center">Nueva solicitud de mantenimiento enviada a jefe
+                                        de area.
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-            </div>
+            </t>
+        </template>
 
-           <script>
+        <template id="support_submit_ticket" name="Crear solicitud de mantenimiento" page="True">
+            <t t-call="website.layout">
 
-           <!-- $(document).ready(function() {
+                <div id="wrap" class="oe_structure oe_empty">
+                    <section>
+                        <div class="container">
+                            <div class="row">
+                                <div align="center">
+                                    <img src="/website_support/static/description/icon.png" width="225" height="225"/>
+                                </div>
+                                <div class="col-md-12">
+                                    <h1 class="text-center">Solicitud de Mantenimiento</h1>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-               update_sub_categories()
+                    <form action="/support/ticket/process" method="POST" class="form-horizontal mt32"
+                          enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input style="display:none;" name="my_gold" value="256"/>
 
+                        <div name="email_from_container"
+                             t-attf-class="form-group #{error and 'email' in error and 'has-error' or ''}"
+                             style="visibility:collapse">
+                            <label class="col-md-3 col-sm-4 control-label" for="email">CORREO</label>
+                            <div class="col-md-7 col-sm-8">
+                                <input type="email" class="form-control" name="email" required="False" readonly="True"/>
+                                <!--t-attf-value="#{email or ''}" t-att-readonly="'readonly' if email else None"/> -->
+                            </div>
+                        </div>
+                        <div t-attf-class="form-group #{error and 'person_name' in error and 'has-error' or ''}">
+                            <label class="col-md-3 col-sm-4 control-label" for="person_name">NOMBRE</label>
+                            <div class="col-md-7 col-sm-8">
+                                <input type="text" class="form-control" name="person_name" required="True"
+                                       t-attf-value="#{person_name or ''}"/>
+                            </div>
+                        </div>
+                        <script>
+                            $(document).ready(function() {
+                                update_equipos()
 
-               $("#category").change(function() {
-                    update_sub_categories()
-               });
+                                $("#category").change(function() {
+                                    update_equipos()
+                                });
 
-               function update_sub_categories() {
-                   $.ajax({url: "/support/subcategories/fetch?category=" + $("#category").val(), success: function(result){
-                       $("#subcategoy_container").html(result);
-                       update_sub_category_fields();
-                   }});
-               }
+                                function update_equipos() {
+                                    $.ajax({url: "/support/subcategories/fetch?category=" + $("#category").val(), success:
+                                    function(result){
+                                        $("#equipo_container").html(result);
+                                        update_complementos();
+                                    }});
+                                }
 
-               $(document).on('change',"#subcategory", function(){
-                   update_sub_category_fields();
-               });
+                            $(document).on('change',"#equipment", function(){
+                                update_complementos();
+                            });
 
-               function update_sub_category_fields() {
-                   $.ajax({url: "/support/subcategories/field/fetch?subcategory=" + $("#subcategory").val(), success: function(result){
-                       $("#subcategoy_fields").html(result);
-                   }});
-               } -->
+                            function update_complementos() {
+                                $.ajax({url: "/support/subcategories/field/fetch?equipment=" + $("#equipment").val(), success: function(result){
+                                    $("#complemento_container").html(result);
+                                }});
+                            }
 
-               $('#file').change(function(){
-                   if(this.files.length > <t t-esc="setting_max_ticket_attachments"/>) {
-                       alert("You can only upload " + <t t-esc="setting_max_ticket_attachments"/> + " files");
-                   }
+                                $('#file').change(function(){
+                                    if(this.files.length ><t t-esc="setting_max_ticket_attachments"/>) {
+                                        alert("You can only upload " +
+                                        <t t-esc="setting_max_ticket_attachments"/>
+                                        + " files");
+                                    }
 
-                   for (var x in this.files) {
-                       if (this.files[x].size / 1024 > <t t-esc="setting_max_ticket_attachment_filesize"/>) {
-                           alert(this.files[x].name + " exceeds the " + <t t-esc="setting_max_ticket_attachment_filesize"/> + "KB file size limit");
-                           $('#file').val('');
-                       }
-                   }
+                                    for (var x in this.files) {
+                                        if (this.files[x].size / 1024 ><t t-esc="setting_max_ticket_attachment_filesize"/>) {
+                                            alert(this.files[x].name + " exceeds the " +
+                                            <t t-esc="setting_max_ticket_attachment_filesize"/>
+                                            + "KB file size limit");
+                                            $('#file').val('');
+                                        }
+                                    }
+                                });
+                            });
+                        </script>
 
-               });
+                        <!-- area-->
+                        <div t-attf-class="form-group #{error and 'category' in error and 'has-error' or ''}">
+                            <label class="col-md-3 col-sm-4 control-label" for="name">AREA</label>
+                            <div class="col-md-7 col-sm-8">
+                                <select class="form-control" id="category" name="category">
+                                    <t t-foreach="categories" t-as="category">
+                                        <option t-attf-value="#{category.id}">
+                                            <t t-esc="category.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- equipo -->
+                        <div id="equipo_container"></div>
+                        <!-- <div t-attf-class="form-group #{error and 'equipment_id' in error and 'has-error' or ''}">
+                            <label class="col-md-3 col-sm-4 control-label" for="name">EQUIPO</label>
+                            <div class="col-md-7 col-sm-8">
+                                <select class="form-control" id="equipment_id" name="equipment_id">
+                                    <t t-foreach="equipments" t-as="equipment_id">
+                                        <option t-attf-value="#{equipment_id.id}">
+                                            <t t-esc="equipment_id.category_id.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div> -->
+                        <!-- complemento -->
+                        <div id="complemento_container"></div>
+                        <!-- <div t-attf-class="form-group #{error and 'complement_id' in error and 'has-error' or ''}">
+                            <label class="col-md-3 col-sm-4 control-label" for="name">COMPLEMENTO</label>
+                            <div class="col-md-7 col-sm-8">
+                                <select class="form-control" id="complement_id" name="complement_id">
+                                    <t t-foreach="complements" t-as="complement_id">
+                                        <option t-attf-value="#{complement_id.id}">
+                                            <t t-esc="complement_id.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div> -->
+                        <!-- work -->
+                        <div name="catmant_container"
+                             t-attf-class="form-group #{error and 'cat_mant_id' in error and 'has-error' or ''}">
+                            <label class="col-md-3 col-sm-4 control-label" for="cat_mant_id">CATEGORIA DE
+                                MANTENIMIENTO
+                            </label>
+                            <div class="col-md-7 col-md-8">
+                                <select class="form-control" id="categoria_mantenimiento"
+                                        name="categoria_mantenimiento">
+                                    <t t-foreach="cat_mant" t-as="cat_mant_id">
+                                        <option t-attf-value="#{cat_mant_id.id}">
+                                            <t t-esc="cat_mant_id.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
 
-            <!--});-->
+                        <div name="subcategoy_container"
+                             t-attf-class="form-group #{error and 'tipo_mant_id' in error and 'has-error' or ''}">
+                            <label class="col-md-3 col-sm-4 control-label" for="tipo_mant_id">TIPO DE MANTENIMIENTO
+                            </label>
+                            <div class="col-md-7 col-sm-8">
+                                <select class="form-control" name="tipo_mantenimiento">
+                                    <t t-foreach="sub_category" t-as="tipo_mant_id">
+                                        <option t-attf-value="#{tipo_mant_id.id}">
+                                            <t t-esc="tipo_mant_id.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
 
+                        <!-- <div id="subcategoy_container">
+                        </div> -->
+                        <!-- <div id="subcategoy_fields">
+                        </div> -->
+                        <div name="subject_container"
+                             t-attf-class="form-group #{error and 'subject' in error and 'has-error' or ''}">
+                            <label class="col-md-3 col-sm-4 control-label" for="subject">ASUNTO</label>
+                            <div class="col-md-7 col-sm-8">
+                                <input type="subject" class="form-control" name="subject" required="True"/>
+                            </div>
+                        </div>
+                        <div name="file_container"
+                             t-attf-class="form-group #{error and 'file' in error and 'has-error' or ''}">
+                            <label class="col-md-3 col-sm-4 control-label" for="file">AGREGAR DOCUMENTO / FOTO</label>
+                            <div class="col-md-7 col-sm-8">
+                                <div class="btn btn-default btn-file col-md-12">
+                                    <input name="file" id="file" type="file" multiple="multiple"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div t-attf-class="form-group #{error and 'description' in error and 'has-error' or ''}">
+                            <label class="col-md-3 col-sm-4 control-label" for="description">DESCRIPCION</label>
+                            <div class="col-md-7 col-sm-8">
+                                <textarea class="form-control" name="description" style="min-height: 120px"
+                                          required="True"></textarea>
+                            </div>
+                        </div>
 
+                        <div class="form-group">
+                            <div class="col-md-offset-3 col-sm-offset-4 col-sm-8 col-md-7">
+                                <button class="btn btn-primary btn-lg">ENVIAR</button>
+                            </div>
+                        </div>
+                    </form>
 
-
-            </script>
-            <!-- area-->
-            <div t-attf-class="form-group #{error and 'category' in error and 'has-error' or ''}">
-                <label class="col-md-3 col-sm-4 control-label" for="name">AREA</label>
-                <div class="col-md-7 col-sm-8">
-                    <select class="form-control" id="category" name="category">
-                        <t t-foreach="categories" t-as="category">
-                            <option t-attf-value="#{category.id}">
-                                <t t-esc="category.name"/>
-                            </option>
-                        </t>
-                    </select>
                 </div>
-            </div>
-            <!-- equipo -->
-            <div t-attf-class="form-group #{error and 'equipment_id' in error and 'has-error' or ''}">
-                <label class="col-md-3 col-sm-4 control-label" for="name">EQUIPO</label>
-                <div class="col-md-7 col-sm-8">
-                    <select class="form-control" id="equipment_id" name="equipment_id">
-                        <t t-foreach="equipments" t-as="equipment_id">
-                            <option t-attf-value="#{equipment_id.id}">
-                                <t t-esc="equipment_id.name"/>
-                            </option>
-                        </t>
-                    </select>
-                </div>
-            </div>
-            <!-- complemento -->
-            <div t-attf-class="form-group #{error and 'complement_id' in error and 'has-error' or ''}">
-                <label class="col-md-3 col-sm-4 control-label" for="name">COMPLEMENTO</label>
-                <div class="col-md-7 col-sm-8">
-                    <select class="form-control" id="complement_id" name="complement_id">
-                        <t t-foreach="complements" t-as="complement_id">
-                            <option t-attf-value="#{complement_id.id}">
-                                <t t-esc="complement_id.name"/>
-                            </option>
-                        </t>
-                    </select>
-                </div>
-            </div>
-            <!-- work -->
-            <div name="catmant_container" t-attf-class="form-group #{error and 'cat_mant_id' in error and 'has-error' or ''}">
-                <label class="col-md-3 col-sm-4 control-label" for="cat_mant_id">CATEGORIA DE MANTENIMIENTO</label>
-                <div class="col-md-7 col-md-8">
-                    <select class="form-control" id= "categoria_mantenimiento" name="categoria_mantenimiento">
-                        <t t-foreach="cat_mant" t-as="cat_mant_id">
-                            <option t-attf-value="#{cat_mant_id.id}">
-                                <t t-esc="cat_mant_id.name"/>
-                            </option>
-                        </t>
-                    </select>
-                </div>
-            </div>
+            </t>
 
-            <div name="subcategoy_container" t-attf-class="form-group #{error and 'tipo_mant_id' in error and 'has-error' or ''}">
-                <label class="col-md-3 col-sm-4 control-label" for="tipo_mant_id">TIPO DE MANTENIMIENTO</label>
-                <div class="col-md-7 col-sm-8">
-                    <select class="form-control" name="tipo_mantenimiento">
-                        <t t-foreach="sub_category" t-as="tipo_mant_id">
-                            <option t-attf-value="#{tipo_mant_id.id}">
-                                <t t-esc="tipo_mant_id.name"/>
-                            </option>
-                        </t>
-                    </select>
-                </div>
-            </div>
-
-            <!-- <div id="subcategoy_container">
-            </div> -->
-            <!-- <div id="subcategoy_fields">
-            </div> -->
-            <div name="subject_container" t-attf-class="form-group #{error and 'subject' in error and 'has-error' or ''}">
-	        <label class="col-md-3 col-sm-4 control-label" for="subject">ASUNTO</label>
-	        <div class="col-md-7 col-sm-8">
-	            <input type="subject" class="form-control" name="subject" required="True"/>
-	        </div>
-            </div>
-            <div name="file_container" t-attf-class="form-group #{error and 'file' in error and 'has-error' or ''}">
-                <label class="col-md-3 col-sm-4 control-label" for="file">AGREGAR DOCUMENTO / FOTO</label>
-	        <div class="col-md-7 col-sm-8">
-                    <div class="btn btn-default btn-file col-md-12"><input name="file" id="file" type="file" multiple="multiple"/></div>
-                </div>
-            </div>
-            <div t-attf-class="form-group #{error and 'description' in error and 'has-error' or ''}">
-                <label class="col-md-3 col-sm-4 control-label" for="description">DESCRIPCION</label>
-                <div class="col-md-7 col-sm-8">
-                    <textarea  class="form-control" name="description" style="min-height: 120px" required="True"></textarea>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <div class="col-md-offset-3 col-sm-offset-4 col-sm-8 col-md-7">
-                    <button class="btn btn-primary btn-lg">ENVIAR</button>
-                </div>
-            </div>
-        </form>
-
-      </div>
-    </t>
-    
-</template>
-
-</data>
+        </template>
+    </data>
 </odoo>

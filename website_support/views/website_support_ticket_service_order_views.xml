@@ -7,31 +7,44 @@
             <field name="model">website.support.ticket.service.order</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <button type="object" name="imprimir" string="Imprimir" class="btn-primary"/>
+                    </header>
                 	<sheet>
                 		<div>
-	                        <h3>
-	                        	<field name="name" readonly="1"/>
-	                        </h3>
+	                        <h3 style="color:#836EAF"><strong>ORDEN DE SERVICIO <field name="name" readonly="1"/></strong></h3>
 	                    </div>
 	                	<group>
-	                		<group>
-	                			<field name="fecha"/>
-	                			<field name="vehiculo_id"/>
+                            <group>
+                                <field name="fecha"/>
+                            </group>
+                            <group>
+                                <field name="taller"/>
+                            </group>
+	                		<group string="Datos de Vehiculo">
+	                			<field name="vehiculo_id" options="{'no_quick_create': true,'no_create ': True, 'no_create_edit' : True}"/>
 	                			<field name="placa_vehiculo"/>
 	                			<field name="numero_vehiculo"/>
 	                		</group>
-	                		<group>
-	                			<field name="taller"/>
+	                		<group string="Datos del Custodio">
 	                			<field name="conductor_id"/>
 	                			<field name="cargo_conductor"/>
 	                		</group>
 	                	</group>
-	                	<field name="tipo_mantenimiento"/>
-	                	<group>
-	                		<group string="Detalles">
-	                			<field name="detalles" widget="many2many_checkboxes" nolabel="1" style="display: block;" />
-	                		</group>
-	                	</group>
+                        <group string="Servicio Solicitado">
+                            <field name="tipo_mantenimiento" widget="radio" options="{'horizontal': true}"/>
+                        </group>
+                        <legend>Detalles</legend>
+                        <div name="detalles_div" class="o_row">
+                            <field name="detalles" widget="many2many_checkboxes" nolabel="1" style="display: block;"/>
+	                	</div>
+                        <group>
+                            <field name="observaciones"/>
+                        </group>
+                        <group string="Datos de Entrega">
+                            <field name="fecha_entrega"/>
+                            <field name="observaciones_entrega"/>
+                        </group>
 	                </sheet>
                 </form>
             </field>
@@ -43,6 +56,8 @@
             <field name="arch" type="xml">
             	<tree string="Ordenes de Servicio Tecnico">
             		<field name="name"/>
+                    <field name="fecha"/>
+                    <field name="taller"/>
             	</tree>
             </field>
         </record>
@@ -99,5 +114,107 @@
         		</p>
         	</field>
         </record>
+<!-- Reporte de Ordenes de Servicio -->
+        <record id="paperformat_order_report" model="report.paperformat">
+            <field name="name">US Bank Check</field>
+            <field name="default" eval="True"/>
+            <field name="format">custom</field>
+            <field name="page_height">297</field>
+            <field name="page_width">210</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">3</field>
+            <field name="margin_bottom">3</field>
+            <field name="margin_left">3</field>
+            <field name="margin_right">3</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">10</field>
+            <field name="dpi">80</field>
+        </record>
+<!-- REPORTE ORDEN DE SERVICIO -->
+        <report id="reporte_orden_servicio" string="Orden de Servicio Tecnico" model="website.support.ticket.service.order"
+                report_type="qweb-pdf" name="website_support.reporte_orden_servicio_document" paperformat="website_support.paperformat_order_report"/>
+        <template id="reporte_orden_servicio_document">
+            <t t-call="report.html_container">
+                <div class="page">
+                    <div style="padding-top:5mm;">
+                        <t t-foreach="docs" t-as="o">
+                            <table style="width:100%;" class="header_table">
+                                <thead>
+                                    <tr>
+                                        <td><img src="/website_support/static/description/altaconversion.png" style="width:120; height:120;"/></td>
+                                        <td colspan="3" align="center"><h3 style="color:blue"><strong>ORDEN DE SERVICIO</strong></h3></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Fecha y hora</strong></td>
+                                        <td><span t-esc="o.fecha"/></td>
+                                        <td row="2"><h3 style="color:red"><span t-esc="o.name"/></h3></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Taller Asignado</strong></td>
+                                        <td><span t-esc="o.taller"/></td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="2" align="center"><strong>DATOS DE VEHICULO</strong></td>
+                                        <td colspan="2" align="center"><strong>DATOS DEL CUSTORIO</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Vehiculo</strong></td>
+                                        <td><span t-esc="o.vehiculo_id.name"/></td>
+                                        <td><strong>Conductor</strong></td>
+                                        <td><span t-esc="o.conductor_id"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Placa</strong></td>
+                                        <td><span t-esc="o.placa_vehiculo"/></td>
+                                        <td><strong>Cargo</strong></td>
+                                        <td><span t-esc="o.cargo_conductor"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>No. Unidad</strong></td>
+                                        <td><span t-esc="o.numero_vehiculo"/></td>
+                                        <td colspan="2"/>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4"><h5>SERVICIO SOLICITADO</h5></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Tipo de Mantenimiento</strong></td>
+                                        <td><span t-esc="o.tipo_mantenimiento"/></td>
+                                        <td colspan="2"/>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Detalles</strong></td>
+                                        <td colspan="3">
+                                            <t t-foreach="o.detalles" t-as="d">
+                                                <span t-esc="d.name"/><br/>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Observaciones</strong></td>
+                                        <td colspan="3"><span t-esc="o.observaciones"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4"><strong>DATOS DE ENTREGA</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Fecha y hora de entrega</strong></td>
+                                        <td><span t-esc="o.fecha_entrega"/></td>
+                                        <td colspan="2"/>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Observaciones</strong></td>
+                                        <td><span t-esc="o.observaciones_entrega"/></td>
+                                        <td colspan="2"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </template>
     </data>
 </odoo>

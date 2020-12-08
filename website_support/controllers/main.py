@@ -15,43 +15,45 @@ from odoo.addons.website.models.website import slug
 
 class SupportTicketController(http.Controller):
 
+    #TODO: Para que muestre solo la lista de areas asignada a encargados
+    @http.route('/support/categories/personal', type='http', auth="public", website=True)
+    def support_categories_personal(self, **kwargs):
+        values = {}
+        for field_name, field_value in kwargs.items():
+            values[field_name] = field_value
+
+        person_name = ""
+        if http.request.env.user.name != "Public user":
+            person_name = http.request.env.user.name
+            category = request.env['website.support.ticket.categories'].sudo()
+
     @http.route('/support/subcategories/field/fetch', type='http', auth="public", website=True)
     def support_subcategories_field_fetch(self, **kwargs):
 
         values = {}
-	for field_name, field_value in kwargs.items():
-	    values[field_name] = field_value
-	            
-	#if values['subcategory'] != 'undefined':
-	#    sub_category = request.env['mantenimiento.tipo.etiquetas'] #.sudo().search( [('wsts_id', '=', int(values['subcategory']) )])
-	#else:
-	#    return ""
-	    
-	#Only return a dropdown if this category has subcategories
-	return http.request.render('website_support.support_subcategories_field_fetch', {'sub_category': http.request.env['mantenimiento.tipo']})
+        for field_name, field_value in kwargs.items():
+            values[field_name] = field_value
 
-	
-	#if sub_category_fields:
-	#    for sub_category_field in sub_category_fields:
-            
-	#        return_string += "<div class=\"form-group\">\n"
-	#        return_string += "  <label class=\"col-md-3 col-sm-4 control-label\" for=\"efield_" + str(sub_category_field.id) + "\">" + sub_category_field.name + "</label>\n"
-	#        return_string += "  <div class=\"col-md-7 col-sm-8\">\n"
+        if values['equipment'] != 'undefined':
+            complement_ids = request.env['website.support.complement'].sudo().search( [('equipment_id', '=', int(values['equipment']) )])
+        else:
+            return ""
+            #Only return a dropdown if this category has subcategories
+	#return http.request.render('website_support.support_subcategories_field_fetch', {'sub_category': http.request.env['mantenimiento.tipo']})
+        return_string = ""
 
-    #           if sub_category_field.type == "textbox":
-    #               return_string += "    <input type=\"text\" required=\"True\" class=\"form-control\" name=\"efield_" + str(sub_category_field.id) + "\">\n"
-    #          elif sub_category_field.type == "polar":
-    #             return_string += "    <label class=\"radio-inline\">\n"
-    #             return_string += "      <input type=\"radio\" value=\"Yes\" name=\"efield_" + str(sub_category_field.id) + "\">Yes\n"
-    #             return_string += "    </label>\n"
-    #             return_string += "    <label class=\"radio-inline\">\n"
-    #             return_string += "      <input type=\"radio\" value=\"No\" name=\"efield_" + str(sub_category_field.id) + "\">No\n"
-    #             return_string += "    </label>\n"
-            
-    #            return_string += "  </div>\n"
-    #            return_string += "</div>\n"
-            
-    #   return return_string
+        if complement_ids:
+            return_string += "<div class=\"form-group\">\n"
+            return_string += "    <label class=\"col-md-3 col-sm-4 control-label\" for=\"complement\">COMPLEMENTO</label>\n"
+            return_string += "    <div class=\"col-md-7 col-sm-8\">\n"
+            return_string += "        <select class=\"form-control\" id=\"complement\" name=\"complement\">\n"
+            for compl_id in request.env['website.support.complement'].sudo().search([('equipment_id','=', int(values['equipment']) )]):
+               return_string += "            <option value=\"" + str(compl_id.id) + "\">" + compl_id.name.encode("utf-8") + "</option>\n"
+
+            return_string += "        </select>\n"
+            return_string += "    </div>\n"
+            return_string += "</div>\n"
+        return return_string
 
     @http.route('/support/approve/<ticket_id>', type='http', auth="public", website=True)
     def support_approve(self, ticket_id, **kwargs):
@@ -93,30 +95,27 @@ class SupportTicketController(http.Controller):
             
     @http.route('/support/subcategories/fetch', type='http', auth="public", website=True)
     def support_subcategories_fetch(self, **kwargs):
-
         values = {}
-	for field_name, field_value in kwargs.items():
-	    values[field_name] = field_value
-	            
-	sub_categories = request.env['mantenimiento.tipo'] #.sudo().search([('parent_category_id','=', int(values['category']) )])
-	
-	#Only return a dropdown if this category has subcategories
-	return_string = ""
-	
-#	if sub_categories:
-#	    return_string += "<div class=\"form-group\">\n"
-#	    return_string += "    <label class=\"col-md-3 col-sm-4 control-label\" for=\"subcategory\">Sub Category</label>\n"
-#	    return_string += "    <div class=\"col-md-7 col-sm-8\">\n"
+        for field_name, field_value in kwargs.items():
+            values[field_name] = field_value
 
-#           return_string += "        <select class=\"form-control\" id=\"subcategory\" name=\"subcategory\">\n"
-#            for sub_category in request.env['mantenimiento.tipo'].sudo().search([('parent_category_id','=', int(values['category']) )]):
-#                return_string += "            <option value=\"" + str(sub_category.id) + "\">" + sub_category.name.encode("utf-8") + "</option>\n"
+        equipos = request.env['website.support.equipment'].sudo().search([('category_id','=', int(values['category']) )])
 
-#            return_string += "        </select>\n"
-#	    return_string += "    </div>\n"
-#            return_string += "</div>\n"
-            
-#        return return_string
+        #Only return a dropdown if this category has subcategories
+        return_string = ""
+
+        if equipos:
+            return_string += "<div class=\"form-group\">\n"
+            return_string += "    <label class=\"col-md-3 col-sm-4 control-label\" for=\"equipment\">EQUIPO</label>\n"
+            return_string += "    <div class=\"col-md-7 col-sm-8\">\n"
+            return_string += "        <select class=\"form-control\" id=\"equipment\" name=\"equipment\">\n"
+            for equipment_id in request.env['website.support.equipment'].sudo().search([('category_id','=', int(values['category']) )]):
+               return_string += "            <option value=\"" + str(equipment_id.id) + "\">" + equipment_id.name.encode("utf-8") + "</option>\n"
+
+            return_string += "        </select>\n"
+            return_string += "    </div>\n"
+            return_string += "</div>\n"
+        return return_string
 
     @http.route('/support/survey/<portal_key>', type="http", auth="public", website=True)
     def support_ticket_survey(self, portal_key):
@@ -248,17 +247,10 @@ class SupportTicketController(http.Controller):
         if setting_max_ticket_attachment_filesize == 0:
             #Back compatablity
             setting_max_ticket_attachment_filesize = 500
-
-        #equipo = request.env['website.support.equipment'].sudo().search([])
-        # complemento = []
-        # for e in equipo:
-        #     complemento = request.env['website.support.complement'].sudo().search(['equipment_id','=', e.id])
             
         return http.request.render('website_support.support_submit_ticket', 
             {
             'categories': http.request.env['website.support.ticket.categories'].sudo().search([]),
-            'equipments': http.request.env['website.support.equipment'].sudo().search([]),
-            'complements': http.request.env['website.support.complement'].sudo().search([]),
             'sub_category':http.request.env['mantenimiento.tipo'].sudo().search([]),
             'cat_mant':http.request.env['mantenimiento.categoria'].sudo().search([]),
             'person_name': person_name, 
@@ -326,7 +318,7 @@ class SupportTicketController(http.Controller):
         
         if http.request.env.user.name != "Public user":
             portal_access_key = randint(1000000000,2000000000)
-            new_ticket_id = request.env['website.support.ticket'].sudo().create({'person_name':values['person_name'],'category':values['category'], 'equipment_id':values['equipment_id'], 'complement_id':values['complement_id'], 'cat_mant_id':values['categoria_mantenimiento'], 'tipo_mant_id':values['tipo_mantenimiento'], 'email':values['email'], 'description':values['description'], 'subject':values['subject'], 'partner_id':http.request.env.user.partner_id.id, 'attachment': my_attachment, 'attachment_filename': file_name, 'portal_access_key': portal_access_key})
+            new_ticket_id = request.env['website.support.ticket'].sudo().create({'person_name':values['person_name'],'category':values['category'], 'equipment_id':values['equipment'], 'complement_id':values['complement'], 'cat_mant_id':values['categoria_mantenimiento'], 'tipo_mant_id':values['tipo_mantenimiento'], 'email':values['email'], 'description':values['description'], 'subject':values['subject'], 'partner_id':http.request.env.user.partner_id.id, 'attachment': my_attachment, 'attachment_filename': file_name, 'portal_access_key': portal_access_key})
             
             partner = http.request.env.user.partner_id
             

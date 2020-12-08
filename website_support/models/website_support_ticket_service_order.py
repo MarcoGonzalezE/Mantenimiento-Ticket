@@ -18,6 +18,10 @@ class WebsiteSupportTicketServiceOrder(models.Model):
 	numero_vehiculo = fields.Char(string="No. Unidad")
 	tipo_mantenimiento = fields.Selection([('preventivo','Preventivo'),('correctivo','Correctivo')], string="Tipo de Mantenimiento")
 	detalles = fields.Many2many("service.order.details", string="Detalles")
+	observaciones = fields.Text(string="Observaciones")
+	#DATOS DE ENTREGA
+	fecha_entrega = fields.Datetime(string="Fecha y hora de entrega")
+	observaciones_entrega = fields.Text(string="Observaciones")
 
 	@api.model
 	def create(self, vals):
@@ -35,6 +39,10 @@ class WebsiteSupportTicketServiceOrder(models.Model):
 			self.conductor_id = False
 			self.placa_vehiculo = False
 			self.numero_vehiculo = False
+
+	@api.multi
+	def imprimir(self):
+		return self.env['report'].get_action(self, 'website_support.reporte_orden_servicio_document')
 
 class WebsiteSupportTicketServiceOrderDetails(models.Model):
 	_name = "service.order.details"

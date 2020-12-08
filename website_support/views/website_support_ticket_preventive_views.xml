@@ -207,7 +207,7 @@
                                         <th style="border: 1px solid black; width:5%;" class="text-center"><small>Gancho o Base</small></th>
                                         <th style="border: 1px solid black; width:5%;" class="text-center"><small>Señaletica</small></th>
                                         <th style="border: 1px solid black; width:5%;" class="text-center"><small>Recarga</small></th>
-                                        <th style="border: 1px solid black; width:5%;" class="text-center"><small>Otro</small></th>
+                                        <!-- <th style="border: 1px solid black; width:5%;" class="text-center"><small>Otro</small></th> -->
                                         <th style="border: 1px solid black; width:5%;" class="text-center"><small>Observaciones</small></th>
                                     </tr>
                                 </thead>
@@ -268,7 +268,7 @@
                                                 </t>
                                             </td>
                                             <td style="border: 1px solid black; width:5%;" align="center"><span t-field="line.recarga"/></td>
-                                            <td style="border: 1px solid black;" align="center"><span t-field="line.otro"/></td>
+                                            <!-- <td style="border: 1px solid black;" align="center"><span t-field="line.otro"/></td> -->
                                             <td style="border: 1px solid black;" align="center"><span t-field="line.observaciones"/></td>
                                         </tr>
                                     </t>
